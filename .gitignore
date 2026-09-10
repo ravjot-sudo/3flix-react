@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+
+# Secrets. Vite loads plain `.env` as well as `.env.local`, so BOTH must be
+# ignored — `*.local` alone leaves `.env` committable.
+.env
+.env.*
+!.env.example
