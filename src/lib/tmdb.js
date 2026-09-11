@@ -218,6 +218,67 @@ export function homePicks() {
   return picks;
 }
 
+/* ---------- Library: new & popular ------------------------------------ */
+/**
+ * A TMDB result in the Library's own film shape, so the same grid, search and
+ * genre filter work on it. `tmdbId` marks it as a catalogue title: it opens
+ * its /movies page (trailer, where to watch) rather than the player.
+ */
+export const libraryFilm = (m, names) => ({
+  id: `tmdb-${m.id}`,
+  tmdbId: m.id,
+  title: m.title ?? m.original_title ?? "Untitled",
+  year: Number((m.release_date || "").slice(0, 4)) || null,
+  director: "",
+  genres: (m.genre_ids ?? []).map((id) => names.get(id)).filter(Boolean),
+  runtime: null,
+  rating: Math.round((m.vote_average ?? 0) * 10) / 10,
+  votes: m.vote_count ?? 0,
+  hue: (m.id * 47) % 360,
+  synopsis: m.overview ?? "",
+  video: null,
+  tmdb: { poster: m.poster_path, backdrop: m.backdrop_path },
+});
+
+let newest = null;
+const snapshot = async () => {
+  const res = await fetch("/new-releases.json");
+  if (!res.ok) throw new Error("Could not load the new releases.");
+  return res.json();
+};
+
+/**
+ * The 100 most popular films of 2023–2025 with 1,000+ votes, live from TMDB.
+ * Pages that fail are skipped rather than failing the lot; with no key, or if
+ * TMDB gives too little back, the snapshot in /new-releases.json is used.
+ */
+export function newReleases() {
+  if (newest) return newest;
+  newest = (async () => {
+    if (!hasTmdb()) return snapshot();
+    const [genres, ...pages] = await Promise.allSettled([
+      movieGenres(),
+      ...[1, 2, 3, 4, 5].map((page) => get("/discover/movie", {
+        sort_by: "popularity.desc",
+        "vote_count.gte": 1000,
+        "primary_release_date.gte": "2023-01-01",
+        "primary_release_date.lte": "2025-12-31",
+        include_adult: "false",
+        page,
+      })),
+    ]);
+    const names = new Map((genres.value ?? []).map((g) => [g.id, g.name === "Science Fiction" ? "Sci-Fi" : g.name]));
+    const seen = new Set();
+    const films = pages
+      .flatMap((p) => (p.status === "fulfilled" ? p.value.results ?? [] : []))
+      .filter((m) => m.poster_path && !seen.has(m.id) && seen.add(m.id))
+      .map((m) => libraryFilm(m, names));
+    return films.length >= 20 && names.size ? films : snapshot();
+  })();
+  newest.catch(() => { newest = null; });   // retried next visit, not cached
+  return newest;
+}
+
 /** Search every film TMDB knows, not just Netflix's. */
 export async function searchMovies({ query, page = 1 }, signal) {
   const data = await get("/search/movie", { query, include_adult: "false", page }, signal);

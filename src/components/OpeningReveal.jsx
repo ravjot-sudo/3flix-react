@@ -167,7 +167,7 @@ function Tag({ progress, range, reduced, genre, tone }) {
   return (
     <li>
       <motion.span style={reduced ? undefined : { clipPath }} className="op-tag-wrap">
-        <Link className={`op-tag op-tag--${tone}`} to={`/library?genre=${encodeURIComponent(genre)}`}>
+        <Link className={`op-tag op-tag--${tone}`} to={`/library?c=classics&genre=${encodeURIComponent(genre)}`}>
           {genre}
         </Link>
       </motion.span>

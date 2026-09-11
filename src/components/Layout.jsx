@@ -147,10 +147,10 @@ export default function Layout() {
               </ul>
             </div>
             <div>
-              <h3>Genres</h3>
+              <h3>Classics</h3>
               <ul>
                 {GENRES.map((g) => (
-                  <li key={g}><Link to={`/library?genre=${encodeURIComponent(g)}`}>{g}</Link></li>
+                  <li key={g}><Link to={`/library?c=classics&genre=${encodeURIComponent(g)}`}>{g}</Link></li>
                 ))}
               </ul>
             </div>

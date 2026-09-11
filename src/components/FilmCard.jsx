@@ -36,15 +36,22 @@ export default function FilmCard({ film, progress = 0, inWatchlist = false }) {
     });
   }
 
+  // A catalogue title (from TMDB) opens its trailer-and-where-to-watch page;
+  // a classic opens its player inside the Library.
+  const to = film.tmdbId ? `/movies/${film.tmdbId}` : `/library/${film.id}`;
+  const label = [
+    film.title,
+    film.year,
+    film.director ? `directed by ${film.director}` : null,
+  ].filter(Boolean).join(", ");
+
   return (
     <Link
       ref={ref}
-      to={`/library/${film.id}`}
+      to={to}
       className="tile spot"
       onPointerMove={onPointerMove}
-      aria-label={`${film.title}, ${film.year}, directed by ${film.director}.${
-        pct > 0 ? ` ${pct} percent watched.` : ""
-      }`}
+      aria-label={`${label}.${pct > 0 ? ` ${pct} percent watched.` : ""}`}
     >
       <Poster film={film} />
       <span className="spot-light" aria-hidden="true" />
@@ -57,7 +64,7 @@ export default function FilmCard({ film, progress = 0, inWatchlist = false }) {
         </div>
       )}
 
-      <span className="sr-only">{formatRuntime(film.runtime)}</span>
+      {film.runtime ? <span className="sr-only">{formatRuntime(film.runtime)}</span> : null}
     </Link>
   );
 }

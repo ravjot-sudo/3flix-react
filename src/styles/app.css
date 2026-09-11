@@ -537,10 +537,9 @@
   margin-bottom: var(--s-6);
   border-bottom: 1px solid var(--line);
 }
-@media (min-width: 760px) {
-  .search-form { flex-direction: row; align-items: center; justify-content: space-between; }
-  .search-form .search-wrap { max-width: 340px; }
-}
+/* Search always gets its own row: with sixteen genres beside it, a shared row
+   squeezed the input down to its icon. */
+.search-form .search-wrap { flex: none; width: min(100%, 480px); }
 
 .genre-list { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); }
 
