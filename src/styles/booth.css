@@ -772,6 +772,69 @@ html[data-intro="on"] .op-skip {
 .mvd-cast-role { font-size: 0.8125rem; color: var(--muted); }
 
 /* ============================================================
+   ABOUT — the same hairline grid as the genre menu
+   ============================================================ */
+.about-h {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-4);
+  margin: var(--s-8) 0 var(--s-5);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  letter-spacing: -0.04em;
+}
+.about-h-n { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.14em; color: var(--amber); }
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.about-sources { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1023px) { .about-grid, .about-sources { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 599px)  { .about-grid, .about-sources { grid-template-columns: 1fr; } }
+
+.about-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: 24px 24px 22px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.about-n { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.14em; color: var(--amber); }
+.about-cell h3 { font-size: 1.5rem; letter-spacing: -0.04em; }
+.about-cell p { flex: 1; font-size: 0.9375rem; line-height: 1.6; color: var(--fog); }
+.about-cell em { font-style: normal; color: var(--paper); font-weight: 600; }
+.about-cell .link-go { margin-top: var(--s-2); }
+
+.about-sources dt a {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  border-bottom: 1px solid var(--amber);
+}
+.about-sources dt a:hover { color: var(--amber); }
+.about-sources dd { font-size: 0.9375rem; line-height: 1.6; color: var(--fog); }
+
+.about-fine { margin-top: var(--s-4); max-width: 72ch; font-size: 0.8125rem; line-height: 1.7; color: var(--muted); }
+
+.about-stack { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.about-stack li {
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.about-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-8); }
+
+/* ============================================================
    Official artwork (films.js → TMDB CDN)
    ============================================================ */
 .poster-img {

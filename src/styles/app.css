@@ -619,9 +619,3 @@
 
 .nav-badge.label { color: var(--ink); }
 
-.paper .note h2 {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 500;
-  margin-bottom: var(--s-3);
-}

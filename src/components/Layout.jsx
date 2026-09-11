@@ -131,8 +131,9 @@ export default function Layout() {
               <span className="brand-word">3<span className="brand-flix">Flix</span></span>
             </Link>
             <p className="footer-note">
-              Films whose copyright has run out, free to stream. Built as coursework
-              with React, React Router and framer-motion.
+              Public-domain classics that play free, plus the newest films and
+              where to watch them. Built as coursework with React, React Router
+              and framer-motion.
             </p>
           </div>
 

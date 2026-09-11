@@ -1,10 +1,10 @@
 /* ============================================================
    3Flix — landing.css
 
-   Design direction: a repertory cinema programme. Printed-catalogue
-   typography, hairline rules, folio numbers, generous margins, and one
-   inverted "paper" section. Deliberately avoids the card-grid / pill /
-   centred-hero vocabulary that makes pages look interchangeable.
+   Design direction: a repertory cinema programme. Hairline rules, folio
+   numbers and generous margins, on the black-and-gold grid set by
+   booth.css. Deliberately avoids the pill / centred-hero vocabulary that
+   makes pages look interchangeable.
    ============================================================ */
 
 /* ---------- Nav --------------------------------------------
@@ -458,65 +458,6 @@
   letter-spacing: 0.08em;
   color: var(--amber);
 }
-
-/* ---------- Paper section ----------------------------------
-   The one inverted block. Tokens are re-pointed rather than every
-   rule rewritten, so children inherit the light palette.      */
-.paper {
-  --paper: var(--stock-ink);
-  --fog: var(--stock-mid);
-  --muted: #7c7462;
-  --line: var(--stock-line);
-  --line-soft: #d8cdb8;
-  --amber: #9a6b1f;
-
-  background: var(--stock);
-  color: var(--stock-ink);
-  /* Subtle paper tooth, so the block reads as stock and not a white box. */
-  background-image:
-    radial-gradient(circle at 20% 12%, rgba(23, 21, 15, 0.035) 0%, transparent 45%),
-    radial-gradient(circle at 82% 78%, rgba(23, 21, 15, 0.03) 0%, transparent 40%);
-}
-
-.paper .sec-title, .paper h3 { color: var(--stock-ink); }
-.paper .folio { color: #9a6b1f; }
-
-.notes {
-  display: grid;
-  gap: 0;
-  border-top: 1px solid var(--stock-line);
-}
-@media (min-width: 860px) { .notes { grid-template-columns: repeat(2, 1fr); } }
-
-.note {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: var(--s-4);
-  padding: var(--s-6) var(--s-5) var(--s-6) 0;
-  border-bottom: 1px solid var(--stock-line);
-}
-@media (min-width: 860px) {
-  .note:nth-child(odd)  { border-right: 1px solid var(--stock-line); padding-right: var(--s-7); }
-  .note:nth-child(even) { padding-left: var(--s-7); }
-}
-
-.note-num {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  color: #9a6b1f;
-  padding-top: 4px;
-}
-
-.note h3 {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 500;
-  margin-bottom: var(--s-3);
-}
-
-.note p { font-size: 0.9375rem; line-height: 1.68; color: var(--stock-mid); }
-.note em { font-style: italic; color: var(--stock-ink); }
 
 /* ---------- Spec table -------------------------------------- */
 .spec { border-top: 1px solid var(--line); }

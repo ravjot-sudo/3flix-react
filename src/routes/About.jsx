@@ -1,63 +1,124 @@
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+
 /**
- * About — static content, but semantic and accessible.
+ * About — what 3Flix is, and why the free half is legal.
  *
- * Demonstrates: semantic HTML5 (section, article, ol, dl, figure), heading
- * hierarchy, and the inverted "paper" section from the design system.
+ * Two halves, said plainly: the classics are public domain and play here; the
+ * new releases are licensed to other services, so 3Flix shows their official
+ * artwork and trailers and points to where each one legally streams.
+ *
+ * Demonstrates: semantic HTML (section, ol, dl), a heading hierarchy that
+ * reads top to bottom, composition (children passed through Reason), and
+ * whileInView reveals.
  */
+const EASE = [0.16, 1, 0.3, 1];
+
+const REASONS = [
+  {
+    title: "The term ran out",
+    film: { id: "nosferatu", title: "Nosferatu" },
+    body: <>US copyright on films published before 1930 has fully expired. <em>Nosferatu</em>, <em>Metropolis</em> and <em>The General</em> are free this way.</>,
+  },
+  {
+    title: "No notice, no copyright",
+    film: { id: "night-living-dead", title: "Night of the Living Dead" },
+    body: <>Under the 1909 Act, a film released without a copyright notice entered the public domain at once. One missing line is why <em>Night of the Living Dead</em> is free.</>,
+  },
+  {
+    title: "Never renewed",
+    film: { id: "charade", title: "Charade" },
+    body: <>Older works needed their copyright renewed after 28 years. Thousands never were, <em>Charade</em> and <em>D.O.A.</em> among them.</>,
+  },
+];
+
+const SOURCES = [
+  ["TMDB", "Titles, official posters, ratings and cast for the new releases.", "https://www.themoviedb.org/"],
+  ["JustWatch", "Which services stream each film in your country, via TMDB.", "https://www.justwatch.com/"],
+  ["YouTube", "Official trailers. Nothing loads until you press play.", "https://www.youtube.com/"],
+  ["Internet Archive", "The classics themselves, streamed from where they are lawfully hosted.", "https://archive.org/"],
+];
+
+const STACK = ["React 19", "React Router 7", "framer-motion", "Vite", "Plain CSS"];
+
 export default function About() {
   return (
-    <section className="section paper">
+    <section className="section about" aria-labelledby="about-title">
       <div className="container">
         <header className="sec-head">
           <p className="folio"><span>04</span><span className="folio-label">About</span></p>
           <div className="sec-head-body">
-            <h1 className="sec-title display-xl">
-              Copyright expires.<br />These already did.
+            <h1 id="about-title" className="sec-title display-xl">
+              Old films play here. <em>New ones play there.</em>
             </h1>
             <p className="sec-note">
-              Every title is a film widely held to be in the United States
-              public domain — its term ran out, its notice was omitted, or its
-              renewal was never filed.
+              3Flix has two halves: 24 public-domain classics that stream right here,
+              free, and a live catalogue of new and popular films, with official
+              posters, trailers, and a link to wherever each one legally streams.
             </p>
           </div>
         </header>
 
-        <ol className="notes">
-          <Note num="i" title="Term expiry">
-            Films published before 1930 have run their full term in the United
-            States. <em>Nosferatu</em>, <em>Metropolis</em> and <em>The
-            General</em> reach us this way.
-          </Note>
-          <Note num="ii" title="Notice failure">
-            Under the 1909 Act a film released without a visible copyright
-            notice entered the public domain immediately. That single omission
-            is why <em>Night of the Living Dead</em> is free today.
-          </Note>
-          <Note num="iii" title="Renewal lapse">
-            Older works required an active renewal at twenty-eight years.
-            Thousands were never renewed — <em>Charade</em> and <em>D.O.A.</em>
-            among them.
-          </Note>
-          <Note num="iv" title="What we add">
-            The catalogue, the artwork and the interface. Posters are drawn
-            procedurally and the films stream from the Internet Archive, which
-            hosts them lawfully.
-          </Note>
+        <h2 className="about-h">
+          <span className="about-h-n">01</span> Why the classics are free
+        </h2>
+        <ol className="about-grid">
+          {REASONS.map((r, i) => (
+            <Reason key={r.title} n={i + 1} title={r.title} film={r.film}>{r.body}</Reason>
+          ))}
         </ol>
+
+        <h2 className="about-h">
+          <span className="about-h-n">02</span> Where the new films come from
+        </h2>
+        <dl className="about-grid about-sources">
+          {SOURCES.map(([name, what, href]) => (
+            <div key={name} className="about-cell">
+              <dt>
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                  {name}<span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </dt>
+              <dd>{what}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="about-fine">
+          New releases are licensed to streaming services and cinemas, so 3Flix
+          never plays them; it sends you to the service that has them. This
+          product uses the TMDB API but is not endorsed or certified by TMDB.
+        </p>
+
+        <h2 className="about-h">
+          <span className="about-h-n">03</span> Built with
+        </h2>
+        <ul className="about-stack">
+          {STACK.map((s) => <li key={s}>{s}</li>)}
+        </ul>
+
+        <div className="about-actions">
+          <Link className="btn btn-primary btn-go" to="/library?c=classics">Watch a classic</Link>
+          <Link className="btn btn-ghost btn-go" to="/library">See what’s new</Link>
+        </div>
       </div>
     </section>
   );
 }
 
-/** Composition: children are passed through, so each note can hold markup. */
-function Note({ num, title, children }) {
+/** Composition: the reason's text arrives as children, so it can hold markup. */
+function Reason({ n, title, film, children }) {
   return (
-    <li className="note">
-      <span className="note-num">{num}</span>
-      <div>
-        <h2>{title}</h2>
-        <p>{children}</p>
-      </div>
-    </li>
+    <motion.li
+      className="about-cell"
+      initial={{ opacity: 0, transform: "translateY(16px)" }}
+      whileInView={{ opacity: 1, transform: "translateY(0px)" }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.55, delay: (n - 1) * 0.08, ease: EASE }}
+    >
+      <span className="about-n" aria-hidden="true">{String(n).padStart(2, "0")}</span>
+      <h3>{title}</h3>
+      <p>{children}</p>
+      <Link className="link-go" to={`/library/${film.id}`}>Play {film.title}</Link>
+    </motion.li>
   );
 }
