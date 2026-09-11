@@ -837,7 +837,6 @@ html[data-intro="on"] .op-skip {
 .hc-art .poster { position: absolute; inset: 0; width: 100%; height: 100%; }
 .hc-card { position: relative; }
 .hc-title { letter-spacing: -0.05em; font-weight: 700; }
-.orbit-sec .sec-title em { font-style: normal; }
 
 /* ---------- reduced motion ----------------------------------- */
 @media (prefers-reduced-motion: reduce) {

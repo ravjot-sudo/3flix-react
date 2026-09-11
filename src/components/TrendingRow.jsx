@@ -4,7 +4,7 @@ import { useRemote } from "../hooks/useTmdb.js";
 import { hasTmdb, trending } from "../lib/tmdb.js";
 
 /**
- * Home, section 05: this week's most-watched films worldwide, with their
+ * Home, section 04: this week's most-watched films worldwide, with their
  * official posters — a scrolling row, the full list one click away. Without a
  * TMDB key it becomes a single line that says what connecting it would add.
  */
@@ -16,7 +16,7 @@ export default function TrendingRow() {
     <section className="section nfrow" aria-labelledby="trend-title">
       <div className="container">
         <header className="sec-head">
-          <p className="folio"><span>05</span><span className="folio-label">Trending</span></p>
+          <p className="folio"><span>04</span><span className="folio-label">Trending</span></p>
           <div className="sec-head-body">
             <h2 id="trend-title" className="sec-title">Trending <em>this week.</em></h2>
             <div className="sec-aside">

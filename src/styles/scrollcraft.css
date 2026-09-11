@@ -184,87 +184,6 @@
 .pcols-field.is-still .pcol-track{animation:none}
 
 /* ============================================================
-   6. RADIAL ORBITAL TIMELINE
-   ============================================================ */
-.orbit-layout{display:grid;gap:var(--s-7);align-items:center}
-@media(min-width:1000px){.orbit-layout{grid-template-columns:1.1fr .9fr}}
-
-.orbit{position:relative;width:min(620px,100%);aspect-ratio:1;margin-inline:auto}
-.orbit-stage{position:absolute;inset:0;animation:orbit 180s linear infinite}
-.orbit.is-paused .orbit-stage,.orbit:hover .orbit-stage,.orbit:focus-within .orbit-stage,
-.orbit.is-still .orbit-stage{animation-play-state:paused}
-@keyframes orbit{to{transform:rotate(360deg)}}
-
-.orbit-ring{
-  position:absolute;left:50%;top:50%;
-  width:var(--r);height:var(--r);translate:-50% -50%;
-  border:1px solid var(--line);border-radius:50%;
-  transition:border-color var(--dur-mid),opacity var(--dur-mid);
-}
-.orbit-ring.is-lit{border-color:rgba(246,181,25,.6)}
-.orbit-ring.is-dim{opacity:.3}
-.orbit-ring-label{
-  position:absolute;top:-7px;left:50%;translate:-50% 0;
-  padding:0 6px;background:var(--ink);
-  font:400 9px/1 var(--font-mono);letter-spacing:.14em;color:var(--muted);
-}
-
-.orbit-nodes,.orbit-nodes ol{list-style:none;margin:0;padding:0}
-.orbit-node{
-  position:absolute;left:var(--x);top:var(--y);translate:-50% -50%;
-  width:28px;height:28px;display:grid;place-items:center;
-  background:none;border:none;cursor:pointer;
-}
-.orbit-dot{
-  width:8px;height:8px;border-radius:50%;background:var(--fog);
-  transition:transform var(--dur-mid) var(--ease-out),background var(--dur-mid),box-shadow var(--dur-mid);
-}
-.orbit-node:hover .orbit-dot{background:var(--paper);transform:scale(1.3)}
-.orbit-node.is-on .orbit-dot{background:var(--amber);transform:scale(1.6);box-shadow:0 0 0 4px rgba(246,181,25,.18)}
-.orbit-node:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:50%}
-
-/* Labels ride the rotating stage, so they counter-rotate to stay upright. */
-.orbit-tip{
-  position:absolute;left:50%;bottom:calc(100% + 4px);translate:-50% 0;
-  padding:4px 8px;white-space:nowrap;
-  background:var(--raised);border:1px solid var(--line);border-radius:var(--radius);
-  font:400 10px/1 var(--font-mono);letter-spacing:.06em;color:var(--paper);
-  opacity:0;pointer-events:none;transition:opacity var(--dur-fast);
-  animation:orbit 180s linear infinite reverse;
-}
-.orbit.is-paused .orbit-tip,.orbit:hover .orbit-tip,.orbit:focus-within .orbit-tip,
-.orbit.is-still .orbit-tip{animation-play-state:paused}
-.orbit-node:hover .orbit-tip,.orbit-node:focus-visible .orbit-tip,.orbit-node.is-on .orbit-tip{opacity:1}
-
-.orbit-core{
-  position:absolute;left:50%;top:50%;translate:-50% -50%;
-  display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;
-}
-.orbit-core-year{font-family:var(--font-display);font-size:1.6rem;color:var(--amber);line-height:1}
-
-.orbit-panel{min-height:320px}
-.orbit-card{display:grid;grid-template-columns:120px 1fr;gap:var(--s-5);align-items:start}
-.orbit-card-art{aspect-ratio:2/3;border-radius:var(--radius);overflow:hidden}
-.orbit-card h3{font-family:var(--font-display);font-weight:500;font-size:1.7rem;line-height:1.05;margin:var(--s-2) 0}
-.orbit-card-dir{font-size:.875rem;color:var(--fog);margin-bottom:var(--s-3)}
-.orbit-card-syn{font-size:.875rem;line-height:1.65;color:var(--fog);margin-bottom:var(--s-5)}
-.orbit-empty p:last-child{margin-top:var(--s-3);color:var(--fog);max-width:40ch}
-
-/* Below 760px the orbit is too small to target; show the plain list instead. */
-@media(max-width:759px){
-  .orbit{aspect-ratio:auto}
-  .orbit-stage{position:static;animation:none}
-  .orbit-ring,.orbit-core{display:none}
-  .orbit-nodes > li{margin-bottom:var(--s-4)}
-  .orbit-nodes > li > ol{display:flex;flex-wrap:wrap;gap:6px}
-  .orbit-node{position:static;translate:none;width:auto;height:auto;padding:6px 10px;
-    border:1px solid var(--line);border-radius:var(--radius)}
-  .orbit-dot{display:none}
-  .orbit-tip{position:static;translate:none;opacity:1;background:none;border:none;padding:0;animation:none}
-  .orbit-card{grid-template-columns:90px 1fr}
-}
-
-/* ============================================================
    7. COMMAND PALETTE
    ============================================================ */
 .cmdk-root{position:fixed;inset:0;z-index:1000;display:grid;place-items:start center;padding:12vh 16px 16px}
@@ -338,7 +257,7 @@ html.cinema-mode body{background:#000}
   .xhero-pin{height:auto}
   .xhero-sticky{position:relative;height:78vh}
   .xhero-frame{clip-path:none!important}
-  .xhero-cue i,.pcol-track,.orbit-stage,.orbit-tip{animation:none!important}
+  .xhero-cue i,.pcol-track{animation:none!important}
   .spot-light{display:none}
   .player-glow{transition:none}
 }
