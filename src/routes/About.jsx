@@ -35,7 +35,10 @@ const REASONS = [
 const SOURCES = [
   ["TMDB", "Titles, official posters, ratings and cast for the new releases.", "https://www.themoviedb.org/"],
   ["JustWatch", "Which services stream each film in your country, via TMDB.", "https://www.justwatch.com/"],
+  ["Watchmode", "A direct link to the film on each service, with rent and buy prices.", "https://www.watchmode.com/"],
+  ["OMDb", "IMDb, Rotten Tomatoes and Metacritic scores, awards and box office.", "https://www.omdbapi.com/"],
   ["YouTube", "Official trailers. Nothing loads until you press play.", "https://www.youtube.com/"],
+  ["Blender Studio", "Open movies released under Creative Commons, with their own subtitles.", "https://studio.blender.org/films/"],
   ["Internet Archive", "The classics themselves, streamed from where they are lawfully hosted.", "https://archive.org/"],
 ];
 
@@ -52,9 +55,10 @@ export default function About() {
               Old films play here. <em>New ones play there.</em>
             </h1>
             <p className="sec-note">
-              3Flix has two halves: 24 public-domain classics that stream right here,
-              free, and a live catalogue of new and popular films, with official
-              posters, trailers, and a link to wherever each one legally streams.
+              3Flix has two halves. Films that stream right here, free: 24
+              public-domain classics and Blender’s open movies, with subtitles. And
+              a live catalogue of new and popular films, with official posters,
+              trailers, scores, and a link to wherever each one legally streams.
             </p>
           </div>
         </header>
@@ -69,7 +73,7 @@ export default function About() {
         </ol>
 
         <h2 className="about-h">
-          <span className="about-h-n">02</span> Where the new films come from
+          <span className="about-h-n">02</span> Where everything comes from
         </h2>
         <dl className="about-grid about-sources">
           {SOURCES.map(([name, what, href]) => (
@@ -87,6 +91,9 @@ export default function About() {
           New releases are licensed to streaming services and cinemas, so 3Flix
           never plays them; it sends you to the service that has them. This
           product uses the TMDB API but is not endorsed or certified by TMDB.
+          Scores are from OMDb under CC BY-NC 4.0. The API keys stay on the server.
+          Signing in asks for a name and an email address — temporary inboxes are
+          turned away — and nothing else.
         </p>
 
         <h2 className="about-h">

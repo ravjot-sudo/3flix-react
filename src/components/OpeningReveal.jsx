@@ -34,9 +34,13 @@ const TAGS = [
 
 const RING = `3FLIX · PUBLIC DOMAIN · NOW SHOWING · ${FILM.title.toUpperCase()} ${FILM.year} · `;
 
-export default function OpeningReveal() {
+export default function OpeningReveal({ onEnd }) {
   const reduced = useReducedMotion();
   const section = useRef(null);
+  // The latest onEnd, for the scroll handler below to call without
+  // re-subscribing whenever the parent passes a new function.
+  const endRef = useRef(onEnd);
+  useEffect(() => { endRef.current = onEnd; }, [onEnd]);
 
   // Starting radius of the circle, per breakpoint (a phone needs a bigger
   // opening to read as a picture at all).
@@ -47,6 +51,7 @@ export default function OpeningReveal() {
   // While the opening fills the screen, the page is a title sequence: the nav
   // stays out of the way and a Skip button offers the exit. The state lives on
   // <html> so plain CSS can react to it, and is removed when Home unmounts.
+  // Once it is over, onEnd says so (Home shows the sign-in then).
   useEffect(() => {
     const root = document.documentElement;
     let last = 0;
@@ -55,7 +60,11 @@ export default function OpeningReveal() {
       const el = section.current;
       if (!el) return;
       const on = el.getBoundingClientRect().bottom > window.innerHeight * 0.6;
+      const was = root.dataset.intro;
       root.dataset.intro = on ? "on" : "off";
+      // Only as it ends (or if the page opens already past it), not on every
+      // scroll event after.
+      if (!on && was !== "off") endRef.current?.();
     };
     const onScroll = () => {
       clearTimeout(trailing);
@@ -74,8 +83,9 @@ export default function OpeningReveal() {
     };
   }, []);
 
+  // To the menu when signed in; signed out, to the end — where the sign-in is.
   function skip() {
-    const target = document.getElementById("browse");
+    const target = document.getElementById("browse") ?? document.getElementById("gate-runway");
     if (!target) return;
     target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
     target.focus({ preventScroll: true });
@@ -139,7 +149,7 @@ function Kinetic({ reduced }) {
           ))}
         </ul>
 
-        <p className="op-sub">1902 to 1968. No ads, no account, no catch.</p>
+        <p className="op-sub">1902 to 1968. No ads, no catch.</p>
       </div>
     </div>
   );

@@ -766,10 +766,87 @@ html[data-intro="on"] .op-skip {
 }
 .is-free .mvd-tag { color: var(--mint); }
 
+/* Watchmode: each row is a link straight to the film on that service. */
+.mvd-sub { margin: var(--s-6) 0 var(--s-3); color: var(--fog); }
+.mvd-links { display: grid; gap: var(--s-2); }
+.mvd-links a {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  color: var(--paper);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+.mvd-links a:hover { border-color: var(--amber); background: rgba(246, 181, 25, 0.06); }
+.mvd-links a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.mvd-links a::after { content: "↗"; color: var(--muted); font-size: 0.8rem; }
+.mvd-link-name { font-weight: 600; }
+.mvd-credit { margin-top: var(--s-3); color: var(--muted); }
+.mvd-credit a { color: var(--fog); text-decoration: underline; text-underline-offset: 3px; }
+
 .mvd-cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--s-3); }
 .mvd-cast li { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--line); }
 .mvd-cast-name { font-weight: 600; }
 .mvd-cast-role { font-size: 0.8125rem; color: var(--muted); }
+
+/* ---------- Subtitles: the player's CC menu, and the captions themselves -- */
+.cc-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--line);
+  color: var(--fog);
+}
+.cc-select:focus-within { border-color: var(--amber); }
+.cc-badge {
+  padding: 1px 4px;
+  border: 1.5px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.cc-select select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--paper);
+  cursor: pointer;
+}
+.cc-select select:focus { outline: none; }
+.cc-select option { background: var(--surface); color: var(--paper); }
+/* The title card sits over the bottom of the picture, where captions go:
+   it steps aside a moment after play starts, and returns on pause. */
+.screen-overlay { pointer-events: none; transition: opacity 300ms var(--ease-out); }
+.player.is-playing .screen-overlay { opacity: 0; transition: opacity 600ms var(--ease-out) 800ms; }
+/* Legible over any frame: a dark band behind the words, never outlined text. */
+.screen-video::cue {
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: clamp(15px, 2.1vw, 24px);
+  line-height: 1.35;
+}
+
+/* ---------- OMDb ratings strip ------------------------------------------ */
+.ratings { margin: var(--s-4) 0 var(--s-2); }
+.ratings-row { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid rgba(240, 238, 230, 0.18); width: fit-content; max-width: 100%; background: rgba(12, 12, 11, 0.55); }
+.ratings-item { display: grid; gap: 4px; padding: 10px 16px; }
+.ratings-item + .ratings-item { border-left: 1px solid rgba(240, 238, 230, 0.14); }
+.ratings-item dd { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; color: var(--paper); }
+.ratings-item dd a { border-bottom: 1px solid var(--amber); }
+.ratings-item dd a:hover { color: var(--amber); }
+.ratings-sub { display: block; font-family: var(--font-mono); font-size: 0.625rem; font-weight: 400; letter-spacing: 0.1em; color: var(--muted); }
+.ratings-awards { margin-top: var(--s-3); font-size: 0.875rem; color: var(--fog); }
+.ratings-credit { margin-top: 6px; }
+.ratings-credit a { border-bottom: 1px solid var(--line); }
 
 /* ============================================================
    ABOUT — the same hairline grid as the genre menu
@@ -792,6 +869,7 @@ html[data-intro="on"] .op-skip {
   border-top: 1px solid var(--line);
   border-left: 1px solid var(--line);
 }
+/* Seven sources: four across, so the second row has three rather than one. */
 .about-sources { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 1023px) { .about-grid, .about-sources { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 599px)  { .about-grid, .about-sources { grid-template-columns: 1fr; } }
@@ -889,9 +967,204 @@ html[data-intro="on"] .op-skip {
 .hc-card { position: relative; }
 .hc-title { letter-spacing: -0.05em; font-weight: 700; }
 
+/* While the cinema list loads: empty frames in the strip's own rhythm — the
+   first one full height, like a focused card, the rest clipped to half. */
+.hc.is-waiting .hc-backdrop { background: #1d1a17; }
+.hc.is-waiting .hc-strip { padding-left: 7vw; cursor: default; }
+@media (min-width: 900px) { .hc.is-waiting .hc-strip { padding-left: 52vw; } }
+.hc-card-wait {
+  cursor: default;
+  clip-path: inset(0% 0% 50% 0% round 2px);
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.05) 70%) 0 0 / 300% 100%;
+  animation: mv-shimmer 1.4s linear infinite;
+}
+.hc-li:first-child .hc-card-wait { clip-path: inset(0% 0% 0% 0% round 2px); }
+
+/* A list saved with the site, shown because the live one failed. */
+.saved-note { margin-top: var(--s-4); color: var(--muted); }
+.sec-aside .saved-note { margin-top: 0; }
+
+/* ============================================================
+   The sign-in gate: a poster wall, and the card over it
+   ============================================================ */
+/* Signed out, the home page ends here: room to scroll the opening off. */
+.gate-runway { height: 75vh; outline: none; }
+
+/* While the gate is up the page behind it stays where it is. */
+html.is-gated { overflow: hidden; }
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: var(--s-5);
+  overflow-y: auto;
+  background: var(--ink);
+}
+.gate-page { min-height: 100dvh; }
+
+.gate-wall { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.gate-cols {
+  position: absolute;
+  inset: -12% -8%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+  opacity: 0.85;
+  transform: rotate(-7deg) scale(1.06);
+}
+.gate-col { min-width: 0; }
+.gate-poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  margin-bottom: 18px;
+  object-fit: cover;
+  background: var(--raised);
+}
+/* Dark in the middle, where the card sits, so the form always reads. */
+.gate-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(50% 60% at 50% 50%, rgba(12, 12, 11, 0.7) 0%, rgba(12, 12, 11, 0.45) 70%, rgba(12, 12, 11, 0.8) 100%),
+    linear-gradient(to bottom, rgba(12, 12, 11, 0.5), rgba(12, 12, 11, 0.2) 40%, rgba(12, 12, 11, 0.6));
+}
+.gate-pop { position: relative; z-index: 1; width: min(100%, 440px); margin-block: auto; }
+
+.signin-card {
+  padding: var(--s-6);
+  border: 1px solid var(--line);
+  background: rgba(19, 19, 18, 0.88);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 40px 120px -40px rgba(0, 0, 0, 0.95);
+}
+@media (max-width: 480px) { .signin-card { padding: var(--s-5); } }
+.signin-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-6);
+  color: var(--fog);
+}
+.signin-brand .brand-word { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; color: var(--paper); }
+.signin-brand .brand-flix { color: var(--amber); }
+.signin-form { display: grid; gap: var(--s-5); }
+.signin-title { font-size: clamp(1.9rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.02; letter-spacing: -0.04em; }
+.signin-title em { font-style: normal; color: var(--amber); }
+.signin-lede { margin-top: calc(-1 * var(--s-3)); font-size: 0.9375rem; line-height: 1.55; color: var(--fog); }
+.signin-lede strong { font-weight: 600; color: var(--paper); overflow-wrap: anywhere; }
+.signin-card .field input { width: 100%; }
+.signin-card .field input.signin-code { font-size: 1.6rem; letter-spacing: 0.45em; text-align: center; }
+.signin-go { width: 100%; min-height: 52px; }
+.signin-fine { font-size: 0.75rem; line-height: 1.5; color: var(--muted); }
+.signin-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-4); }
+.signin-link {
+  padding: 4px 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: var(--fog);
+}
+.signin-link:hover:not(:disabled) { color: var(--amber); }
+.signin-link:disabled { cursor: default; text-decoration: none; opacity: 0.5; }
+.signin-card :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+/* ---------- the account menu, on the gold bar ---------------- */
+.acct { position: relative; }
+.acct-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 10px 0 6px;
+  border: 1px solid rgba(12, 12, 11, 0.4);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.acct-btn:hover, .acct-btn[aria-expanded="true"] { border-color: var(--ink); background: rgba(12, 12, 11, 0.06); }
+.acct-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  background: var(--ink);
+  color: var(--amber);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.acct-name { max-width: 12ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 639px) { .acct-name { display: none; } }
+.acct-caret { width: 12px; height: 12px; transition: transform var(--dur-fast) var(--ease-out); }
+.acct-btn[aria-expanded="true"] .acct-caret { transform: rotate(180deg); }
+
+.acct-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 50;
+  width: min(300px, calc(100vw - 32px));
+  padding: var(--s-5);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--paper);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+  transform-origin: top right;
+}
+.acct-panel :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.acct-who { display: flex; align-items: center; gap: var(--s-3); padding-bottom: var(--s-4); border-bottom: 1px solid var(--line); }
+.acct-avatar-lg { width: 42px; height: 42px; background: var(--amber); color: var(--ink); font-size: 1.2rem; }
+.acct-full { font-weight: 600; color: var(--paper); overflow-wrap: anywhere; }
+.acct-email { font-family: var(--font-mono); font-size: 0.75rem; color: var(--fog); overflow-wrap: anywhere; }
+.acct-actions { display: grid; }
+.acct-actions button, .acct-actions a {
+  display: block;
+  width: 100%;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+.acct-actions li:last-child button { border-bottom: none; }
+.acct-actions button:hover, .acct-actions a:hover { color: var(--amber); }
+.acct-actions .acct-out:hover { color: var(--ember); }
+.acct-form { display: grid; gap: var(--s-3); padding-block: var(--s-4); }
+.acct-form input {
+  min-height: 44px;
+  padding: 0 var(--s-3);
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  color: var(--paper);
+}
+.acct-form input:focus { outline: none; border-bottom-color: var(--amber); }
+.acct-row { display: flex; gap: var(--s-2); }
+/* The bar's ghost buttons are ink-on-gold; in the dark panel they need light. */
+.nav .acct-panel .btn-ghost { border-color: rgba(240, 238, 230, 0.34); color: var(--paper); }
+.nav .acct-panel .btn-ghost:hover { border-color: var(--paper); background: rgba(255, 255, 255, 0.04); }
+.acct-note { margin-top: var(--s-3); color: var(--muted); }
+
 /* ---------- reduced motion ----------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .mv-skel { animation: none; }
+  .mv-skel, .hc-card-wait { animation: none; }
   .op-ring.is-live svg { animation: none; }
   .op-pin { height: auto; }
   .op-stage { position: relative; height: 100dvh; }

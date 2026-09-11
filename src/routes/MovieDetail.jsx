@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Poster from "../components/Poster.jsx";
+import Ratings from "../components/Ratings.jsx";
 import { TmdbCredit, TmdbSetup } from "../components/TmdbNotes.jsx";
 import { useRegion, useRemote } from "../hooks/useTmdb.js";
-import { hasTmdb, img, movieDetail, netflixUrl, posterStandIn, regionName } from "../lib/tmdb.js";
+import { hasTmdb, img, inRegion, movieDetail, netflixUrl, posterStandIn } from "../lib/tmdb.js";
+import { price, watchLinks } from "../lib/watchmode.js";
 import { formatRuntime } from "../data/films.js";
 
 /**
@@ -27,17 +29,27 @@ export default function MovieDetail() {
     ready && valid ? `${id}|${region}` : null,
     (signal) => movieDetail(id, region, signal),
   );
+  // Direct links (Watchmode), once the film itself has loaded. Optional: if
+  // they don't come, the page still says where it streams.
+  const links = useRemote(m ? `wm|${m.id}|${region}` : null, (signal) => watchLinks(m.id, region, signal));
 
   // Arriving from a long list, start at the top of the film.
-  useEffect(() => { window.scrollTo(0, 0); }, [id]);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [id]);
 
   if (!ready) return <div className="section"><div className="container"><TmdbSetup /></div></div>;
   if (!valid) return <Missing text={`“${movieId}” is not a film id.`} />;
+  if (error?.status === 503) return <div className="section"><div className="container"><TmdbSetup /></div></div>;
   if (error) return <Missing text={error.message} retry={retry} />;
   if (loading || !m) return <div className="section mvd-loading"><div className="container"><p className="label">Loading film…</p></div></div>;
 
-  const place = regionName(region);
+  const place = inRegion(region);
   const facts = [m.year, m.runtime ? formatRuntime(m.runtime) : null, m.genres.slice(0, 3).join(" · ")].filter(Boolean);
+
+  const sources = links.data?.sources ?? [];
+  const netflixLink = sources.find((s) => s.kind === "sub" && /netflix/i.test(s.name))?.url ?? netflixUrl(m.title);
+  const subscription = sources.find((s) => s.kind === "sub");
+  const freeSource = sources.find((s) => s.kind === "free");
+  const lead = m.onNetflix || Boolean(subscription);
 
   return (
     <article className="mvd">
@@ -54,19 +66,25 @@ export default function MovieDetail() {
               <p className="label">{facts.join("   ·   ")}</p>
               <h1 className="mvd-title">{m.title}</h1>
               {m.tagline && <p className="mvd-tagline">{m.tagline}</p>}
+              <Ratings imdbId={m.imdbId} />
               <div className="mvd-actions">
-                {m.onNetflix && (
-                  <a className="btn btn-primary btn-go" href={netflixUrl(m.title)} target="_blank" rel="noopener noreferrer">
+                {m.onNetflix ? (
+                  <a className="btn btn-primary btn-go" href={netflixLink} target="_blank" rel="noopener noreferrer">
                     Watch on Netflix<span className="sr-only"> (opens Netflix in a new tab)</span>
                   </a>
-                )}
-                {m.free.length > 0 && (
-                  <a className={`btn ${m.onNetflix ? "btn-ghost" : "btn-primary btn-go"}`} href={m.providersLink} target="_blank" rel="noopener noreferrer">
-                    Watch free on {m.free[0].name}{m.free.length > 1 ? ` +${m.free.length - 1}` : ""}
-                    <span className="sr-only"> (opens the list of free services in a new tab)</span>
+                ) : subscription && (
+                  <a className="btn btn-primary btn-go" href={subscription.url} target="_blank" rel="noopener noreferrer">
+                    Watch on {subscription.name}<span className="sr-only"> (opens {subscription.name} in a new tab)</span>
                   </a>
                 )}
-                {!m.onNetflix && !m.free.length && (
+                {(freeSource || m.free.length > 0) && (
+                  <a className={`btn ${lead ? "btn-ghost" : "btn-primary btn-go"}`} href={freeSource?.url ?? m.providersLink} target="_blank" rel="noopener noreferrer">
+                    Watch free on {freeSource?.name ?? m.free[0].name}
+                    {!freeSource && m.free.length > 1 ? ` +${m.free.length - 1}` : ""}
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                )}
+                {!lead && !freeSource && !m.free.length && (
                   <p className="mvd-flag">
                     {!m.stream.length && m.year >= new Date().getFullYear() - 1
                       ? `Not streaming yet in ${place}`
@@ -118,11 +136,31 @@ export default function MovieDetail() {
                   </li>
                 ))}
               </ul>
-            ) : (
+            ) : !sources.length && (
               <p className="mvd-note">
                 No streaming service carries it in {place} right now
                 {m.year && m.year >= new Date().getFullYear() - 1 ? " — it may still be in cinemas." : "."}
               </p>
+            )}
+
+            {sources.length > 0 && (
+              <>
+                <h3 className="mvd-sub label">Open it directly</h3>
+                <ul className="mvd-links">
+                  {sources.map((s) => (
+                    <li key={`${s.id}|${s.kind}`}>
+                      <a href={s.url} target="_blank" rel="noopener noreferrer">
+                        <span className="mvd-link-name">{s.name}</span>
+                        <span className="mvd-tag">{s.label}{s.price != null ? ` · ${price(s.price, region)}` : ""}</span>
+                        <span className="sr-only"> (opens {s.name} in a new tab)</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mvd-credit label">
+                  Direct links by <a href="https://www.watchmode.com/" target="_blank" rel="noopener noreferrer">Watchmode</a>
+                </p>
+              </>
             )}
           </section>
         </div>

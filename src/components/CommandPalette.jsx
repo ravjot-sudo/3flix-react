@@ -3,8 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Poster from "./Poster.jsx";
 import { FILMS } from "../data/films.js";
+import { OPEN_FILMS } from "../data/openFilms.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { useDebounce } from "../hooks/useDebounce.js";
+
+// Everything that plays on 3Flix: the classics and the open movies.
+const PLAYABLE = [...FILMS, ...OPEN_FILMS];
 
 /**
  * CATALOGUE COMMAND PALETTE (⌘K).
@@ -46,14 +50,14 @@ export default function CommandPalette() {
 
     if (!needle) {
       const progress = readProgress();
-      FILMS.filter((f) => (progress[f.id] ?? 0) > 0.01 && (progress[f.id] ?? 0) < 0.98)
+      PLAYABLE.filter((f) => (progress[f.id] ?? 0) > 0.01 && (progress[f.id] ?? 0) < 0.98)
         .slice(0, 4)
         .forEach((f) => out.push({ group: "Continue watching", kind: "film", film: f,
           hint: `${Math.round(progress[f.id] * 100)}%`, run: () => navigate(`/library/${f.id}`) }));
     }
 
     const films = needle
-      ? FILMS.filter((f) =>
+      ? PLAYABLE.filter((f) =>
           f.title.toLowerCase().includes(needle) ||
           f.director.toLowerCase().includes(needle) ||
           f.genres.some((g) => g.toLowerCase().includes(needle)))
@@ -148,7 +152,7 @@ export default function CommandPalette() {
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); setCursor(0); }}
                 onKeyDown={onKeyDown}
-                placeholder="Search 24 films, or jump somewhere…"
+                placeholder={`Search ${PLAYABLE.length} films, or jump somewhere…`}
                 role="combobox"
                 aria-expanded="true"
                 aria-controls="cmdk-list"

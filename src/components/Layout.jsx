@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link, useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import AccountMenu from "./AccountMenu.jsx";
 import CommandPalette from "./CommandPalette.jsx";
 import { useAuth } from "../hooks/useAuth.js";
 import { GENRES } from "../data/films.js";
@@ -12,6 +13,10 @@ import { GENRES } from "../data/films.js";
  * so AnimatePresence can hold on to the outgoing page long enough to fade it
  * out. The key is the first path segment: /library → /library/metropolis is
  * the same page opening a detail, not a page change, so it does not fade.
+ *
+ * Signed out — which only happens on the home page's opening — the shell is
+ * just the name in the bar: no links, no search, no footer, since all of
+ * them lead behind the sign-in. Signed in, the bar ends in the account menu.
  *
  * Demonstrates: nested routes, useOutlet, <NavLink> with an active state,
  * a shared-layout (layoutId) indicator, semantic landmarks and a skip link.
@@ -27,7 +32,7 @@ const NAV = [
 const openPalette = () => window.dispatchEvent(new Event("3flix:palette"));
 
 export default function Layout() {
-  const { user, isSignedIn, signOut } = useAuth();
+  const { isSignedIn } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const outlet = useOutlet();
@@ -59,55 +64,54 @@ export default function Layout() {
             <span className="brand-word">3<span className="brand-flix">Flix</span></span>
           </Link>
 
-          <nav className="nav-links" aria-label="Primary">
-            {NAV.map(({ to, label, end }) => (
-              <NavLink key={to} to={to} end={end} className={navClass}>
-                {({ isActive }) => (
-                  <>
-                    {label}
-                    {/* One element, handed from link to link: it springs
-                        across instead of disappearing and reappearing. */}
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-underline"
-                        className="nav-underline"
-                        transition={{ type: "spring", duration: 0.45, bounce: 0.18 }}
-                      />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
+          {/* Signed out, the bar is just the name: everything it links to
+              is behind the sign-in. */}
+          {isSignedIn && (
+            <nav className="nav-links" aria-label="Primary">
+              {NAV.map(({ to, label, end }) => (
+                <NavLink key={to} to={to} end={end} className={navClass}>
+                  {({ isActive }) => (
+                    <>
+                      {label}
+                      {/* One element, handed from link to link: it springs
+                          across instead of disappearing and reappearing. */}
+                      {isActive && (
+                        <motion.span
+                          layoutId="nav-underline"
+                          className="nav-underline"
+                          transition={{ type: "spring", duration: 0.45, bounce: 0.18 }}
+                        />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+          )}
 
-          <div className="nav-actions">
-            <button
-              type="button"
-              className="kbd-trigger"
-              onClick={openPalette}
-              aria-label="Search the catalogue (Command K)"
-            >
-              <span className="kbd">&#8984;</span><span className="kbd">K</span>
-            </button>
-            <button type="button" className="btn btn-ghost nav-menu" onClick={openPalette}>
-              Menu
-            </button>
-            {isSignedIn ? (
-              <>
-                <span className="nav-badge label">{user.name}</span>
-                <button type="button" className="btn btn-ink" onClick={signOut}>
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <Link className="btn btn-ink" to="/signin">Sign in</Link>
-            )}
-          </div>
+          {isSignedIn && (
+            <div className="nav-actions">
+              <button
+                type="button"
+                className="kbd-trigger"
+                onClick={openPalette}
+                aria-label="Search the catalogue (Command K)"
+              >
+                <span className="kbd">&#8984;</span><span className="kbd">K</span>
+              </button>
+              <button type="button" className="btn btn-ghost nav-menu" onClick={openPalette}>
+                Menu
+              </button>
+              <AccountMenu />
+            </div>
+          )}
         </div>
       </header>
 
       <main id="main" className={page === "home" ? "main main-home" : "main"}>
-        <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo(0, 0)}>
+        {/* "instant": the page's smooth scrolling would otherwise show the new
+            page gliding up from wherever the old one was left. */}
+        <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo({ top: 0, behavior: "instant" })}>
           {/* Opacity only: a transform here would become the containing block
               for every position:fixed element inside the page. */}
           <motion.div
@@ -121,55 +125,57 @@ export default function Layout() {
         </AnimatePresence>
       </main>
 
-      <CommandPalette />
+      {isSignedIn && <CommandPalette />}
 
-      <footer className="footer">
-        <div className="container footer-inner">
-          <div className="footer-brand">
-            <Link className="brand" to="/" aria-label="3Flix home">
-              <Mark />
-              <span className="brand-word">3<span className="brand-flix">Flix</span></span>
-            </Link>
-            <p className="footer-note">
-              Public-domain classics that play free, plus the newest films and
-              where to watch them. Built as coursework with React, React Router
-              and framer-motion.
-            </p>
-          </div>
+      {isSignedIn && (
+        <footer className="footer">
+          <div className="container footer-inner">
+            <div className="footer-brand">
+              <Link className="brand" to="/" aria-label="3Flix home">
+                <Mark />
+                <span className="brand-word">3<span className="brand-flix">Flix</span></span>
+              </Link>
+              <p className="footer-note">
+                Public-domain classics that play free, plus the newest films and
+                where to watch them. Built as coursework with React, React Router
+                and framer-motion.
+              </p>
+            </div>
 
-          <div className="footer-cols">
-            <div>
-              <h3>Browse</h3>
-              <ul>
-                <li><Link to="/library">Library</Link></li>
-                <li><Link to="/movies">Movies</Link></li>
-                <li><Link to="/watchlist">Watchlist</Link></li>
-                <li><Link to="/about">About</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3>Classics</h3>
-              <ul>
-                {GENRES.map((g) => (
-                  <li key={g}><Link to={`/library?c=classics&genre=${encodeURIComponent(g)}`}>{g}</Link></li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3>Keys</h3>
-              <ul>
-                <li><span>⌘K — search anything</span></li>
-                <li><span>← → — move the filmstrip</span></li>
-                <li><span>Esc — close</span></li>
-              </ul>
+            <div className="footer-cols">
+              <div>
+                <h3>Browse</h3>
+                <ul>
+                  <li><Link to="/library">Library</Link></li>
+                  <li><Link to="/movies">Movies</Link></li>
+                  <li><Link to="/watchlist">Watchlist</Link></li>
+                  <li><Link to="/about">About</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3>Classics</h3>
+                <ul>
+                  {GENRES.map((g) => (
+                    <li key={g}><Link to={`/library?c=classics&genre=${encodeURIComponent(g)}`}>{g}</Link></li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3>Keys</h3>
+                <ul>
+                  <li><span>⌘K — search anything</span></li>
+                  <li><span>← → — move the filmstrip</span></li>
+                  <li><span>Esc — close</span></li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="container footer-base">
-          <p className="label">&copy; {new Date().getFullYear()} 3Flix — coursework build</p>
-          <p className="label">Public domain cinema</p>
-        </div>
-      </footer>
+          <div className="container footer-base">
+            <p className="label">&copy; {new Date().getFullYear()} 3Flix — coursework build</p>
+            <p className="label">Public domain cinema</p>
+          </div>
+        </footer>
+      )}
     </>
   );
 }

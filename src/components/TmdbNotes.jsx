@@ -1,23 +1,33 @@
 /**
  * The two fixed pieces of text the TMDB section needs: setup instructions for
- * when no key is present, and the attribution TMDB's terms require.
+ * when the server has no key (the /api/tmdb route answers 503), and the
+ * attribution TMDB's terms require.
  */
 export function TmdbSetup() {
+  // Setup steps are for whoever runs the site; a visitor to the live site
+  // just needs to know the catalogue is offline for now.
+  if (import.meta.env.PROD) {
+    return (
+      <div className="empty">
+        <h2>The live catalogue is offline.</h2>
+        <p>This part of 3Flix reads from TMDB, which isn’t answering right now. Try again in a little while.</p>
+      </div>
+    );
+  }
   return (
     <div className="tmdb-setup">
       <p className="folio">Setup · about two minutes</p>
-      <h2 className="tmdb-setup-title">Connect TMDB to bring in <em>everything on Netflix.</em></h2>
+      <h2 className="tmdb-setup-title">Connect TMDB to bring in <em>the new releases.</em></h2>
       <ol className="tmdb-steps">
         <li>Create a free account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener noreferrer">themoviedb.org</a>.</li>
         <li>Open <strong>Settings → API</strong> and request a key (Developer, “student project”).</li>
-        <li>Copy the long <strong>API Read Access Token</strong> — not the short API key.</li>
-        <li>In <code>3flix-react/.env.local</code> add a line: <code>VITE_TMDB_TOKEN=your_token</code></li>
-        <li>Restart the dev server so Vite reads it.</li>
+        <li>In <code>3flix-react/.env.local</code> add a line: <code>TMDB_TOKEN=your_key</code> (either of TMDB’s keys works).</li>
+        <li>For the live site, add the same <code>TMDB_TOKEN</code> under Vercel → Project → Settings → Environment Variables.</li>
+        <li>Restart the dev server so it reads the key.</li>
       </ol>
       <p className="tmdb-setup-note">
-        The token ships inside the site’s JavaScript, which is why it has to be the
-        read-only one. Netflix films stream on Netflix; 3flix shows the catalogue,
-        the trailers and a way in.
+        The key stays on the server: the site asks its own <code>/api/tmdb</code>, and
+        the server adds the key, so it never appears in the page’s JavaScript.
       </p>
     </div>
   );

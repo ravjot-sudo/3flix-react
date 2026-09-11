@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocalStorage } from "../hooks/useLocalStorage.js";
 
 /**
  * Video player with resume.
+ *
+ * Subtitles: films that ship subtitle files get <track> elements and a menu.
+ * The chosen language is remembered (localStorage) and applied to any film
+ * that has it; the WebVTT files live on this site, so no cross-origin rules
+ * get in the way.
  *
  * Demonstrates: useRef to reach a real DOM node (a <video> element has an
  * imperative API React cannot express declaratively), useEffect to attach and
@@ -14,6 +20,23 @@ export default function Player({ film, startAt = 0, onProgress }) {
   const [buffering, setBuffering] = useState(false);
   const [failed, setFailed] = useState(false);
   const [time, setTime] = useState({ now: 0, total: film.runtime * 60 });
+
+  // Subtitles: remembered across films; "off" if this film lacks the language.
+  const subs = film.subtitles ?? [];
+  const [captionsPref, setCaptions] = useLocalStorage("3flix:captions", "off");
+  const captions = subs.some((t) => t.lang === captionsPref) ? captionsPref : "off";
+
+  // TextTrack.mode is imperative, like play(): set it on the element itself.
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return undefined;
+    const apply = () => {
+      for (const track of el.textTracks) track.mode = track.language === captions ? "showing" : "disabled";
+    };
+    apply();
+    el.textTracks.addEventListener("addtrack", apply);
+    return () => el.textTracks.removeEventListener("addtrack", apply);
+  }, [captions]);
 
   // There is deliberately no "reset on film change" effect here. The parent
   // renders <Player key={film.id} …>, so React unmounts and remounts this
@@ -104,7 +127,11 @@ export default function Player({ film, startAt = 0, onProgress }) {
             src={film.video}
             preload="metadata"
             playsInline
-          />
+          >
+            {subs.map((t) => (
+              <track key={t.lang} kind="subtitles" src={t.src} srcLang={t.lang} label={t.label} />
+            ))}
+          </video>
         ) : (
           <div className="screen-fallback">
             <p className="label">
@@ -153,6 +180,17 @@ export default function Player({ film, startAt = 0, onProgress }) {
         />
 
         <span className="time tnum">{clock(time.total)}</span>
+
+        {subs.length > 0 && (
+          <label className="cc-select">
+            <span className="cc-badge" aria-hidden="true">CC</span>
+            <span className="sr-only">Subtitles</span>
+            <select value={captions} onChange={(e) => setCaptions(e.target.value)}>
+              <option value="off">Off</option>
+              {subs.map((t) => <option key={t.lang} value={t.lang}>{t.label}</option>)}
+            </select>
+          </label>
+        )}
 
         <button
           type="button"

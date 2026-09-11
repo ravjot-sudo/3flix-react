@@ -7,7 +7,7 @@ import { useDebounce } from "../hooks/useDebounce.js";
 import { usePaged, useRegion, useRemote } from "../hooks/useTmdb.js";
 import {
   LISTS, REGIONS, SORTS, discoverFree, discoverNetflix, hasTmdb, img, movieGenres, netflixUrl,
-  nowPlaying, regionName, searchMovies, topRated, trending,
+  inRegion, nowPlaying, regionName, savedOn, searchMovies, topRated, trending,
 } from "../lib/tmdb.js";
 
 /**
@@ -94,7 +94,10 @@ export default function Movies() {
   const list = usePaged(key, (page, signal) =>
     searching ? searchMovies({ query, page }, signal) : FETCH[shelf]({ region, genre, sort, page }, signal));
 
-  const place = regionName(region);
+  // A saved cinema list may be for another country than the one picked
+  // (lib/tmdb.js keeps India, the US and the UK), so the copy names its own.
+  const place = inRegion(list.region ?? region);         // in a sentence: "the United Kingdom"
+  const placeLabel = regionName(list.region ?? region);  // on a label: "United Kingdom"
   const copy = COPY[shelf](place, list.total.toLocaleString());
   const featured = !searching ? list.items[0] : null;
   const grid = featured ? list.items.slice(1) : list.items;
@@ -108,15 +111,22 @@ export default function Movies() {
             <h1 id="movies-title" className="sec-title display-xl">
               {searching ? <>Results for <em>“{query}”</em></> : copy.title}
             </h1>
-            <p className="sec-note" aria-live="polite">
-              {!ready
-                ? "Trending films, what’s in cinemas, what’s free to stream and what’s on Netflix — once TMDB is connected."
-                : list.loading && !list.items.length
-                  ? "Loading the catalogue…"
-                  : searching
-                    ? `${list.total.toLocaleString()} films across TMDB. Open one to see where it streams.`
-                    : copy.note}
-            </p>
+            <div className="sec-aside">
+              <p className="sec-note" aria-live="polite">
+                {!ready
+                  ? "Trending films, what’s in cinemas, what’s free to stream and what’s on Netflix — once TMDB is connected."
+                  : list.loading && !list.items.length
+                    ? "Loading the catalogue…"
+                    : searching
+                      ? `${list.total.toLocaleString()} films across TMDB. Open one to see where it streams.`
+                      : copy.note}
+              </p>
+              {list.saved && !searching && (
+                <p className="saved-note label">
+                  Saved list · as of {savedOn(list.saved)} — the live one isn’t reachable right now
+                </p>
+              )}
+            </div>
           </div>
         </header>
 
@@ -189,9 +199,11 @@ export default function Movies() {
               </div>
             )}
 
-            {featured && <Billboard film={featured} shelf={shelf} place={place} />}
+            {featured && <Billboard film={featured} shelf={shelf} place={placeLabel} />}
 
-            {list.error && !list.items.length ? (
+            {list.error?.status === 503 && !list.items.length ? (
+              <TmdbSetup />
+            ) : list.error && !list.items.length ? (
               <div className="empty">
                 <h2>Couldn’t load the catalogue.</h2>
                 <p>{list.error.message}</p>

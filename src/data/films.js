@@ -17,6 +17,7 @@
  * @property {number}   rating    Out of 10.
  * @property {number}   hue       0-360, seeds the generated poster.
  * @property {string}   synopsis
+ * @property {string}  [imdbId]   For the IMDb / Rotten Tomatoes / Metacritic strip (OMDb).
  * @property {boolean} [featured] Shown in the dashboard hero.
  */
 
@@ -33,6 +34,7 @@ export const FILMS = [
     hue: 168,
     // Official artwork from TMDB (movie #653); images load from its CDN.
     tmdb: { id: 653, poster: "/zv7J85D8CC9qYagAEhPM63CIG6j.jpg", backdrop: "/cA9iGtvjRGJHzDBfrq48l0eyCvA.jpg" },
+    imdbId: "tt0013442",
     featured: true,
     synopsis:
       "An estate agent travels to the Carpathians to close a sale, and carries something back with him. The first vampire film, and still the most infectious.",
@@ -50,6 +52,7 @@ export const FILMS = [
     hue: 276,
     // Official artwork from TMDB (movie #234); images load from its CDN.
     tmdb: { id: 234, poster: "/myK9DeIsXWGKgUTZyGXg2IfFk0W.jpg", backdrop: "/sLq72hBx8Xs2IISVsZJqgjOd31b.jpg" },
+    imdbId: "tt0010323",
     synopsis:
       "A hypnotist exhibits a sleepwalker at a fairground. Painted shadows, tilted walls — the film that taught cinema to look like a nightmare.",
     video:
@@ -66,6 +69,7 @@ export const FILMS = [
     hue: 8,
     // Official artwork from TMDB (movie #10331); images load from its CDN.
     tmdb: { id: 10331, poster: "/rb2NWyb008u1EcKCOyXs2Nmj0ra.jpg", backdrop: "/5KtmBSqFtHY3I9t8lgH27Mc0bqY.jpg" },
+    imdbId: "tt0063350",
     featured: true,
     synopsis:
       "Seven strangers barricade a farmhouse while the recently dead walk. A copyright notice omitted from the print put it in the public domain — and made it immortal.",
@@ -83,6 +87,7 @@ export const FILMS = [
     hue: 196,
     // Official artwork from TMDB (movie #16093); images load from its CDN.
     tmdb: { id: 16093, poster: "/AdbQsFB8pS090l0NO3uBtLZy2zw.jpg", backdrop: "/esIoQw7VaykfHsw6fx2VltZ1R7U.jpg" },
+    imdbId: "tt0055830",
     synopsis:
       "The sole survivor of a car crash drifts toward an abandoned pavilion. Shot for $33,000 and still borrowed from by every dream-logic horror since.",
     video:
@@ -99,6 +104,7 @@ export const FILMS = [
     hue: 30,
     // Official artwork from TMDB (movie #19); images load from its CDN.
     tmdb: { id: 19, poster: "/kr9wXRN23zLuWJIelahas1mtnYj.jpg", backdrop: "/eeMoFKxjjiCi6iep2GEZtSAMYIr.jpg" },
+    imdbId: "tt0017136",
     featured: true,
     synopsis:
       "In a city split between penthouse and machine floor, a false prophet is built in a woman's image. Science fiction's founding text.",
@@ -116,6 +122,7 @@ export const FILMS = [
     hue: 210,
     // Official artwork from TMDB (movie #775); images load from its CDN.
     tmdb: { id: 775, poster: "/9o0v5LLFk51nyTBHZSre6OB37n2.jpg", backdrop: "/g67r1eiQD3ERSEQFCFkSn7TeGw5.jpg" },
+    imdbId: "tt0000417",
     synopsis:
       "Astronomers fire themselves at the moon in a capsule and hit it in the eye. Thirteen minutes that invented the special effect.",
     video:
@@ -132,6 +139,7 @@ export const FILMS = [
     hue: 44,
     // Official artwork from TMDB (movie #21159); images load from its CDN.
     tmdb: { id: 21159, poster: "/tTnwBklPiWp5roxtHUO2yHXr9Fw.jpg", backdrop: "/9IApWHVAtkXuVdSOnvji3n5zLcq.jpg" },
+    imdbId: "tt0058700",
     synopsis:
       "Vincent Price is the only man immune to the plague, spending his days as a hunter and his nights under siege. The template for every last-survivor story that followed.",
     video:
@@ -148,6 +156,7 @@ export const FILMS = [
     hue: 128,
     // Official artwork from TMDB (movie #10513); images load from its CDN.
     tmdb: { id: 10513, poster: "/bmicZi7PvlnZ9rZqp6QXN2Db0pT.jpg", backdrop: "/9pHCAT1ScILdkhY8ErfOma8W4kB.jpg" },
+    imdbId: "tt0052077",
     synopsis:
       "Aliens resurrect the dead to stop humanity building a doomsday weapon. Famously the worst film ever made, and beloved for exactly that.",
     video:
@@ -164,6 +173,7 @@ export const FILMS = [
     hue: 22,
     // Official artwork from TMDB (movie #961); images load from its CDN.
     tmdb: { id: 961, poster: "/4NmV1Wei4LxT2lpjViCAScgCZLq.jpg", backdrop: "/mzox4HbcV9W42MH2dB1QsdDVGo3.jpg" },
+    imdbId: "tt0017925",
     synopsis:
       "A railway engineer chases his stolen locomotive through enemy lines. Keaton does every stunt himself and never once smiles.",
     video:
@@ -180,6 +190,7 @@ export const FILMS = [
     hue: 300,
     // Official artwork from TMDB (movie #992); images load from its CDN.
     tmdb: { id: 992, poster: "/1G9r3rqtbFAQuyWKOZm4Y5J5s7Q.jpg", backdrop: "/tSipsYTp565LkopntX1lZNLPYHP.jpg" },
+    imdbId: "tt0015324",
     synopsis:
       "A projectionist dreams himself into the film he is showing and walks straight into the screen. Still the cleverest thing anyone has done with a projector.",
     video:
@@ -196,6 +207,7 @@ export const FILMS = [
     hue: 46,
     // Official artwork from TMDB (movie #10098); images load from its CDN.
     tmdb: { id: 10098, poster: "/A9NWYyn7eX0H9XIjaOvfWJ9mCGA.jpg", backdrop: "/mAhCW7QbpL5kwvCWGsfyY3ILoW6.jpg" },
+    imdbId: "tt0012349",
     synopsis:
       "The Tramp raises an abandoned boy, and the pair run a small window-breaking racket. Chaplin's first feature, and the one that hurts.",
   },
@@ -210,6 +222,7 @@ export const FILMS = [
     hue: 340,
     // Official artwork from TMDB (movie #3085); images load from its CDN.
     tmdb: { id: 3085, poster: "/lu86Y9zTPH3neCiUzLzHCEFHf7f.jpg", backdrop: "/ihoQaiMFAz4YCTAaSIsQjRknsNH.jpg" },
+    imdbId: "tt0032599",
     synopsis:
       "An editor discovers his best reporter is also his ex-wife, and stalls her remarriage with one last story. Dialogue delivered at a full sprint.",
     video:
@@ -226,6 +239,7 @@ export const FILMS = [
     hue: 258,
     // Official artwork from TMDB (movie #4808); images load from its CDN.
     tmdb: { id: 4808, poster: "/qqaPjC5FQidtKY65jbAKZPiOTaS.jpg", backdrop: "/gj2TBYmOIy4E2GjMIpnbAEZNCQx.jpg" },
+    imdbId: "tt0056923",
     featured: true,
     synopsis:
       "A widow learns her husband stole a fortune, and everyone in Paris wants it. Hepburn, Grant, and a copyright notice that slipped.",
@@ -243,6 +257,7 @@ export const FILMS = [
     hue: 12,
     // Official artwork from TMDB (movie #18995); images load from its CDN.
     tmdb: { id: 18995, poster: "/m7wZXWOt9XQKJT8r9pbAFo7jB46.jpg", backdrop: "/rsl2YCe2bSeni2qGdaMoDBS7sLo.jpg" },
+    imdbId: "tt0042369",
     synopsis:
       "A man walks into a police station to report a murder — his own. He has been poisoned, and has days to find out who did it.",
     video:
@@ -259,6 +274,7 @@ export const FILMS = [
     hue: 220,
     // Official artwork from TMDB (movie #20367); images load from its CDN.
     tmdb: { id: 20367, poster: "/gJb9HRAs1V4bA0VKsWpT6mhv2RT.jpg", backdrop: "/uGOKN4VeCsf249zypWfaAzfTxAB.jpg" },
+    imdbId: "tt0037638",
     synopsis:
       "A pianist hitchhikes west and every decision he makes is the wrong one. Shot in six days for pocket change; the bleakest hour in American film.",
     video:
@@ -275,6 +291,7 @@ export const FILMS = [
     hue: 352,
     // Official artwork from TMDB (movie #17058); images load from its CDN.
     tmdb: { id: 17058, poster: "/eGEDor1BWSQGaLtOntPHUSqNzRC.jpg", backdrop: "/g0phljbAcccz7bkSZpFEPVLuIRP.jpg" },
+    imdbId: "tt0038057",
     synopsis:
       "A meek cashier and amateur painter is taken apart by a woman and her boyfriend. Lang's cruellest film, and his best American one.",
     video:
@@ -291,6 +308,7 @@ export const FILMS = [
     hue: 188,
     // Official artwork from TMDB (movie #20246); images load from its CDN.
     tmdb: { id: 20246, poster: "/bzjoPScBLUWpSu10m3GbSbSwVhS.jpg", backdrop: "/osCupz9uxvUoca6aqSSkns1UnlQ.jpg" },
+    imdbId: "tt0038991",
     synopsis:
       "A war-crimes investigator tracks a fugitive to a Connecticut town where he now teaches school and is about to marry well.",
     video:
@@ -307,6 +325,7 @@ export const FILMS = [
     hue: 200,
     // Official artwork from TMDB (movie #32574); images load from its CDN.
     tmdb: { id: 32574, poster: "/dnBZbFE2OGlTGNGBVTn6t83tJtd.jpg", backdrop: "/fy2hkQgAWj1st3FWBzqc27JlytC.jpg" },
+    imdbId: "tt0033891",
     synopsis:
       "A reporter invents a man who threatens to jump off City Hall in protest, then has to hire someone to be him. The invention gets away from everyone.",
     video:
@@ -323,6 +342,7 @@ export const FILMS = [
     hue: 358,
     // Official artwork from TMDB (movie #643); images load from its CDN.
     tmdb: { id: 643, poster: "/hZmsRLsCnE9Zshf1YJONUpCOhds.jpg", backdrop: "/3RH61Z7BP3f215936PJBEG2qQrT.jpg" },
+    imdbId: "tt0015648",
     synopsis:
       "A crew mutinies over rotten meat and a city rises behind them. The Odessa Steps sequence is the reason film schools teach editing.",
     video:
@@ -339,6 +359,7 @@ export const FILMS = [
     hue: 186,
     // Official artwork from TMDB (movie #669); images load from its CDN.
     tmdb: { id: 669, poster: "/9WAboi1QbKu41WkyGxQVNpXwwxx.jpg", backdrop: "/jxD0pcORCx9j0C0AYjjudbHnOm4.jpg" },
+    imdbId: "tt0013427",
     synopsis:
       "A year with an Inuk hunter and his family in the Canadian Arctic. The first feature documentary — and the first argument about how much of one is staged.",
     video:
@@ -355,6 +376,7 @@ export const FILMS = [
     hue: 286,
     // Official artwork from TMDB (movie #57283); images load from its CDN.
     tmdb: { id: 57283, poster: "/3LtaPLlwlA5HX2FjqAb8lsaBI8P.jpg", backdrop: "/gZwQip2KQRDNZZOEDe0Yi25tW9Z.jpg" },
+    imdbId: "tt0013257",
     synopsis:
       "A lecture on witchcraft that keeps breaking into lurid dramatisation. Banned nearly everywhere, and unlike anything before or since.",
     video:
@@ -371,6 +393,7 @@ export const FILMS = [
     hue: 320,
     // Official artwork from TMDB (movie #964); images load from its CDN.
     tmdb: { id: 964, poster: "/mvaYpAYj957C2tlq3vVJPSzGJXK.jpg", backdrop: "/6FSs7jMimg1PBYdhZtPNQhtKtEc.jpg" },
+    imdbId: "tt0016220",
     synopsis:
       "A disfigured composer haunts the Paris Opera and makes a soprano his protégée. Chaney designed the makeup himself, and the unmasking still lands.",
     video:
@@ -387,6 +410,7 @@ export const FILMS = [
     hue: 152,
     // Official artwork from TMDB (movie #28503); images load from its CDN.
     tmdb: { id: 28503, poster: "/aLv5491Q11zhIZbpqz7rnRZkSLZ.jpg", backdrop: "/z2ZiFPibdguCYJBN9rZeHCMHxcO.jpg" },
+    imdbId: "tt0056983",
     synopsis:
       "A widow hides her husband's death to stay in the will, at an Irish castle where an axe murderer is already working. Coppola's first real feature.",
     video:
@@ -403,6 +427,7 @@ export const FILMS = [
     hue: 38,
     // Official artwork from TMDB (movie #22733); images load from its CDN.
     tmdb: { id: 22733, poster: "/jztp9bhYDGAMK7WgvLA3mmzLseN.jpg", backdrop: "/mGn28CazoJCNkrxxkCWKXHpmVXM.jpg" },
+    imdbId: "tt0046414",
     synopsis:
       "A gang of crooks wait for a boat to Africa and a uranium claim, rewriting their alliances daily. Truman Capote wrote it as they shot it.",
     video:

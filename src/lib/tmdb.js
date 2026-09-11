@@ -1,30 +1,29 @@
 /**
- * TMDB client — the catalogue of what is streaming on Netflix.
+ * TMDB client — the catalogue of new and popular films.
  *
  * TMDB (themoviedb.org) supplies the metadata: titles, posters, synopses,
  * ratings, cast, trailers, and — via JustWatch — which services carry a film
- * in which country. It does NOT supply the films themselves: Netflix titles
- * only play inside Netflix, so every Netflix film here links out to it.
+ * in which country. It does NOT supply the films themselves: new releases
+ * only play on the services that license them, so every one links out.
  *
- * The token comes from VITE_TMDB_TOKEN in .env.local. Vite inlines it into
- * the bundle, so use TMDB's read-only "API Read Access Token" — it can read
- * the catalogue and nothing else.
+ * The key never reaches the browser: requests go to /api/tmdb, and the server
+ * (server/proxy.js) adds TMDB_TOKEN from its own environment.
  *
  * Demonstrates: fetch with async/await, AbortController, a module-level
  * cache (Map), URLSearchParams, and normalising a third-party payload into
  * the shape our components want.
  */
-const BASE = "https://api.themoviedb.org/3";
+// Requests go to this site's own /api/tmdb, which adds the key on the server
+// (server/proxy.js). The browser never holds a TMDB credential.
+const API = "/api/tmdb";
 const IMG = "https://image.tmdb.org/t/p";
 
-export const tmdbToken = () =>
-  (import.meta.env.VITE_TMDB_TOKEN ?? "").trim().replace(/^["']|["']$/g, "");
-export const hasTmdb = () => tmdbToken().length >= 32;
-
-// TMDB issues two credentials and either works here: the long "API Read
-// Access Token" goes in an Authorization header; the short 32-character
-// "API Key" goes in the query string. Both are read-only.
-const isShortKey = (t) => /^[a-f0-9]{32}$/i.test(t);
+/**
+ * Whether to use TMDB at all. The key lives on the server, so the browser
+ * can't check it; if the server has none, requests answer 503 and each page
+ * falls back (snapshots, or setup instructions). VITE_TMDB=off disables it.
+ */
+export const hasTmdb = () => import.meta.env.VITE_TMDB !== "off";
 
 /** Poster / backdrop / logo URL at a given TMDB size, or null. */
 export const img = (path, size = "w500") => (path ? `${IMG}/${size}${path}` : null);
@@ -37,23 +36,16 @@ async function get(path, params = {}, signal) {
   const qs = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ""),
   );
-  // The cache key never contains the credential, even when it rides in the URL.
   const key = `${path}?${qs}`;
   if (cache.has(key)) return cache.get(key);
 
-  const token = tmdbToken();
-  if (isShortKey(token)) qs.set("api_key", token);
-  const res = await fetch(`${BASE}${path}${qs.size ? `?${qs}` : ""}`, {
-    signal,
-    headers: isShortKey(token)
-      ? { accept: "application/json" }
-      : { Authorization: `Bearer ${token}`, accept: "application/json" },
-  });
+  qs.set("path", path);
+  const res = await fetch(`${API}?${qs}`, { signal, headers: { accept: "application/json" } });
   if (!res.ok) {
     const err = new Error(
-      res.status === 401
-        ? "TMDB rejected the key. Check VITE_TMDB_TOKEN in .env.local."
-        : `TMDB request failed (${res.status}).`,
+      res.status === 503 ? "TMDB isn’t connected on the server yet."
+        : res.status === 401 ? "TMDB rejected the server’s key."
+          : `TMDB request failed (${res.status}).`,
     );
     err.status = res.status;
     throw err;
@@ -83,6 +75,11 @@ const regionNames = typeof Intl !== "undefined" && Intl.DisplayNames
   ? new Intl.DisplayNames(["en"], { type: "region" })
   : null;
 export const regionName = (code) => regionNames?.of(code) ?? code;
+
+// Names that take "the" in a sentence: "in the United States", not "in United States".
+const WITH_THE = new Set(["US", "GB", "AE", "NL", "PH", "DO", "BS", "GM", "CD", "CG", "KY", "MV", "VA"]);
+/** A country as it reads after "in": "the United Kingdom", "India". */
+export const inRegion = (code) => `${WITH_THE.has(code) ? "the " : ""}${regionName(code)}`;
 
 /* ---------- Netflix -------------------------------------------------- */
 /**
@@ -118,14 +115,66 @@ export async function discoverNetflix({ region, genre, sort = "popular", page = 
   return toPage(data);
 }
 
+const DAY = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
+/** "11 Sep 2026", for the date a saved list was taken. */
+export const savedOn = (iso) => (iso ? DAY.format(new Date(`${iso}T12:00:00`)) : "");
+
+/* ---------- saved lists: when TMDB can't be reached ------------------- */
+/**
+ * If a live list fails — no key on the server, TMDB down, or a network that
+ * blocks it — its first page falls back to a copy saved with the site
+ * (public/snapshots/, refreshed by scripts/snapshots.mjs). The page then
+ * carries `saved` (the date it was taken) so the UI can say it isn't live.
+ */
+const files = new Map();
+function savedFile(name) {
+  if (!files.has(name)) {
+    const load = fetch(`/snapshots/${name}.json`).then((res) => {
+      if (!res.ok) throw new Error(`No saved ${name} list.`);
+      return res.json();
+    });
+    load.catch(() => files.delete(name));          // retried next time, not cached
+    files.set(name, load);
+  }
+  return files.get(name);
+}
+
+async function orSaved(live, name, pick, page) {
+  try {
+    return await live();
+  } catch (err) {
+    if (err.name === "AbortError" || page > 1) throw err;
+    let fallback;
+    try {
+      const file = await savedFile(name);
+      const { results, region } = pick(file);
+      if (results?.length) fallback = { ...toPage({ results, total_results: results.length, total_pages: 1 }), saved: file.taken, region };
+    } catch { /* no saved copy either: report the original failure */ }
+    if (!fallback) throw err;
+    return fallback;
+  }
+}
+
 /** This week's (or today's) most-watched films worldwide. */
 export async function trending({ window = "week", page = 1 }, signal) {
-  return toPage(await get(`/trending/movie/${window}`, { page }, signal));
+  return orSaved(
+    async () => toPage(await get(`/trending/movie/${window}`, { page }, signal)),
+    "trending", (file) => ({ results: file.results }), page,
+  );
 }
 
 /** Playing in cinemas in `region` now. */
 export async function nowPlaying({ region, page = 1 }, signal) {
-  return toPage(await get("/movie/now_playing", { region, page }, signal));
+  return orSaved(
+    async () => ({ ...toPage(await get("/movie/now_playing", { region, page }, signal)), region }),
+    "now-playing",
+    // Saved for India, the US and the UK; anywhere else gets the US list, labelled as such.
+    (file) => {
+      const r = file.regions?.[region] ? region : "US";
+      return { results: file.regions?.[r], region: r };
+    },
+    page,
+  );
 }
 
 /**
@@ -317,6 +366,7 @@ export async function movieDetail(id, region, signal) {
     trailerKey: trailer?.key ?? null,
     stream,
     free,
+    imdbId: m.imdb_id || null,
     onNetflix: stream.some((p) => p.name === "Netflix"),
     providersLink: here.link ?? `https://www.themoviedb.org/movie/${m.id}/watch?locale=${region}`,
   };

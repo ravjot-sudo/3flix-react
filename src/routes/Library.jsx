@@ -6,17 +6,21 @@ import FilmGrid from "../components/FilmGrid.jsx";
 import { useDebounce } from "../hooks/useDebounce.js";
 import { useRemote } from "../hooks/useTmdb.js";
 import { newReleases } from "../lib/tmdb.js";
+import { OPEN_FILMS } from "../data/openFilms.js";
 
 /**
  * Library — the browse page, and a PARENT route.
  *
- * Two collections share one grid, one search box and one genre filter:
+ * Three collections share one grid, one search box and one genre filter:
  *   new       the 100 most popular films of 2023–2025 (TMDB). Each opens its
  *             /movies page: official trailer, and where it streams.
- *   classics  the 24 public-domain films. These play right here, in the
- *             nested /library/:filmId route.
+ *   open      Blender's Creative Commons films (2006–2021). These play here,
+ *             with subtitles where the film has them.
+ *   classics  the 24 public-domain films. These play here too.
+ * Films that play open in the nested /library/:filmId route.
  *
  * /library                     new & popular (the default)
+ * /library?c=open              the open movies
  * /library?c=classics          the classics
  * /library?c=classics&genre=…  filtered — the home page links straight here
  * /library/:filmId             a classic's player, above the classics grid
@@ -31,6 +35,7 @@ const NONE = [];
 
 const COLLECTIONS = [
   ["new", "New & popular · 2023–25"],
+  ["open", "Open movies · play here"],
   ["classics", "Free classics · play here"],
 ];
 
@@ -41,11 +46,14 @@ export default function Library({ films, progress, watchlist }) {
   const navigate = useNavigate();
   const { filmId } = useParams();
 
-  // A classic's player is open → we are in the classics, whatever the URL says.
-  const collection = params.get("c") === "classics" || filmId ? "classics" : "new";
+  // A film's player is open → show the collection it belongs to, whatever the URL says.
+  const requestedC = params.get("c");
+  const collection = filmId
+    ? (OPEN_FILMS.some((f) => f.id === filmId) ? "open" : "classics")
+    : requestedC === "open" || requestedC === "classics" ? requestedC : "new";
 
   const fresh = useRemote(collection === "new" ? "library|new" : null, () => newReleases());
-  const source = collection === "new" ? fresh.data ?? NONE : films;
+  const source = collection === "new" ? fresh.data ?? NONE : collection === "open" ? OPEN_FILMS : films;
 
   // Genres come from whichever collection is showing; an unknown value in the
   // URL is ignored rather than trusted.
@@ -63,7 +71,7 @@ export default function Library({ films, progress, watchlist }) {
 
   // Switching collection closes any open player and drops a genre that may
   // not exist in the other set.
-  const setCollection = (c) => navigate(c === "classics" ? "/library?c=classics" : "/library", { replace: true });
+  const setCollection = (c) => navigate(c === "new" ? "/library" : `/library?c=${c}`, { replace: true });
 
   // useMemo: filtering runs only when its inputs change, not on every render
   // (and this component re-renders on every keystroke).
@@ -91,7 +99,7 @@ export default function Library({ films, progress, watchlist }) {
           <p className="folio"><span>02</span><span className="folio-label">Library</span></p>
           <div className="sec-head-body">
             <h1 className="sec-title display-xl">
-              {collection === "new" ? <>New <em>&amp; popular.</em></> : <>Free <em>classics.</em></>}
+              {collection === "new" ? <>New <em>&amp; popular.</em></> : collection === "open" ? <>Open <em>movies.</em></> : <>Free <em>classics.</em></>}
             </h1>
             <p className="sec-note" aria-live="polite">
               {loading
@@ -100,7 +108,9 @@ export default function Library({ films, progress, watchlist }) {
                   ? "Couldn’t load the new releases right now."
                   : collection === "new"
                     ? `${all ? "The" : `${visible.length} of the`} ${source.length} most popular films of 2023–2025${matching}. Open one for its trailer and where to watch it.`
-                    : `${all ? "All" : `${visible.length} of`} ${source.length} public-domain films${matching}. These play right here, free.`}
+                    : collection === "open"
+                      ? `${all ? "All" : `${visible.length} of`} ${source.length} films Blender released under Creative Commons${matching}. They play right here, with subtitles where the film has them.`
+                      : `${all ? "All" : `${visible.length} of`} ${source.length} public-domain films${matching}. These play right here, free.`}
             </p>
           </div>
         </header>

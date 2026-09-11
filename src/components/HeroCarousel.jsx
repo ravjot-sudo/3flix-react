@@ -7,7 +7,7 @@ import Poster from "./Poster.jsx";
 import { FILMS, formatRuntime } from "../data/films.js";
 import { useAccents } from "../hooks/useAccent.js";
 import { useRegion, useRemote } from "../hooks/useTmdb.js";
-import { hasTmdb, movieDetail, nowPlaying, regionName } from "../lib/tmdb.js";
+import { hasTmdb, inRegion, movieDetail, nowPlaying, savedOn } from "../lib/tmdb.js";
 
 /**
  * NOW SHOWING — after crafterui's HeroCarousel on 21st.dev (MIT). Its source
@@ -20,8 +20,8 @@ import { hasTmdb, movieDetail, nowPlaying, regionName } from "../lib/tmdb.js";
  *   - wheel, drag, click and arrow keys all navigate
  *
  * What it shows: films in cinemas now where the visitor is (TMDB), with their
- * official posters. Without a TMDB key, or if the request fails, it shows the
- * curated collection instead — which also carries official posters.
+ * official posters — see HeroCarousel below for what happens when TMDB can't
+ * be reached.
  *
  * Adapted for a scrolling page: only HORIZONTAL wheel movement is captured
  * (capturing vertical would trap the visitor), and there is no second
@@ -96,16 +96,57 @@ const RISE = {
   shown: { opacity: 1, transform: "translateY(0px)", transition: { duration: 0.6, ease: EASE } },
 };
 
+/**
+ * Picks the source, then hands it to the filmstrip. Films in cinemas now come
+ * live from TMDB or, if TMDB can't be reached, from the list saved with the
+ * site (lib/tmdb.js); the curated classics are the last resort. While the
+ * request is out the strip shows empty frames rather than one set of films
+ * that is then swapped for another.
+ */
 export default function HeroCarousel({ defaultIndex = 0 }) {
+  const [region] = useRegion();
+  const live = useRemote(hasTmdb() ? `hc|now|${region}` : null, (signal) => nowPlaying({ region }, signal));
+  if (live.loading) return <Waiting />;
+
+  const liveItems = (live.data?.results ?? []).filter((m) => m.poster).slice(0, 12).map(fromTmdb);
+  const isLive = liveItems.length >= 5;
+  const where = inRegion(live.data?.region ?? region);
+  const label = !isLive ? "Now showing"
+    : `Now showing · in cinemas in ${where}${live.data.saved ? ` · as of ${savedOn(live.data.saved)}` : ""}`;
+
+  return (
+    <Filmstrip
+      key={isLive ? `live|${region}` : "curated"}
+      items={isLive ? liveItems : CURATED}
+      label={label}
+      region={region}
+      defaultIndex={defaultIndex}
+    />
+  );
+}
+
+function Waiting() {
+  return (
+    <section className="hc is-waiting" aria-label="Now showing" aria-busy="true">
+      <div className="hc-backdrop" aria-hidden="true" />
+      <div className="hc-grade" aria-hidden="true" />
+      <p className="hc-label label">
+        <span className="hc-label-n" aria-hidden="true">02</span>
+        <span className="hc-label-dot" aria-hidden="true" />
+        Now showing
+      </p>
+      <div className="hc-viewport" aria-hidden="true">
+        <ul className="hc-strip">
+          {Array.from({ length: 7 }, (_, i) => <li key={i} className="hc-li"><span className="hc-card hc-card-wait" /></li>)}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function Filmstrip({ items, label, region, defaultIndex }) {
   const reduced = useReducedMotion();
   const navigate = useNavigate();
-  const [region] = useRegion();
-
-  // Source: films in cinemas now, when TMDB is connected and answers.
-  const live = useRemote(hasTmdb() ? `hc|now|${region}` : null, (signal) => nowPlaying({ region }, signal));
-  const liveItems = (live.data?.results ?? []).filter((m) => m.poster).slice(0, 12).map(fromTmdb);
-  const items = liveItems.length >= 5 ? liveItems : CURATED;
-  const isLive = items !== CURATED;
 
   const [picked, setIndex] = useState(defaultIndex);
   const index = Math.min(Math.max(picked, 0), items.length - 1);
@@ -187,7 +228,7 @@ export default function HeroCarousel({ defaultIndex = 0 }) {
     // ResizeObserver can fail to deliver in throttled contexts; measure anyway.
     const t = setTimeout(measure, 250);
     return () => { ro.disconnect(); clearTimeout(t); };
-  }, [settle, isLive]);
+  }, [settle]);
 
   // Horizontal wheel / trackpad swipe. Non-passive so it can preventDefault —
   // React's onWheel is passive and cannot.
@@ -234,7 +275,7 @@ export default function HeroCarousel({ defaultIndex = 0 }) {
       <p className="hc-label label">
         <span className="hc-label-n" aria-hidden="true">02</span>
         <span className="hc-label-dot" aria-hidden="true" />
-        {isLive ? `Now showing · in cinemas in ${regionName(region)}` : "Now showing"}
+        {label}
       </p>
 
       <div ref={viewport} className="hc-viewport">

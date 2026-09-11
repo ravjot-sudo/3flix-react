@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
 import MovieCard from "./MovieCard.jsx";
 import { useRemote } from "../hooks/useTmdb.js";
-import { hasTmdb, trending } from "../lib/tmdb.js";
+import { hasTmdb, savedOn, trending } from "../lib/tmdb.js";
 
 /**
  * Home, section 04: this week's most-watched films worldwide, with their
- * official posters — a scrolling row, the full list one click away. Without a
- * TMDB key it becomes a single line that says what connecting it would add.
+ * official posters — a scrolling row, the full list one click away. If TMDB
+ * can't be reached the row shows the list saved with the site, and says so.
  */
 export default function TrendingRow() {
   const ready = hasTmdb();
-  const { data, error } = useRemote(ready ? "home|trending" : null, (signal) => trending({}, signal));
+  const { data, error, retry } = useRemote(ready ? "home|trending" : null, (signal) => trending({}, signal));
 
   return (
     <section className="section nfrow" aria-labelledby="trend-title">
@@ -39,7 +39,13 @@ export default function TrendingRow() {
             ))}
           </ul>
         )}
-        {error && <p className="mvd-note">{error.message}</p>}
+        {data?.saved && <p className="saved-note label">Saved list · as of {savedOn(data.saved)}</p>}
+        {error && (
+          <div className="empty">
+            <p>This week’s list isn’t reachable right now.</p>
+            <button type="button" className="btn btn-ghost" onClick={retry}>Try again</button>
+          </div>
+        )}
       </div>
     </section>
   );

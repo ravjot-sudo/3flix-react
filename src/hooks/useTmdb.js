@@ -39,10 +39,12 @@ export function useRemote(key, load) {
 
 /**
  * A paged list with "load more". `fetchPage(page, signal)` must resolve to
- * { results, total, totalPages }. Pages accumulate until `key` changes.
+ * { results, total, totalPages }, plus optionally `saved` (the date of a
+ * saved copy used because the live list failed) and `region` (the country it
+ * is for). Pages accumulate until `key` changes.
  */
 export function usePaged(key, fetchPage) {
-  const [list, setList] = useState({ key: null, page: 0, items: [], total: 0, totalPages: 0, error: null });
+  const [list, setList] = useState({ key: null, page: 0, items: [], total: 0, totalPages: 0, error: null, saved: null, region: null });
   const [want, setWant] = useState({ key: null, page: 1 });
   const [nonce, setNonce] = useState(0);
   const page = want.key === key ? want.page : 1;
@@ -56,6 +58,7 @@ export function usePaged(key, fetchPage) {
         const seen = new Set(carry.map((f) => f.id));
         return {
           key, page, error: null, total: r.total, totalPages: r.totalPages,
+          saved: r.saved ?? null, region: r.region ?? null,
           items: carry.concat(r.results.filter((f) => !seen.has(f.id))),
         };
       }),
@@ -70,6 +73,8 @@ export function usePaged(key, fetchPage) {
   return {
     items: current ? list.items : [],
     total: current ? list.total : 0,
+    saved: current ? list.saved : null,
+    region: current ? list.region : null,
     error: current ? list.error : null,
     loading: key != null && (!current || list.page !== page),
     hasMore: current && !list.error && list.page < list.totalPages,
