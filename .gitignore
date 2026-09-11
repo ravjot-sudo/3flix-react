@@ -7,4 +7,6 @@ dist/
 # ignored — `*.local` alone leaves `.env` committable.
 .env
 .env.*
+.vercel
+.env*
 !.env.example
