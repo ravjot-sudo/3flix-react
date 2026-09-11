@@ -9,20 +9,20 @@ import TrendingRow from "../components/TrendingRow.jsx";
  *
  *   Opening   statement → scrubbed headline → circle opens onto a film
  *             (the nav bar stays away until this is over)
- *   01 Browse     the genre menu: eight panels, decks fan on hover
+ *   01 Browse     eight genres × their top three films of 2000 onward
  *   02 Now showing the filmstrip carousel
- *   03 Library    the best-rated shelf, with watchlist hearts
+ *   03 Top six    the highest-rated films of 2008 onward
  *   04 Trending   this week’s most-watched films, official posters (TMDB)
  *
- * Watchlist state lives in App and arrives here as props (lifting state up).
+ * Browse and Top six share one TMDB ranking, so no film appears twice.
  */
-export default function Home({ watchlist, onToggleWatchlist }) {
+export default function Home() {
   return (
     <>
       <OpeningReveal />
       <GenreGrid />
       <HeroCarousel defaultIndex={2} />
-      <FilmShelf watchlist={watchlist} onToggleWatchlist={onToggleWatchlist} />
+      <FilmShelf />
       <TrendingRow />
     </>
   );

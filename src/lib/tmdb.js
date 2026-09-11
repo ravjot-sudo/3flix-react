@@ -148,10 +148,75 @@ export async function discoverFree({ region, genre, sort = "popular", page = 1 }
 /** The four shelves the Movies page can show. */
 export const LISTS = {
   trending: { label: "Trending", filters: false },
+  top: { label: "Top rated", filters: true, sort: false },
   cinema: { label: "In cinemas", filters: false },
   free: { label: "Free to watch", filters: true },
   netflix: { label: "On Netflix", filters: true },
 };
+
+/* ---------- top rated ------------------------------------------------ */
+const today = () => new Date().toISOString().slice(0, 10);
+
+/**
+ * Highest-rated films released between `from` and today. `minVotes` keeps a
+ * small, enthusiastic audience from outranking films millions have judged.
+ */
+export async function topRated({ genre, page = 1, from = "2000-01-01", minVotes = 5000 } = {}, signal) {
+  const data = await get("/discover/movie", {
+    sort_by: "vote_average.desc",
+    "vote_count.gte": minVotes,
+    "primary_release_date.gte": from,
+    "primary_release_date.lte": today(),
+    with_genres: genre,
+    include_adult: "false",
+    page,
+  }, signal);
+  return toPage(data);
+}
+
+/** Genres for "Eight ways in": claim order (scarcest first) and display order. */
+const CLAIM = [[27, "Horror"], [16, "Animation"], [35, "Comedy"], [80, "Crime"],
+  [878, "Science Fiction"], [53, "Thriller"], [28, "Action"], [18, "Drama"]];
+const SHOW = [28, 16, 35, 80, 18, 27, 878, 53];
+
+/** "Dune" and "Dune: Part Two" are one franchise; so is every Spider-Verse. */
+const family = (m) => m.title.split(":")[0].trim().toLowerCase();
+
+let picks = null;
+
+/**
+ * Everything the home page ranks, computed together so nothing repeats:
+ *   six     the top six of 2008 onward (15,000+ votes)
+ *   genres  eight genres × the top three of 2000 onward (5,000+ votes),
+ *           skipping any film — or franchise — already on the page
+ * One shared promise per session, so both sections reuse a single set of
+ * requests. Deliberately not tied to one caller's AbortSignal.
+ */
+export function homePicks() {
+  if (picks) return picks;
+  picks = (async () => {
+    const top = await topRated({ from: "2008-01-01", minVotes: 15000 });
+    const six = top.results.slice(0, 6);
+    const taken = new Set(six.map((m) => m.id));
+    const families = new Set(six.map(family));
+    const pages = await Promise.all(CLAIM.map(([id]) => topRated({ genre: id })));
+    const decks = new Map();
+    CLAIM.forEach(([id, name], k) => {
+      const films = [];
+      for (const m of pages[k].results) {
+        if (films.length === 3) break;
+        if (taken.has(m.id) || families.has(family(m))) continue;
+        films.push(m);
+        taken.add(m.id);
+        families.add(family(m));
+      }
+      decks.set(id, { id, name, total: pages[k].total, films });
+    });
+    return { six, genres: SHOW.map((id) => decks.get(id)) };
+  })();
+  picks.catch(() => { picks = null; });   // a failure is retried next time, not cached
+  return picks;
+}
 
 /** Search every film TMDB knows, not just Netflix's. */
 export async function searchMovies({ query, page = 1 }, signal) {

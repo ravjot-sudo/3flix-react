@@ -7,13 +7,14 @@ import { useDebounce } from "../hooks/useDebounce.js";
 import { usePaged, useRegion, useRemote } from "../hooks/useTmdb.js";
 import {
   LISTS, REGIONS, SORTS, discoverFree, discoverNetflix, hasTmdb, img, movieGenres, netflixUrl,
-  nowPlaying, regionName, searchMovies, trending,
+  nowPlaying, regionName, searchMovies, topRated, trending,
 } from "../lib/tmdb.js";
 
 /**
- * /movies — the current-film catalogue, via TMDB, on four shelves:
+ * /movies — the current-film catalogue, via TMDB, on five shelves:
  *
  *   trending  this week's most-watched films worldwide (the default)
+ *   top       highest rated since 2000 (5,000+ votes), filterable by genre
  *   cinema    playing in cinemas in your country
  *   free      streaming free and legally (ad-supported services) where you are
  *   netflix   streaming on Netflix where you are
@@ -28,6 +29,10 @@ import {
  * error / empty states.
  */
 const COPY = {
+  top: (place, n) => ({
+    title: <>Top rated <em>since 2000.</em></>,
+    note: `${n} films from 2000 to today with 5,000+ votes on TMDB, highest rated first. Each page shows where it streams in ${place}.`,
+  }),
   // No count here: TMDB caps the trending list at 10,000, which is not a fact about the films.
   trending: (place) => ({
     title: <>Trending <em>this week.</em></>,
@@ -48,11 +53,13 @@ const COPY = {
 };
 
 const FETCH = {
+  top: ({ genre, page }, signal) => topRated({ genre, page }, signal),
   trending: ({ page }, signal) => trending({ page }, signal),
   cinema: ({ region, page }, signal) => nowPlaying({ region, page }, signal),
   free: (args, signal) => discoverFree(args, signal),
   netflix: (args, signal) => discoverNetflix(args, signal),
 };
+
 export default function Movies() {
   const ready = hasTmdb();
   const [region, setRegion] = useRegion();
@@ -66,7 +73,9 @@ export default function Movies() {
   const shelf = LISTS[params.get("list")] ? params.get("list") : "trending";
   const filters = LISTS[shelf].filters;
   const genre = filters ? params.get("genre") ?? "" : "";
-  const sort = filters && SORTS[params.get("sort")] ? params.get("sort") : "popular";
+  // Top rated has one order by definition; the other filterable shelves can sort.
+  const sortable = filters && LISTS[shelf].sort !== false;
+  const sort = sortable && SORTS[params.get("sort")] ? params.get("sort") : "popular";
   const query = useDebounce(text.trim(), 350);
   const searching = query.length > 1;
 
@@ -155,7 +164,7 @@ export default function Movies() {
               </label>
               <label className="mv-select">
                 <span className="label">Sort</span>
-                <select id={ids.sort} value={sort} onChange={(e) => setParam("sort", e.target.value === "popular" ? "" : e.target.value)} disabled={searching || !filters}>
+                <select id={ids.sort} value={sort} onChange={(e) => setParam("sort", e.target.value === "popular" ? "" : e.target.value)} disabled={searching || !sortable}>
                   {Object.entries(SORTS).map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
                 </select>
               </label>
@@ -235,6 +244,7 @@ export default function Movies() {
 }
 
 const KICKER = {
+  top: () => "No. 1 · top rated since 2000",
   trending: () => "No. 1 trending this week",
   cinema: (place) => `In cinemas · ${place}`,
   free: (place) => `Free to watch · ${place}`,

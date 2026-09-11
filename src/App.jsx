@@ -73,7 +73,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route
           index
-          element={<Home watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />}
+          element={<Home />}
         />
 
         <Route
