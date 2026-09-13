@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import FilmGrid from "../components/FilmGrid.jsx";
 import { useAuth } from "../hooks/useAuth.js";
-import { OPEN_FILMS } from "../data/openFilms.js";
 
 /**
  * Watchlist — like every page past the opening, reached only when signed in.
@@ -11,7 +10,7 @@ import { OPEN_FILMS } from "../data/openFilms.js";
  */
 export default function Watchlist({ films, watchlist, progress }) {
   const { user, mode } = useAuth();
-  const saved = [...films, ...OPEN_FILMS].filter((f) => watchlist.includes(f.id));
+  const saved = films.filter((f) => watchlist.includes(f.id));
 
   return (
     <section className="section">

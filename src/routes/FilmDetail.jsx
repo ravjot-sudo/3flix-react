@@ -3,7 +3,6 @@ import Player from "../components/Player.jsx";
 import Ratings from "../components/Ratings.jsx";
 import { useToast } from "../hooks/useToast.js";
 import { FILMS, formatRuntime } from "../data/films.js";
-import { OPEN_FILMS } from "../data/openFilms.js";
 
 /**
  * DYNAMIC ROUTE — /library/:filmId
@@ -17,7 +16,7 @@ export default function FilmDetail({ progress, onProgress, watchlist, onToggleWa
   const navigate = useNavigate();
   const toast = useToast();
 
-  const film = FILMS.find((f) => f.id === filmId) ?? OPEN_FILMS.find((f) => f.id === filmId);
+  const film = FILMS.find((f) => f.id === filmId);
 
   // An unknown :filmId is a 404 in spirit, so say so rather than crash.
   if (!film) {
@@ -61,17 +60,7 @@ export default function FilmDetail({ progress, onProgress, watchlist, onToggleWa
           <Fact label="Director" value={film.director} />
           <Fact label="Year" value={film.year} />
           <Fact label="Runtime" value={formatRuntime(film.runtime)} />
-          {film.license ? (
-            <Fact
-              label="Licence"
-              value={<>
-                <a href={film.license.url} target="_blank" rel="noopener noreferrer">{film.license.name}</a>
-                {" "}· © {film.studio}
-              </>}
-            />
-          ) : (
-            <Fact label="Rights" value="Public domain" />
-          )}
+          <Fact label="Rights" value="Public domain" />
         </dl>
 
         <div className="detail-actions">

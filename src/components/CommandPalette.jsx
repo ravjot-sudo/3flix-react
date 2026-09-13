@@ -3,12 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Poster from "./Poster.jsx";
 import { FILMS } from "../data/films.js";
-import { OPEN_FILMS } from "../data/openFilms.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { useDebounce } from "../hooks/useDebounce.js";
 
-// Everything that plays on 3Flix: the classics and the open movies.
-const PLAYABLE = [...FILMS, ...OPEN_FILMS];
+// Everything that plays on 3Flix: the free classics.
+const PLAYABLE = FILMS;
 
 /**
  * CATALOGUE COMMAND PALETTE (⌘K).
@@ -24,7 +23,7 @@ const PLAYABLE = [...FILMS, ...OPEN_FILMS];
 const ROUTES = [
   { label: "Home", to: "/" },
   { label: "Library", to: "/library" },
-  { label: "Movies — trending, cinemas, free, Netflix", to: "/movies" },
+  { label: "Movies — trending, cinemas, free", to: "/movies" },
   { label: "Watchlist", to: "/watchlist" },
   { label: "How this is legal", to: "/about" },
 ];

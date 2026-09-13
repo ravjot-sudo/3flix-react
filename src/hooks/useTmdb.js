@@ -83,7 +83,7 @@ export function usePaged(key, fetchPage) {
   };
 }
 
-/** The visitor's country for "on Netflix in …", remembered between visits. */
+/** The visitor's country for "where to watch", remembered between visits. */
 export function useRegion() {
   const [region, setRegion] = useLocalStorage("3flix:region", detectRegion());
   return [region, setRegion];

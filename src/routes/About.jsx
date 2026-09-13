@@ -38,7 +38,6 @@ const SOURCES = [
   ["Watchmode", "A direct link to the film on each service, with rent and buy prices.", "https://www.watchmode.com/"],
   ["OMDb", "IMDb, Rotten Tomatoes and Metacritic scores, awards and box office.", "https://www.omdbapi.com/"],
   ["YouTube", "Official trailers. Nothing loads until you press play.", "https://www.youtube.com/"],
-  ["Blender Studio", "Open movies released under Creative Commons, with their own subtitles.", "https://studio.blender.org/films/"],
   ["Internet Archive", "The classics themselves, streamed from where they are lawfully hosted.", "https://archive.org/"],
 ];
 
@@ -56,7 +55,7 @@ export default function About() {
             </h1>
             <p className="sec-note">
               3Flix has two halves. Films that stream right here, free: 24
-              public-domain classics and Blender’s open movies, with subtitles. And
+              public-domain classics, with subtitles. And
               a live catalogue of new and popular films, with official posters,
               trailers, scores, and a link to wherever each one legally streams.
             </p>

@@ -6,18 +6,17 @@ import { TmdbCredit, TmdbSetup } from "../components/TmdbNotes.jsx";
 import { useDebounce } from "../hooks/useDebounce.js";
 import { usePaged, useRegion, useRemote } from "../hooks/useTmdb.js";
 import {
-  LISTS, REGIONS, SORTS, discoverFree, discoverNetflix, hasTmdb, img, movieGenres, netflixUrl,
+  LISTS, REGIONS, SORTS, discoverFree, hasTmdb, img, movieGenres,
   inRegion, nowPlaying, regionName, savedOn, searchMovies, topRated, trending,
 } from "../lib/tmdb.js";
 
 /**
- * /movies — the current-film catalogue, via TMDB, on five shelves:
+ * /movies — the current-film catalogue, via TMDB, on four shelves:
  *
  *   trending  this week's most-watched films worldwide (the default)
  *   top       highest rated since 2000 (5,000+ votes), filterable by genre
  *   cinema    playing in cinemas in your country
  *   free      streaming free and legally (ad-supported services) where you are
- *   netflix   streaming on Netflix where you are
  *
  * Shelf, genre, sort and search all live in the URL (?list=free&genre=18),
  * so Back returns to exactly the list you left and any view can be linked to.
@@ -46,10 +45,6 @@ const COPY = {
     title: <>Free to watch <em>in {place}.</em></>,
     note: `${n} films you can stream free and legally in ${place}, on ad-supported services. Open one to see where.`,
   }),
-  netflix: (place, n) => ({
-    title: <>On Netflix <em>in {place}.</em></>,
-    note: `${n} films streaming on Netflix in ${place}. Trailers play here; the films play on Netflix.`,
-  }),
 };
 
 const FETCH = {
@@ -57,7 +52,6 @@ const FETCH = {
   trending: ({ page }, signal) => trending({ page }, signal),
   cinema: ({ region, page }, signal) => nowPlaying({ region, page }, signal),
   free: (args, signal) => discoverFree(args, signal),
-  netflix: (args, signal) => discoverNetflix(args, signal),
 };
 
 export default function Movies() {
@@ -114,7 +108,7 @@ export default function Movies() {
             <div className="sec-aside">
               <p className="sec-note" aria-live="polite">
                 {!ready
-                  ? "Trending films, what’s in cinemas, what’s free to stream and what’s on Netflix — once TMDB is connected."
+                  ? "Trending films, what’s in cinemas and what’s free to stream — once TMDB is connected."
                   : list.loading && !list.items.length
                     ? "Loading the catalogue…"
                     : searching
@@ -260,7 +254,6 @@ const KICKER = {
   trending: () => "No. 1 trending this week",
   cinema: (place) => `In cinemas · ${place}`,
   free: (place) => `Free to watch · ${place}`,
-  netflix: (place) => `Top of the list · Netflix ${place}`,
 };
 
 /** The first film on the current shelf, full width, with its official art. */
@@ -277,13 +270,8 @@ function Billboard({ film, shelf, place }) {
         {film.overview && <p className="mv-bill-text">{film.overview}</p>}
         <div className="mv-bill-actions">
           <Link className="btn btn-primary btn-go" to={`/movies/${film.id}`}>
-            {shelf === "netflix" ? "Trailer & details" : "Trailer & where to watch"}
+            Trailer & where to watch
           </Link>
-          {shelf === "netflix" && (
-            <a className="btn btn-ghost" href={netflixUrl(film.title)} target="_blank" rel="noopener noreferrer">
-              Watch on Netflix<span className="sr-only"> (opens Netflix in a new tab)</span>
-            </a>
-          )}
         </div>
       </div>
     </section>
