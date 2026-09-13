@@ -56,6 +56,11 @@ function LocalAuth({ children }) {
 /* ---------- cloud: Supabase accounts ------------------------------------- */
 function CloudAuth({ children }) {
   const [session, setSession] = useState({ ready: false, user: null });
+  // Only used if the server turns out to have no Supabase secret (a deploy
+  // missing SUPABASE_SERVICE_ROLE_KEY): then visitors are signed in on this
+  // device rather than locked out. Marked, so an older device-only profile
+  // from before accounts existed doesn't count as signed in here.
+  const [fallback, setFallback] = useLocalStorage("3flix:user", null);
 
   useEffect(() => {
     let alive = true;
@@ -75,9 +80,12 @@ function CloudAuth({ children }) {
 
   const begin = useCallback(async ({ name, email }) => {
     const res = await requestSignIn(name, email);
-    if (res.mode !== "code") throw signInError("setup");
-    return { step: "code", email: res.email };
-  }, []);
+    if (res.mode === "code") return { step: "code", email: res.email };
+    // The server can't send codes, so don't strand the visitor at the gate.
+    console.warn("3Flix: the server has no Supabase secret key, so sign-in is on this device only.");
+    setFallback({ name: res.name, email: res.email, since: Date.now(), via: "fallback" });
+    return { step: "done" };
+  }, [setFallback]);
 
   const verify = useCallback(async ({ email, code, name }) => {
     const sb = await supabase();
@@ -90,15 +98,20 @@ function CloudAuth({ children }) {
     if (!data.user?.user_metadata?.name && name) await sb.auth.updateUser({ data: { name } });
   }, []);
 
+  const raw = session.user;
+  const id = raw?.id ?? null;
+
   const rename = useCallback(async (name) => {
+    if (!id) { setFallback((u) => (u ? { ...u, name } : u)); return; }
     const { error } = await (await supabase()).auth.updateUser({ data: { name } });
     if (error) throw error;
-  }, []);
+  }, [id, setFallback]);
 
   // "local" scope: signing out here doesn't sign out the account's other devices.
   const signOut = useCallback(async () => {
-    await (await supabase()).auth.signOut({ scope: "local" });
-  }, []);
+    setFallback(null);
+    if (id) await (await supabase()).auth.signOut({ scope: "local" });
+  }, [id, setFallback]);
 
   // The watchlist and progress, saved in the account's metadata (App.jsx).
   const save = useCallback(async (patch) => {
@@ -109,21 +122,23 @@ function CloudAuth({ children }) {
     return data.user?.user_metadata ?? {};
   }, []);
 
-  const raw = session.user;
-  const id = raw?.id ?? null;
   const email = raw?.email ?? "";
   const name = raw?.user_metadata?.name ?? "";
   const since = raw?.created_at ?? null;
 
-  const user = useMemo(
+  const account = useMemo(
     () => (id ? { id, email, name: name || email.split("@")[0], since } : null),
     [id, email, name, since],
   );
+  const onDevice = fallback?.via === "fallback" && fallback.email ? fallback : null;
+  const user = account ?? onDevice;
   const cloud = useMemo(() => (id ? { id, load, save } : null), [id, load, save]);
+  // What the UI should say: codes and a synced watchlist, or this device only.
+  const mode = account || !onDevice ? "cloud" : "local";
 
   const value = useMemo(
-    () => ({ mode: "cloud", ready: session.ready, user, isSignedIn: Boolean(user), begin, verify, rename, signOut, cloud }),
-    [session.ready, user, begin, verify, rename, signOut, cloud],
+    () => ({ mode, ready: session.ready, user, isSignedIn: Boolean(user), begin, verify, rename, signOut, cloud }),
+    [mode, session.ready, user, begin, verify, rename, signOut, cloud],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

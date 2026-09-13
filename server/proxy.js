@@ -276,8 +276,15 @@ export async function signin(body, env) {
     headers: supaHeaders(publicKey),
     body: JSON.stringify({ email: check.email, create_user: false }),
   });
-  if (sent.status === 429) return reply(429, { ok: false, reason: "wait" });
-  if (!sent.ok) return reply(502, { ok: false, reason: "send" });
+  if (!sent.ok) {
+    const why = await sent.json().catch(() => ({}));
+    const said = `${why.code ?? ""} ${why.error_code ?? ""} ${why.msg ?? ""} ${why.message ?? ""}`;
+    if (sent.status === 429 || /rate.?limit/i.test(said)) return reply(429, { ok: false, reason: "wait" });
+    // Supabase's built-in mailer only writes to the project's own team; anyone
+    // else needs a custom SMTP sender set up in the dashboard.
+    if (/not.?authori[sz]ed/i.test(said)) return reply(503, { ok: false, reason: "sender" });
+    return reply(502, { ok: false, reason: "send" });
+  }
   return reply(200, { ok: true, mode: "code", email: check.email });
 }
 

@@ -11,6 +11,7 @@ const MESSAGES = {
   "no-mail": ["email", "That domain can’t receive email. Check the spelling."],
   wait: ["form", "A code was sent a moment ago. Wait a minute, then ask for another."],
   send: ["form", "The code couldn’t be sent just now. Try again in a minute."],
+  sender: ["form", "3Flix can’t email codes to this address yet — its email sender is still being set up. Try again later."],
   service: ["form", "Sign-in is having trouble right now. Try again in a minute."],
   network: ["form", "Couldn’t reach 3Flix. Check your connection and try again."],
   code: ["code", "That code is wrong or has expired. Check the newest email, or send a new code."],

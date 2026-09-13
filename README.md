@@ -76,11 +76,17 @@ To connect Supabase (free): create a project, then in the dashboard
    users to sign up" (the server creates accounts itself, after the email check).
 2. **Authentication → Emails → Templates → Magic Link**: put `{{ .Token }}` in
    the message, so it contains the code (do the same in "Confirm signup").
-3. **Authentication → Emails → SMTP Settings**: add an SMTP sender (Brevo,
+3. **Authentication → URL Configuration**: set the Site URL to
+   `https://3flix-react.vercel.app` (and add `http://localhost:4500/**` under
+   Redirect URLs), so any link in an email comes back to the site.
+4. **Authentication → Emails → SMTP Settings**: add an SMTP sender (Brevo,
    Resend, or a Gmail app password). Supabase's built-in sender only mails the
-   project's own team, a few times an hour.
-4. **Project Settings → API**: copy the URL, the anon (publishable) key and the
-   service_role (secret) key into the three variables above.
+   project's own team, about two emails an hour; anyone else is told the site
+   can't email codes to their address yet.
+5. **Project Settings → API Keys**: copy the URL, the publishable (anon) key
+   and the secret (service_role) key into the three variables above — in
+   `.env.local` and in Vercel. If the live server is missing the secret key,
+   sign-in falls back to this-device-only rather than locking everyone out.
 
 ## Documents
 
