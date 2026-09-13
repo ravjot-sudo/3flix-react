@@ -1,0 +1,39 @@
+# Refreshes the "In cinemas" + trending fallback snapshots every day, so the
+# "Saved list · as of …" date on the site never goes stale.
+#
+# No app code runs here — just node scripts/snapshots.mjs, which calls TMDB
+# through the same server code the site uses. It needs TMDB_TOKEN, stored as
+# a repository secret (Settings → Secrets and variables → Actions).
+name: Refresh snapshots
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snapshots
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Refresh public/snapshots
+        env:
+          TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
+        run: node scripts/snapshots.mjs
+      - name: Commit updated snapshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/snapshots
+          git diff --cached --quiet || git commit -m "chore: refresh daily snapshots"
+          git push
