@@ -11,15 +11,18 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmdb } from "../server/proxy.js";
 
 const root = new URL("..", import.meta.url);
-const env = {
-  ...Object.fromEntries(
+// .env.local exists on a developer machine; in CI the keys come from the
+// environment instead, so a missing file is fine there.
+let fileEnv = {};
+try {
+  fileEnv = Object.fromEntries(
     readFileSync(new URL(".env.local", root), "utf8")
       .split("\n")
       .filter((line) => /^[A-Z_]+=/.test(line))
       .map((line) => [line.slice(0, line.indexOf("=")), line.slice(line.indexOf("=") + 1)]),
-  ),
-  ...process.env,
-};
+  );
+} catch { /* no .env.local: process.env carries the keys */ }
+const env = { ...fileEnv, ...process.env };
 
 async function get(path, params = {}) {
   const url = new URL("http://localhost/api/tmdb");
