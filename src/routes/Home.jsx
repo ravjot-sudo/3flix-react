@@ -48,9 +48,8 @@ export default function Home() {
         </>
       ) : (
         <>
-          {/* Room to scroll the opening all the way off. */}
-          <div id="gate-runway" className="gate-runway" tabIndex={-1} />
-          {ready && ended && <SignInGate />}
+          {/* Sign-in pops up immediately — before the intro plays. */}
+          {ready && <SignInGate />}
         </>
       )}
     </>
