@@ -92,7 +92,7 @@ while signed out goes to `/signin` first, then on to where it was headed.
 Signing in is one step — a name and an email address, no password and no
 code. The server checks the address is real before letting anyone in: the
 format, a list of 8,771 temporary-mail domains (and their subdomains), and a
-DNS lookup for the domain's mail record The profile is then remembered in
+DNS lookup for the domain's mail record. The profile is then remembered in
 the browser, and the form is prefilled on the next visit. The nav bar has no
 "Sign in" button — only an account menu with Change name and Sign out.
 
@@ -139,12 +139,14 @@ To deploy by hand instead: `vercel --prod`.
   <img src="docs/readme/contributors.svg" width="100%" alt="Who built 3Flix, counted from the git history: each author with their commits and lines changed and a bar for their share of the commits, Claude as an AI pair programmer credited from the commits it co-authored, and a bar chart of every day's commits.">
 </p>
 
-Counted from the git history, not written by hand: each author's commits and
-lines changed, co-authors from the commits' `Co-Authored-By` lines (Claude
-worked on this project as an AI pair programmer), and automated commits kept
-apart from people. To list a teammate before their first commit, add them to
-`"contributors"` in `package.json`; their bar then grows with their own
-commits. Redraw it after new work lands with `node scripts/readme-art.mjs`.
+Counted from the git history, not written by hand. Each bar is a share of
+the lines changed — the work itself — rather than of commits, so a one-line
+fix and a whole feature don't count the same. Co-authors come from the
+commits' `Co-Authored-By` lines (Claude worked on this project as an AI pair
+programmer), and automated commits are kept apart from people. Teammates are listed under `"contributors"` in `package.json`, each with
+the name to show and their git author name (`{ "name": "Watson", "git":
+"g4_0907" }`); anyone listed appears even before their first commit, and
+their bar grows with their own commits. Redraw it after new work lands with `node scripts/readme-art.mjs`.
 
 ## Documents
 

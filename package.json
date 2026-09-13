@@ -3,6 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "contributors": [
+    {
+      "name": "Ravjot",
+      "git": "ravjot-sudo",
+      "url": "https://github.com/ravjot-sudo"
+    },
+    {
+      "name": "Watson",
+      "git": "g4_0907"
+    },
+    {
+      "name": "Claude",
+      "git": "Claude Opus 5",
+      "role": "AI pair programmer",
+      "url": "https://claude.com/claude-code"
+    }
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

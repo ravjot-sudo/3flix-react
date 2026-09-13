@@ -910,6 +910,32 @@ const day = (iso) => `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7
 const num = (n) => n.toLocaleString("en-US");
 
 /**
+ * package.json "contributors", npm-style: { name, url } plus `git` — the name
+ * that person's commits (or Co-Authored-By lines) carry — and an optional
+ * `role`. Plain strings are names that commit as themselves.
+ */
+const TEAM = (pkg.contributors ?? []).map((c) => {
+  if (typeof c === "string") { const n = c.replace(/\s*[<(].*$/, "").trim(); return { name: n, git: n }; }
+  return { name: c?.name, git: c?.git ?? c?.name, url: c?.url, role: c?.role };
+}).filter((c) => c.name);
+const member = (gitName) => TEAM.find((c) => c.git === gitName);
+const githubHandle = (url) => /github\.com\/([A-Za-z0-9-]+)\/?$/.exec(url ?? "")?.[1] ?? null;
+
+/** A GitHub profile picture, inlined — a README image may not fetch anything itself. */
+async function avatar(handle) {
+  try {
+    const res = await fetch(`https://github.com/${handle}.png?size=96`);
+    const type = res.headers.get("content-type") ?? "";
+    if (!res.ok || !/^image\/(png|jpe?g|gif|webp)$/.test(type)) return null;
+    const bytes = Buffer.from(await res.arrayBuffer());
+    return bytes.length < 150_000 ? `data:${type};base64,${bytes.toString("base64")}` : null;
+  } catch {
+    return null;   // offline: the initial stands in
+  }
+}
+const AVATARS = new Map();
+
+/**
  * Who did the work, counted — never typed in by hand, so it can't flatter
  * anyone. Authors and their lines come from `git log`; co-authors from the
  * Co-Authored-By trailers; bots (the daily snapshot refresh) are counted
@@ -923,6 +949,7 @@ function history() {
     const days = new Map();
     let bots = 0, total = 0;
     const isBot = (n) => /\[bot\]$/i.test(n);
+    const shown = (gitName) => member(gitName)?.name ?? gitName;
     const log = git(["log", "--no-merges", "--date=short",
       "--format=%aN%x09%ad%x09%(trailers:key=Co-Authored-By,valueonly,separator=%x7C)"]);
     for (const line of log.split("\n").filter(Boolean)) {
@@ -930,22 +957,36 @@ function history() {
       total += 1;
       days.set(date, (days.get(date) ?? 0) + 1);
       if (isBot(name)) { bots += 1; continue; }
-      const p = people.get(name) ?? { name, commits: 0, add: 0, del: 0 };
+      const p = people.get(shown(name)) ?? { name: shown(name), git: name, commits: 0, add: 0, del: 0 };
       p.commits += 1;
-      people.set(name, p);
+      people.set(p.name, p);
       for (const who of trailers.split("|").map((t) => t.replace(/<.*$/, "").trim()).filter(Boolean)) {
         coauthors.set(who, (coauthors.get(who) ?? 0) + 1);
       }
     }
-    let author = null;
-    for (const line of git(["log", "--no-merges", "--numstat", "--format=@%aN"]).split("\n")) {
-      if (line.startsWith("@")) { author = line.slice(1); continue; }
+    // Lines changed, per commit: credited to its author, and to each of its
+    // co-authors. Bots' lines count towards neither.
+    const coLines = new Map();
+    let humanLines = 0, author = null, co = [];
+    const numstat = git(["log", "--no-merges", "--numstat",
+      "--format=@%aN%x09%(trailers:key=Co-Authored-By,valueonly,separator=%x7C)"]);
+    for (const line of numstat.split("\n")) {
+      if (line.startsWith("@")) {
+        const [a, t = ""] = line.slice(1).split("\t");
+        author = a;
+        co = t.split("|").map((x) => x.replace(/<.*$/, "").trim()).filter(Boolean);
+        continue;
+      }
       const m = line.match(/^(\d+)\t(\d+)\t/);
-      if (m && people.has(author)) { people.get(author).add += Number(m[1]); people.get(author).del += Number(m[2]); }
+      if (!m || isBot(author)) continue;
+      const changed = Number(m[1]) + Number(m[2]);
+      humanLines += changed;
+      const p = people.get(shown(author));
+      if (p) { p.add += Number(m[1]); p.del += Number(m[2]); }
+      for (const c of co) coLines.set(c, (coLines.get(c) ?? 0) + changed);
     }
-    for (const c of pkg.contributors ?? []) {
-      const name = typeof c === "string" ? c.replace(/\s*[<(].*$/, "").trim() : c?.name;
-      if (name && !people.has(name)) people.set(name, { name, commits: 0, add: 0, del: 0 });
+    for (const c of TEAM) {
+      if (!people.has(c.name) && !coauthors.has(c.git)) people.set(c.name, { name: c.name, git: c.git, commits: 0, add: 0, del: 0 });
     }
     const dates = [...days.keys()].sort();
     const calendar = [];
@@ -957,7 +998,8 @@ function history() {
     }
     return {
       people: [...people.values()].sort((a, b) => b.commits - a.commits || b.add - a.add),
-      coauthors: [...coauthors.entries()].sort((a, b) => b[1] - a[1]),
+      coauthors: [...coauthors.entries()].sort((a, b) => b[1] - a[1]).map(([name, n]) => [name, n, coLines.get(name) ?? 0]),
+      humanLines,
       days: calendar,
       bots, total,
     };
@@ -971,23 +1013,31 @@ function contributors() {
   if (!h) return null;
   const CLAY = "#d97757";
   const humans = h.total - h.bots;
-  const pct = (x) => `${Math.round(x * 100)}%`;
+  // Honest at both ends: 0.01% is not "0%", and 99.99% is not "100%".
+  const pct = (x) => (x <= 0 ? "0%" : x < 0.001 ? "<0.1%" : x < 0.1 ? `${(x * 100).toFixed(1)}%`
+    : x > 0.999 && x < 1 ? ">99.9%" : `${Math.round(x * 100)}%`);
+  const lines = h.humanLines || 1;
   const rows = [
     ...h.people.map((p) => {
-      const share = humans ? p.commits / humans : 0;
+      const share = (p.add + p.del) / lines;
+      const m = member(p.git);
+      const handle = githubHandle(m?.url);
       return {
-        name: p.name, tag: "AUTHOR", c: C.gold, initial: p.name.trim().charAt(0).toUpperCase(), share,
+        name: p.name, tag: (m?.role ?? "author").toUpperCase(), c: C.gold, initial: p.name.trim().charAt(0).toUpperCase(), share,
+        handle: handle ? `@${handle}` : p.git !== p.name ? p.git : "", picture: AVATARS.get(p.name),
         stat: `${p.commits} ${p.commits === 1 ? "commit" : "commits"} · +${num(p.add)} −${num(p.del)} lines`,
-        label: `${pct(share)} OF COMMITS`,
+        label: `${pct(share)} OF LINES CHANGED`,
       };
     }),
-    ...h.coauthors.map(([name, n]) => {
+    ...h.coauthors.map(([name, n, coLines]) => {
+      const m = member(name);
       const claude = /claude/i.test(name);
       return {
-        name: claude ? "Claude" : name, tag: claude ? "AI PAIR PROGRAMMER" : "CO-AUTHOR", c: CLAY,
-        initial: claude ? "✳" : name.charAt(0).toUpperCase(), share: humans ? n / humans : 0,
-        stat: `co-author on ${n} of ${humans} commits${claude ? ` · ${name}` : ""}`,
-        label: `${pct(humans ? n / humans : 0)} CO-AUTHORED`,
+        name: m?.name ?? (claude ? "Claude" : name), tag: (m?.role ?? (claude ? "AI pair programmer" : "co-author")).toUpperCase(),
+        c: CLAY, initial: claude ? "✳" : (m?.name ?? name).charAt(0).toUpperCase(), share: coLines / lines,
+        handle: name !== (m?.name ?? name) ? name : "", picture: AVATARS.get(m?.name),
+        stat: `co-author on ${n} of ${humans} commits`,
+        label: `${pct(coLines / lines)} OF LINES CO-AUTHORED`,
       };
     }),
     ...(h.bots ? [{
@@ -1020,14 +1070,16 @@ function contributors() {
 
 <rect width="${W}" height="${H}" fill="${C.ink}"/>
 ${rail("07", "CONTRIBUTORS", "Who built", "3Flix.")}
-<text class="mono" x="56" y="132" font-size="11" letter-spacing="2.4" fill="${C.muted}">FROM THE GIT HISTORY</text>
+<text class="mono" x="56" y="132" font-size="11" letter-spacing="2.4" fill="${C.muted}">FROM THE GIT HISTORY · BARS ARE SHARE OF LINES CHANGED</text>
 
 ${rows.map((r, i) => {
     const y = top + i * rowH, d = (0.2 + i * 0.18).toFixed(2);
     return `<g class="appear" style="animation-delay:${d}s">
   <rect x="56" y="${y}" width="48" height="48" fill="${r.c}"/>
-  <text class="sans" x="80" y="${y + 32}" text-anchor="middle" font-size="22" font-weight="800" fill="${C.ink}">${esc(r.initial)}</text>
-  <text class="sans" x="${barX}" y="${y + 20}" font-size="20" font-weight="700" fill="${C.paper}">${esc(r.name)}</text>
+  ${r.picture
+    ? `<image href="${r.picture}" x="58" y="${y + 2}" width="44" height="44" preserveAspectRatio="xMidYMid slice"/>`
+    : `<text class="sans" x="80" y="${y + 32}" text-anchor="middle" font-size="22" font-weight="800" fill="${C.ink}">${esc(r.initial)}</text>`}
+  <text class="sans" x="${barX}" y="${y + 20}" font-size="20" font-weight="700" fill="${C.paper}">${esc(r.name)}${r.handle ? `<tspan class="mono" dx="10" font-size="11" font-weight="500" fill="${C.fog}">${esc(r.handle)}</tspan>` : ""}</text>
   <text class="mono" x="640" y="${y + 20}" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="${r.c}">${esc(r.tag)}</text>
   <text class="mono" x="${barX}" y="${y + 40}" font-size="11" letter-spacing="0.3" fill="${C.fog}">${esc(r.stat)}</text>
   <text class="mono" x="640" y="${y + 40}" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1" fill="${r.c}">${esc(r.label)}</text>
@@ -1060,6 +1112,11 @@ ${caption(H, `FROM ${first} TO ${last} · RE-COUNTED EVERY TIME node scripts/rea
 
 const out = new URL("../docs/readme/", import.meta.url);
 mkdirSync(out, { recursive: true });
+for (const c of TEAM) {
+  const handle = githubHandle(c.url);
+  const picture = handle && await avatar(handle);
+  if (picture) AVATARS.set(c.name, picture);
+}
 const art = { hero, tour, stack, keys, signin, routes, deploy, contributors };
 const wrote = [];
 for (const [name, draw] of Object.entries(art)) {
