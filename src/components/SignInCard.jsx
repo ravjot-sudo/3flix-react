@@ -105,7 +105,7 @@ export default function SignInCard({ titleId, as: Heading = "h2", focusOnMount =
             <Heading id={titleId} className="signin-title">Sign in to <em>start watching.</em></Heading>
             <p className="signin-lede">
               {mode === "cloud"
-                ? "Your name and email — we’ll send a six-digit code. No password to remember."
+                ? "Your name and email — we’ll email you a sign-in code. No password to remember."
                 : "Your name and email, and you’re in."}
             </p>
 
