@@ -271,27 +271,10 @@ export async function signin(body, env) {
     if (!exists) return reply(502, { ok: false, reason: "service" });
   }
 
-  // Pre-generate OTP via admin API so there is always an active, valid OTP in Supabase
-  let devOtp = null;
-  try {
-    const gen = await fetch(`${base}/auth/v1/admin/generate_link`, {
-      method: "POST",
-      headers: supaHeaders(secret),
-      body: JSON.stringify({ type: "magiclink", email: check.email }),
-    });
-    if (gen.ok) {
-      const genData = await gen.json();
-      devOtp = genData.email_otp || null;
-      if (devOtp) {
-        console.log(`\n========================================`);
-        console.log(`🔑 3Flix Sign-In OTP for ${check.email}: ${devOtp}`);
-        console.log(`========================================\n`);
-      }
-    }
-  } catch {
-    // Non-fatal
-  }
-
+  // One code request per sign-in attempt: Supabase rate-limits OTP mail
+  // (about one code a minute per address, a handful per hour on the
+  // built-in mailer), so any extra token-generating call here burns the
+  // budget and the email never goes out.
   const sent = await fetch(`${base}/auth/v1/otp`, {
     method: "POST",
     headers: supaHeaders(publicKey),
@@ -300,7 +283,6 @@ export async function signin(body, env) {
   if (!sent.ok) {
     const why = await sent.json().catch(() => ({}));
     const said = `${why.code ?? ""} ${why.error_code ?? ""} ${why.msg ?? ""} ${why.message ?? ""}`;
-    if (devOtp) return reply(200, { ok: true, mode: "code", email: check.email });
     if (sent.status === 429 || /rate.?limit/i.test(said)) return reply(429, { ok: false, reason: "wait" });
     // Supabase's built-in mailer only writes to the project's own team; anyone
     // else needs a custom SMTP sender set up in the dashboard.
