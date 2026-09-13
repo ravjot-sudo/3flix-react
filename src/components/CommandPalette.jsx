@@ -23,7 +23,7 @@ const PLAYABLE = FILMS;
 const ROUTES = [
   { label: "Home", to: "/" },
   { label: "Library", to: "/library" },
-  { label: "Movies — trending, cinemas, free", to: "/movies" },
+  { label: "Movies — trending, cinemas, free, Netflix", to: "/movies" },
   { label: "Watchlist", to: "/watchlist" },
   { label: "How this is legal", to: "/about" },
 ];

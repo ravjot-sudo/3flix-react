@@ -81,12 +81,39 @@ const WITH_THE = new Set(["US", "GB", "AE", "NL", "PH", "DO", "BS", "GM", "CD", 
 /** A country as it reads after "in": "the United Kingdom", "India". */
 export const inRegion = (code) => `${WITH_THE.has(code) ? "the " : ""}${regionName(code)}`;
 
+/* ---------- Netflix -------------------------------------------------- */
+/**
+ * Netflix's provider id, looked up per region rather than hard-coded
+ * (it is 8 almost everywhere, which is the fallback).
+ */
+async function netflixId(region, signal) {
+  const data = await get("/watch/providers/movie", { watch_region: region }, signal);
+  const hit = data.results?.find((p) => p.provider_name === "Netflix");
+  return hit?.provider_id ?? 8;
+}
+
 export const SORTS = {
   popular: { label: "Popular", sort_by: "popularity.desc" },
   rated: { label: "Top rated", sort_by: "vote_average.desc", "vote_count.gte": 300 },
   newest: { label: "Newest", sort_by: "primary_release_date.desc" },
   title: { label: "A–Z", sort_by: "title.asc" },
 };
+
+/** One page of films streaming on Netflix (subscription) in `region`. */
+export async function discoverNetflix({ region, genre, sort = "popular", page = 1 }, signal) {
+  const provider = await netflixId(region, signal);
+  const { label: _label, ...order } = SORTS[sort] ?? SORTS.popular;
+  const data = await get("/discover/movie", {
+    watch_region: region,
+    with_watch_providers: provider,
+    with_watch_monetization_types: "flatrate",
+    with_genres: genre,
+    include_adult: "false",
+    page,
+    ...order,
+  }, signal);
+  return toPage(data);
+}
 
 const DAY = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
 /** "11 Sep 2026", for the date a saved list was taken. */
@@ -173,6 +200,7 @@ export const LISTS = {
   top: { label: "Top rated", filters: true, sort: false },
   cinema: { label: "In cinemas", filters: false },
   free: { label: "Free to watch", filters: true },
+  netflix: { label: "On Netflix", filters: true },
 };
 
 /* ---------- top rated ------------------------------------------------ */
@@ -300,7 +328,7 @@ export function newReleases() {
   return newest;
 }
 
-/** Search every film TMDB knows. */
+/** Search every film TMDB knows, not just Netflix's. */
 export async function searchMovies({ query, page = 1 }, signal) {
   const data = await get("/search/movie", { query, include_adult: "false", page }, signal);
   return toPage(data);
@@ -339,6 +367,7 @@ export async function movieDetail(id, region, signal) {
     stream,
     free,
     imdbId: m.imdb_id || null,
+    onNetflix: stream.some((p) => p.name === "Netflix"),
     providersLink: here.link ?? `https://www.themoviedb.org/movie/${m.id}/watch?locale=${region}`,
   };
 }
@@ -377,3 +406,6 @@ export const posterStandIn = (f) => ({
   hue: (f.id * 47) % 360,
   genres: [],
 });
+
+/** Netflix has no public deep links; its own search lands on the title. */
+export const netflixUrl = (title) => `https://www.netflix.com/search?q=${encodeURIComponent(title)}`;

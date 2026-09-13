@@ -842,6 +842,7 @@ html.cinema-mode .mvd-player-section {
   border: 1px solid var(--line);
 }
 .mvd-providers img { width: 36px; height: 36px; }
+.mvd-providers .is-netflix { border-color: var(--amber); color: var(--amber); }
 .mvd-providers .is-free { border-color: var(--mint); }
 .mvd-tag {
   margin-left: auto;

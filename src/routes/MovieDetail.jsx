@@ -4,7 +4,7 @@ import Poster from "../components/Poster.jsx";
 import Ratings from "../components/Ratings.jsx";
 import { TmdbCredit, TmdbSetup } from "../components/TmdbNotes.jsx";
 import { useRegion, useRemote } from "../hooks/useTmdb.js";
-import { hasTmdb, img, inRegion, movieDetail, posterStandIn } from "../lib/tmdb.js";
+import { hasTmdb, img, inRegion, movieDetail, netflixUrl, posterStandIn } from "../lib/tmdb.js";
 import { price, watchLinks } from "../lib/watchmode.js";
 import { formatRuntime } from "../data/films.js";
 
@@ -92,6 +92,7 @@ export default function MovieDetail() {
   const facts = [m.year, m.runtime ? formatRuntime(m.runtime) : null, m.genres.slice(0, 3).join(" · ")].filter(Boolean);
 
   const sources = links.data?.sources ?? [];
+  const netflixLink = sources.find((s) => s.kind === "sub" && /netflix/i.test(s.name))?.url ?? netflixUrl(m.title);
   const subscription = sources.find((s) => s.kind === "sub");
   const freeSource = sources.find((s) => s.kind === "free");
   const currentServer = STREAM_SERVERS.find((s) => s.id === serverId) ?? STREAM_SERVERS[0];
@@ -127,7 +128,11 @@ export default function MovieDetail() {
                   </svg>
                   Watch Film
                 </button>
-                {subscription && (
+                {m.onNetflix ? (
+                  <a className="btn btn-ghost btn-go" href={netflixLink} target="_blank" rel="noopener noreferrer">
+                    Watch on Netflix<span className="sr-only"> (opens Netflix in a new tab)</span>
+                  </a>
+                ) : subscription && (
                   <a className="btn btn-ghost btn-go" href={subscription.url} target="_blank" rel="noopener noreferrer">
                     Watch on {subscription.name}<span className="sr-only"> (opens {subscription.name} in a new tab)</span>
                   </a>
@@ -260,7 +265,7 @@ export default function MovieDetail() {
                   </li>
                 ))}
                 {m.stream.map((p) => (
-                  <li key={`s${p.id}`}>
+                  <li key={`s${p.id}`} className={p.name === "Netflix" ? "is-netflix" : undefined}>
                     {p.logo && <img src={img(p.logo, "w92")} alt="" width="36" height="36" loading="lazy" />}
                     <span>{p.name}</span>
                     <span className="mvd-tag">Subscription</span>
@@ -385,7 +390,7 @@ function Missing({ text, retry }) {
         <h2>Couldn’t open this film.</h2>
         <p>{text}</p>
         {retry && <button type="button" className="btn btn-ghost" onClick={retry}>Try again</button>}
-        <Link className="link-go" to="/movies">Back to Movies</Link>
+        <Link className="link-go" to="/movies">Back to On Netflix</Link>
       </div>
     </div>
   );
