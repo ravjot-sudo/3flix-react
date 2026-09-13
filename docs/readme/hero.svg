@@ -60,7 +60,7 @@
 <rect class="underline" x="780" y="57" width="36.6" height="2" fill="#0c0c0b"/>
 
 <!-- copy -->
-<text class="mono fade" x="56" y="124" font-size="12.5" letter-spacing="3" fill="#f6b519">PUBLIC DOMAIN · OPEN MOVIES · WHAT'S TRENDING</text>
+<text class="mono fade" x="56" y="124" font-size="12.5" letter-spacing="3" fill="#f6b519">PUBLIC DOMAIN · NEW RELEASES · WHAT'S TRENDING</text>
 <g clip-path="url(#line1)"><text class="sans rise d1" x="54" y="198" font-size="62" font-weight="800" letter-spacing="-2.2" fill="#f0eee6">Cinema that outlived</text></g>
 <g clip-path="url(#line2)"><text class="sans rise d2" x="54" y="264" font-size="62" font-weight="800" letter-spacing="-2.2" fill="#f6b519">its copyright.</text></g>
 <text class="sans fade d3" x="56" y="312" font-size="18" fill="#a8a79f">React 19 · React Router 7 · framer-motion · Vite 8 · Vercel · TMDB</text>
@@ -76,7 +76,7 @@
   <circle r="94" fill="url(#aperture)"/>
   <g class="spin">
     <text class="mono" font-size="13" font-weight="600" letter-spacing="4" fill="#f0eee6">
-      <textPath href="#ring" textLength="740" lengthAdjust="spacing">REACT 19 · FRAMER MOTION · VITE 8 · TMDB · SUPABASE · VERCEL · </textPath>
+      <textPath href="#ring" textLength="740" lengthAdjust="spacing">REACT 19 · FRAMER MOTION · VITE 8 · TMDB · OMDB · VERCEL · </textPath>
     </text>
   </g>
   <g class="play">

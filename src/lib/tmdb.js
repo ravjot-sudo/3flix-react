@@ -362,7 +362,7 @@ export async function movieDetail(id, region, signal) {
     tagline: m.tagline ?? "",
     genres: (m.genres ?? []).map((g) => g.name),
     director: m.credits?.crew?.find((c) => c.job === "Director")?.name ?? "",
-    cast: (m.credits?.cast ?? []).slice(0, 8).map((c) => ({ id: c.id, name: c.name, character: c.character })),
+    cast: (m.credits?.cast ?? []).slice(0, 8).map((c) => ({ id: c.id, name: c.name, character: c.character, photo: c.profile_path ?? null })),
     trailerKey: trailer?.key ?? null,
     stream,
     free,
@@ -395,6 +395,31 @@ function toFilm(m) {
     backdrop: m.backdrop_path ?? null,
   };
 }
+
+/**
+ * A snapshot of a TMDB film in the Library's own film shape, so a starred
+ * film keeps its title and artwork for the watchlist. Accepts a catalogue
+ * film, a detail film, or an already-shaped library film — whichever fields
+ * are present win.
+ */
+export const tmdbSnapshot = (m) => ({
+  id: `tmdb-${m.tmdbId ?? m.id}`,
+  tmdbId: m.tmdbId ?? m.id,
+  title: m.title ?? m.original_title ?? "Untitled",
+  year: typeof m.year === "number" ? m.year : (m.release_date ? Number(m.release_date.slice(0, 4)) : null),
+  director: m.director ?? "",
+  genres: m.genres ?? [],
+  runtime: m.runtime ?? null,
+  rating: typeof m.rating === "number" ? m.rating : (typeof m.vote_average === "number" ? m.vote_average : 0),
+  votes: m.votes ?? m.vote_count ?? 0,
+  hue: ((m.tmdbId ?? m.id) * 47) % 360,
+  synopsis: m.synopsis ?? m.overview ?? "",
+  video: null,
+  tmdb: {
+    poster: m.tmdb?.poster ?? m.poster_path ?? m.poster ?? null,
+    backdrop: m.tmdb?.backdrop ?? m.backdrop_path ?? m.backdrop ?? null,
+  },
+});
 
 /** Stand-in for our generated <Poster/> when TMDB has no artwork. */
 export const posterStandIn = (f) => ({

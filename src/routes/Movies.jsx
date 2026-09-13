@@ -6,8 +6,8 @@ import { TmdbCredit, TmdbSetup } from "../components/TmdbNotes.jsx";
 import { useDebounce } from "../hooks/useDebounce.js";
 import { usePaged, useRegion, useRemote } from "../hooks/useTmdb.js";
 import {
-  LISTS, REGIONS, SORTS, discoverFree, discoverNetflix, hasTmdb, img, movieGenres, netflixUrl,
-  inRegion, nowPlaying, regionName, savedOn, searchMovies, topRated, trending,
+  LISTS, REGIONS, SORTS, discoverFree, hasTmdb, img, movieGenres,
+  inRegion, nowPlaying, regionName, savedOn, searchMovies, tmdbSnapshot, topRated, trending,
 } from "../lib/tmdb.js";
 
 /**
@@ -60,7 +60,7 @@ const FETCH = {
   netflix: (args, signal) => discoverNetflix(args, signal),
 };
 
-export default function Movies() {
+export default function Movies({ watchlist = [], onToggleWatchlist }) {
   const ready = hasTmdb();
   const [region, setRegion] = useRegion();
   const [params, setParams] = useSearchParams();
@@ -199,7 +199,7 @@ export default function Movies() {
               </div>
             )}
 
-            {featured && <Billboard film={featured} shelf={shelf} place={placeLabel} />}
+            {featured && <Billboard film={featured} shelf={shelf} place={placeLabel} watchlist={watchlist} onToggleWatchlist={onToggleWatchlist} />}
 
             {list.error?.status === 503 && !list.items.length ? (
               <TmdbSetup />
@@ -227,7 +227,7 @@ export default function Movies() {
                     animate={{ opacity: 1, transform: "translateY(0px)" }}
                     transition={{ duration: 0.45, delay: (i % 20) * 0.03, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <MovieCard film={film} />
+                    <MovieCard film={film} inWatchlist={watchlist.includes(`tmdb-${film.id}`)} onToggleWatchlist={onToggleWatchlist} />
                   </motion.li>
                 ))}
               </ul>
@@ -264,7 +264,9 @@ const KICKER = {
 };
 
 /** The first film on the current shelf, full width, with its official art. */
-function Billboard({ film, shelf, place }) {
+function Billboard({ film, shelf, place, watchlist = [], onToggleWatchlist }) {
+  const saveId = `tmdb-${film.id}`;
+  const saved = watchlist.includes(saveId);
   return (
     <section className="mv-bill" aria-label={`Featured: ${film.title}`}>
       {film.backdrop && (
@@ -283,6 +285,16 @@ function Billboard({ film, shelf, place }) {
             <a className="btn btn-ghost" href={netflixUrl(film.title)} target="_blank" rel="noopener noreferrer">
               Watch on Netflix<span className="sr-only"> (opens Netflix in a new tab)</span>
             </a>
+          )}
+          {onToggleWatchlist && (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              aria-pressed={saved}
+              onClick={() => onToggleWatchlist(saveId, saved ? undefined : tmdbSnapshot(film))}
+            >
+              {saved ? "★ Saved" : "☆ Save"}
+            </button>
           )}
         </div>
       </div>

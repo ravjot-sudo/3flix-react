@@ -6,7 +6,7 @@ import FilmCard from "./FilmCard.jsx";
  * Demonstrates: rendering lists with .map and a stable `key`, conditional
  * rendering, and the rest/spread pattern for passing lookups down.
  */
-export default function FilmGrid({ films, progress = {}, watchlist = [], emptyMessage }) {
+export default function FilmGrid({ films, progress = {}, watchlist = [], onToggleWatchlist, emptyMessage }) {
   if (films.length === 0) {
     return (
       <div className="empty">
@@ -24,6 +24,7 @@ export default function FilmGrid({ films, progress = {}, watchlist = [], emptyMe
           film={film}
           progress={progress[film.id] ?? 0}
           inWatchlist={watchlist.includes(film.id)}
+          onToggleWatchlist={onToggleWatchlist}
         />
       ))}
     </div>

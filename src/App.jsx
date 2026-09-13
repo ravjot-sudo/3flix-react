@@ -47,16 +47,32 @@ export default function App() {
 
   const [watchlist, setWatchlist] = useLocalStorage("3flix:watchlist", []);
   const [progress, setProgress] = useLocalStorage("3flix:progress", {});
+  // Snapshots of starred TMDB films (title + artwork), keyed by watchlist id.
+  // Classics resolve from the catalogue itself, so only TMDB stars need one.
+  const [savedFilms, setSavedFilms] = useLocalStorage("3flix:saved-films", {});
 
   // useCallback keeps these stable, so the memoised children below them do not
   // re-render on every keystroke in the search box.
+  // Starring a TMDB film stores its snapshot alongside the id; unstarring it
+  // (no snapshot passed) drops the snapshot too. Classics carry no snapshot.
   const toggleWatchlist = useCallback(
-    (id) =>
+    (id, snapshot) => {
+      // Spread + filter: never mutate state in place.
       setWatchlist((list) =>
-        // Spread + filter: never mutate state in place.
         list.includes(id) ? list.filter((x) => x !== id) : [...list, id],
-      ),
-    [setWatchlist],
+      );
+      if (snapshot) {
+        setSavedFilms((map) => ({ ...map, [id]: snapshot }));
+      } else if (id.startsWith("tmdb-")) {
+        setSavedFilms((map) => {
+          if (!(id in map)) return map;
+          const next = { ...map };
+          delete next[id];
+          return next;
+        });
+      }
+    },
+    [setWatchlist, setSavedFilms],
   );
 
   const recordProgress = useCallback(
@@ -87,7 +103,7 @@ export default function App() {
           <Route
             path="library"
             element={
-              <Library films={films} progress={progress} watchlist={watchlist} />
+              <Library progress={progress} watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />
             }
           >
             {/* Nested + dynamic: renders inside Library's <Outlet/>. */}
@@ -106,13 +122,13 @@ export default function App() {
 
           <Route
             path="watchlist"
-            element={<Watchlist films={films} watchlist={watchlist} progress={progress} />}
+            element={<Watchlist films={films} watchlist={watchlist} progress={progress} savedFilms={savedFilms} onToggleWatchlist={toggleWatchlist} />}
           />
 
           {/* The TMDB catalogue. Browse and detail are sibling routes: the
               detail replaces the grid rather than nesting in it. */}
-          <Route path="movies" element={<Movies />} />
-          <Route path="movies/:movieId" element={<MovieDetail />} />
+          <Route path="movies" element={<Movies watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
+          <Route path="movies/:movieId" element={<MovieDetail watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
 
           <Route path="about" element={<About />} />
 

@@ -551,7 +551,7 @@ html[data-intro="on"] .op-skip {
   grid-template-columns: repeat(auto-fill, minmax(min(180px, 40vw), 1fr));
   gap: clamp(12px, 1.6vw, 22px);
 }
-.mv-card { display: block; border: 1px solid var(--line); background: var(--surface); height: 100%; }
+.mv-card { position: relative; display: block; border: 1px solid var(--line); background: var(--surface); height: 100%; }
 .mv-card:focus-visible { outline-offset: 2px; }
 .mv-poster {
   position: relative;
@@ -874,7 +874,19 @@ html.cinema-mode .mvd-player-section {
 .mvd-credit a { color: var(--fog); text-decoration: underline; text-underline-offset: 3px; }
 
 .mvd-cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--s-3); }
-.mvd-cast li { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--line); }
+.mvd-cast li { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--line); align-content: start; }
+.mvd-cast-photo { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border: 1px solid var(--line); margin-bottom: 8px; background: var(--surface); }
+.mvd-cast-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 1.5rem;
+  color: var(--fog);
+}
 .mvd-cast-name { font-weight: 600; }
 .mvd-cast-role { font-size: 0.8125rem; color: var(--muted); }
 

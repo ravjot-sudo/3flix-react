@@ -4,7 +4,7 @@ import Poster from "../components/Poster.jsx";
 import Ratings from "../components/Ratings.jsx";
 import { TmdbCredit, TmdbSetup } from "../components/TmdbNotes.jsx";
 import { useRegion, useRemote } from "../hooks/useTmdb.js";
-import { hasTmdb, img, inRegion, movieDetail, netflixUrl, posterStandIn } from "../lib/tmdb.js";
+import { hasTmdb, img, inRegion, movieDetail, netflixUrl, posterStandIn, tmdbSnapshot } from "../lib/tmdb.js";
 import { price, watchLinks } from "../lib/watchmode.js";
 import { formatRuntime } from "../data/films.js";
 
@@ -44,7 +44,7 @@ const STREAM_SERVERS = customSource
  * Provides a full cinema streaming screen with multiple servers, click-to-load
  * YouTube trailers, cinema dimming mode, and direct streaming links.
  */
-export default function MovieDetail() {
+export default function MovieDetail({ watchlist = [], onToggleWatchlist }) {
   const { movieId } = useParams();
   const id = Number(movieId);
   const valid = Number.isInteger(id) && id > 0;
@@ -96,6 +96,8 @@ export default function MovieDetail() {
   const subscription = sources.find((s) => s.kind === "sub");
   const freeSource = sources.find((s) => s.kind === "free");
   const currentServer = STREAM_SERVERS.find((s) => s.id === serverId) ?? STREAM_SERVERS[0];
+  const saveId = `tmdb-${m.id}`;
+  const saved = watchlist.includes(saveId);
 
   return (
     <article className="mvd">
@@ -128,6 +130,16 @@ export default function MovieDetail() {
                   </svg>
                   Watch Film
                 </button>
+                {onToggleWatchlist && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    aria-pressed={saved}
+                    onClick={() => onToggleWatchlist(saveId, saved ? undefined : tmdbSnapshot(m))}
+                  >
+                    {saved ? "★ Saved to Watchlist" : "☆ Save to Watchlist"}
+                  </button>
+                )}
                 {m.onNetflix ? (
                   <a className="btn btn-ghost btn-go" href={netflixLink} target="_blank" rel="noopener noreferrer">
                     Watch on Netflix<span className="sr-only"> (opens Netflix in a new tab)</span>
@@ -306,7 +318,14 @@ export default function MovieDetail() {
             <h2 id="mvd-cast" className="mvd-h">Cast</h2>
             <ul className="mvd-cast">
               {m.cast.map((c) => (
-                <li key={c.id}><span className="mvd-cast-name">{c.name}</span><span className="mvd-cast-role">{c.character}</span></li>
+                <li key={c.id}>
+                  {c.photo ? (
+                    <img className="mvd-cast-photo" src={img(c.photo, "w185")} alt={c.name} width="92" loading="lazy" decoding="async" />
+                  ) : (
+                    <span className="mvd-cast-fallback" aria-hidden="true">{c.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>
+                  )}
+                  <span className="mvd-cast-name">{c.name}</span><span className="mvd-cast-role">{c.character}</span>
+                </li>
               ))}
             </ul>
           </section>

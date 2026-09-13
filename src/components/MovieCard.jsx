@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Poster from "./Poster.jsx";
-import { img, posterStandIn } from "../lib/tmdb.js";
+import StarButton from "./StarButton.jsx";
+import { img, posterStandIn, tmdbSnapshot } from "../lib/tmdb.js";
 
 /**
  * One film from the TMDB catalogue: poster, then a title bar.
@@ -10,9 +11,10 @@ import { img, posterStandIn } from "../lib/tmdb.js";
  * lazy — a grid of forty posters only downloads the ones on screen. If a film
  * has no poster, or the image fails, our own generated <Poster/> stands in.
  */
-export default function MovieCard({ film }) {
+export default function MovieCard({ film, inWatchlist = false, onToggleWatchlist }) {
   const [broken, setBroken] = useState(false);
   const src = img(film.poster, "w342");
+  const saveId = `tmdb-${film.id}`;
 
   return (
     <Link className="mv-card" to={`/movies/${film.id}`}>
@@ -38,6 +40,13 @@ export default function MovieCard({ film }) {
           {film.rating ? <> · <span aria-label={`rated ${film.rating.toFixed(1)} out of 10`}>★ {film.rating.toFixed(1)}</span></> : null}
         </span>
       </span>
+      {onToggleWatchlist && (
+        <StarButton
+          saved={inWatchlist}
+          title={film.title}
+          onToggle={() => onToggleWatchlist(saveId, inWatchlist ? undefined : tmdbSnapshot(film))}
+        />
+      )}
     </Link>
   );
 }

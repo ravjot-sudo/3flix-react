@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { useReducedMotion } from "framer-motion";
 import Poster from "./Poster.jsx";
+import StarButton from "./StarButton.jsx";
 import { formatRuntime } from "../data/films.js";
 
 /**
@@ -17,7 +18,7 @@ import { formatRuntime } from "../data/films.js";
  * Demonstrates: props, useRef for direct DOM writes, conditional rendering,
  * composition (<Poster/> is reused, not reimplemented), and <Link>.
  */
-export default function FilmCard({ film, progress = 0, inWatchlist = false }) {
+export default function FilmCard({ film, progress = 0, inWatchlist = false, onToggleWatchlist }) {
   const ref = useRef(null);
   const frame = useRef(0);
   const reduced = useReducedMotion();
@@ -57,6 +58,13 @@ export default function FilmCard({ film, progress = 0, inWatchlist = false }) {
       <span className="spot-light" aria-hidden="true" />
 
       {inWatchlist && <span className="tile-flag">List</span>}
+      {onToggleWatchlist && (
+        <StarButton
+          saved={inWatchlist}
+          title={film.title}
+          onToggle={() => onToggleWatchlist(film.id, inWatchlist ? undefined : (film.tmdbId ? film : undefined))}
+        />
+      )}
 
       {pct > 0 && (
         <div className="tile-progress">

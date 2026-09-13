@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+<title id="title">What's on the 3Flix home page</title>
+<desc id="desc">A browser window scrolls through the home page on its own: the opening title sequence, Eight ways in (eight genres, each with a fanned deck of posters), Now showing (a filmstrip over a backdrop that changes colour), the top six since 2008, and this week's trending row. A list beside it marks the section on screen.</desc>
+<defs>
+  <clipPath id="vp"><rect x="68" y="176" width="666" height="336"/></clipPath>
+  <linearGradient id="shade" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#000" stop-opacity=".1"/><stop offset="1" stop-color="#000" stop-opacity=".55"/>
+  </linearGradient>
+  <linearGradient id="t0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f96bc"/><stop offset="1" stop-color="#2f96bc" stop-opacity=".35"/></linearGradient><linearGradient id="t1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b61ff"/><stop offset="1" stop-color="#7b61ff" stop-opacity=".35"/></linearGradient><linearGradient id="t2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4114"/><stop offset="1" stop-color="#ff4114" stop-opacity=".35"/></linearGradient><linearGradient id="t3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1ab8d1"/><stop offset="1" stop-color="#1ab8d1" stop-opacity=".35"/></linearGradient><linearGradient id="t4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2f9c"/><stop offset="1" stop-color="#ff2f9c" stop-opacity=".35"/></linearGradient><linearGradient id="t5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6b519"/><stop offset="1" stop-color="#f6b519" stop-opacity=".35"/></linearGradient><linearGradient id="t6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ecf8e"/><stop offset="1" stop-color="#3ecf8e" stop-opacity=".35"/></linearGradient><linearGradient id="t7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4356c8"/><stop offset="1" stop-color="#4356c8" stop-opacity=".35"/></linearGradient><linearGradient id="t8" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5231b"/><stop offset="1" stop-color="#e5231b" stop-opacity=".35"/></linearGradient><linearGradient id="t9" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00c8ff"/><stop offset="1" stop-color="#00c8ff" stop-opacity=".35"/></linearGradient>
+</defs>
+<style>
+  .sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .pulse-dot { display: none; }
+  }
+  .scroll { animation: scroll 16s cubic-bezier(.65,0,.35,1) infinite; }
+  @keyframes scroll { 0%, 14.4% { transform: translateY(0px); } 20%, 34.4% { transform: translateY(-336px); } 40%, 54.4% { transform: translateY(-672px); } 60%, 74.4% { transform: translateY(-1008px); } 80%, 94.4% { transform: translateY(-1344px); } 100% { transform: translateY(0px); } }
+  .thumb { animation: thumb 16s cubic-bezier(.65,0,.35,1) infinite; }
+  @keyframes thumb { 0%, 14.4% { transform: translateY(0px); } 20%, 34.4% { transform: translateY(67.2px); } 40%, 54.4% { transform: translateY(134.4px); } 60%, 74.4% { transform: translateY(201.6px); } 80%, 94.4% { transform: translateY(268.8px); } 100% { transform: translateY(0px); } }
+  .marker { animation: marker 16s cubic-bezier(.65,0,.35,1) infinite; }
+  @keyframes marker { 0%, 14.4% { transform: translateY(0px); } 20%, 34.4% { transform: translateY(64px); } 40%, 54.4% { transform: translateY(128px); } 60%, 74.4% { transform: translateY(192px); } 80%, 94.4% { transform: translateY(256px); } 100% { transform: translateY(0px); } }
+  .grade { animation: grade 12s linear infinite; }
+  @keyframes grade { 0% { fill: #2f96bc; } 16.67% { fill: #7b61ff; } 33.33% { fill: #ff4114; } 50% { fill: #1ab8d1; } 66.67% { fill: #ff2f9c; } 83.33% { fill: #f6b519; } 100% { fill: #2f96bc; } }
+  .fanL, .fanR, .front { transform-box: fill-box; transform-origin: 50% 100%; }
+  .fanL { transform: rotate(-12deg); animation: fanL 4s ease-in-out infinite; }
+  .fanR { transform: rotate(12deg); animation: fanR 4s ease-in-out infinite; }
+  @keyframes fanL { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(-17deg) translateX(-4px); } }
+  @keyframes fanR { 0%, 100% { transform: rotate(7deg); } 50% { transform: rotate(17deg) translateX(4px); } }
+  .breathe { transform-box: fill-box; transform-origin: center; animation: breathe 2.6s ease-in-out infinite; }
+  @keyframes breathe { 50% { transform: scale(1.18); opacity: .5; } }
+</style>
+
+<rect width="1200" height="560" fill="#0c0c0b"/>
+<line x1="56" y1="52" x2="356" y2="52" stroke="#2a2a27"/>
+<text class="mono" x="56" y="78" font-size="12" letter-spacing="2" fill="#f6b519">01</text>
+<text class="mono" x="356" y="78" font-size="12" letter-spacing="3" text-anchor="end" fill="#74736b">WHAT'S INSIDE</text>
+<text class="sans" x="400" y="86" font-size="40" font-weight="800" letter-spacing="-1.4" fill="#f0eee6">A title sequence, <tspan fill="#f6b519">then the menu.</tspan></text>
+
+<!-- the browser window -->
+<rect x="56" y="124" width="704" height="400" fill="#131312" stroke="#2a2a27"/>
+<rect x="68" y="136" width="680" height="30" fill="#f6b519"/>
+<rect x="80" y="144" width="18" height="14" fill="none" stroke="#0c0c0b" stroke-width="1.4"/>
+<path d="M87 148v6l5-3z" fill="#0c0c0b"/>
+<text class="sans" x="106" y="157" font-size="14" font-weight="800" letter-spacing="-0.4" fill="#0c0c0b">3Flix</text>
+<text class="mono" x="360" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">HOME</text><text class="mono" x="424" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">LIBRARY</text><text class="mono" x="488" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">MOVIES</text><text class="mono" x="552" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">WATCHLIST</text><text class="mono" x="616" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">ABOUT</text>
+<rect x="712" y="141" width="20" height="20" fill="#0c0c0b"/>
+<text class="sans" x="722" y="156" text-anchor="middle" font-size="11" font-weight="800" fill="#f6b519">R</text>
+
+<g clip-path="url(#vp)">
+  <g class="scroll">
+    <rect x="68" y="176" width="666" height="336" fill="#0c0c0b"/>
+    <text class="mono" x="88" y="206" font-size="10" letter-spacing="2.4" fill="#74736b">3FLIX · PUBLIC DOMAIN CINEMA</text>
+    <text class="sans" x="401" y="322" text-anchor="middle" font-size="36" font-weight="800" letter-spacing="-1.4" fill="#f0eee6">Twenty-four films outlived</text>
+    <text class="sans" x="401" y="366" text-anchor="middle" font-size="36" font-weight="800" letter-spacing="-1.4" fill="#f6b519">their copyright.</text>
+    <g transform="translate(401 434)">
+      <circle class="breathe" r="22" fill="none" stroke="#f6b519" stroke-width="1.5"/>
+      <path d="M-5 -8v16l13-8z" fill="#f6b519"/>
+    </g>
+    <text class="mono" x="401" y="492" text-anchor="middle" font-size="9.5" letter-spacing="2.4" fill="#74736b">SCROLL</text>
+    <text class="sans" x="88" y="552" font-size="24" font-weight="800" letter-spacing="-0.8" fill="#f0eee6">Eight ways <tspan fill="#f6b519">in.</tspan></text>
+    <text class="mono" x="714" y="552" text-anchor="end" font-size="10" letter-spacing="2" fill="#74736b">01 · BROWSE</text>
+    <rect x="88" y="570" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="98" y="588" font-size="9.5" letter-spacing="1.4" fill="#f6b519">01</text>
+    <text class="sans" x="98" y="607" font-size="14" font-weight="700" fill="#f0eee6">Action</text>
+    <rect class="fanL" style="animation-delay:0.00s" x="147" y="642" width="32" height="46" fill="url(#t2)"/><rect class="fanR" style="animation-delay:0.00s" x="147" y="642" width="32" height="46" fill="url(#t4)"/><rect class="front" style="animation-delay:0.00s" x="147" y="642" width="32" height="46" fill="url(#t0)"/>
+    <rect x="246" y="570" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="256" y="588" font-size="9.5" letter-spacing="1.4" fill="#f6b519">02</text>
+    <text class="sans" x="256" y="607" font-size="14" font-weight="700" fill="#f0eee6">Animation</text>
+    <rect class="fanL" style="animation-delay:0.18s" x="305" y="642" width="32" height="46" fill="url(#t3)"/><rect class="fanR" style="animation-delay:0.18s" x="305" y="642" width="32" height="46" fill="url(#t5)"/><rect class="front" style="animation-delay:0.18s" x="305" y="642" width="32" height="46" fill="url(#t1)"/>
+    <rect x="404" y="570" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="414" y="588" font-size="9.5" letter-spacing="1.4" fill="#f6b519">03</text>
+    <text class="sans" x="414" y="607" font-size="14" font-weight="700" fill="#f0eee6">Comedy</text>
+    <rect class="fanL" style="animation-delay:0.36s" x="463" y="642" width="32" height="46" fill="url(#t4)"/><rect class="fanR" style="animation-delay:0.36s" x="463" y="642" width="32" height="46" fill="url(#t6)"/><rect class="front" style="animation-delay:0.36s" x="463" y="642" width="32" height="46" fill="url(#t2)"/>
+    <rect x="562" y="570" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="572" y="588" font-size="9.5" letter-spacing="1.4" fill="#f6b519">04</text>
+    <text class="sans" x="572" y="607" font-size="14" font-weight="700" fill="#f0eee6">Crime</text>
+    <rect class="fanL" style="animation-delay:0.54s" x="621" y="642" width="32" height="46" fill="url(#t5)"/><rect class="fanR" style="animation-delay:0.54s" x="621" y="642" width="32" height="46" fill="url(#t7)"/><rect class="front" style="animation-delay:0.54s" x="621" y="642" width="32" height="46" fill="url(#t3)"/>
+    <rect x="88" y="706" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="98" y="724" font-size="9.5" letter-spacing="1.4" fill="#f6b519">05</text>
+    <text class="sans" x="98" y="743" font-size="14" font-weight="700" fill="#f0eee6">Drama</text>
+    <rect class="fanL" style="animation-delay:0.72s" x="147" y="778" width="32" height="46" fill="url(#t6)"/><rect class="fanR" style="animation-delay:0.72s" x="147" y="778" width="32" height="46" fill="url(#t8)"/><rect class="front" style="animation-delay:0.72s" x="147" y="778" width="32" height="46" fill="url(#t4)"/>
+    <rect x="246" y="706" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="256" y="724" font-size="9.5" letter-spacing="1.4" fill="#f6b519">06</text>
+    <text class="sans" x="256" y="743" font-size="14" font-weight="700" fill="#f0eee6">Horror</text>
+    <rect class="fanL" style="animation-delay:0.90s" x="305" y="778" width="32" height="46" fill="url(#t7)"/><rect class="fanR" style="animation-delay:0.90s" x="305" y="778" width="32" height="46" fill="url(#t9)"/><rect class="front" style="animation-delay:0.90s" x="305" y="778" width="32" height="46" fill="url(#t5)"/>
+    <rect x="404" y="706" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="414" y="724" font-size="9.5" letter-spacing="1.4" fill="#f6b519">07</text>
+    <text class="sans" x="414" y="743" font-size="14" font-weight="700" fill="#f0eee6">Sci-Fi</text>
+    <rect class="fanL" style="animation-delay:1.08s" x="463" y="778" width="32" height="46" fill="url(#t8)"/><rect class="fanR" style="animation-delay:1.08s" x="463" y="778" width="32" height="46" fill="url(#t0)"/><rect class="front" style="animation-delay:1.08s" x="463" y="778" width="32" height="46" fill="url(#t6)"/>
+    <rect x="562" y="706" width="150" height="128" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="572" y="724" font-size="9.5" letter-spacing="1.4" fill="#f6b519">08</text>
+    <text class="sans" x="572" y="743" font-size="14" font-weight="700" fill="#f0eee6">Thriller</text>
+    <rect class="fanL" style="animation-delay:1.26s" x="621" y="778" width="32" height="46" fill="url(#t9)"/><rect class="fanR" style="animation-delay:1.26s" x="621" y="778" width="32" height="46" fill="url(#t1)"/><rect class="front" style="animation-delay:1.26s" x="621" y="778" width="32" height="46" fill="url(#t7)"/>
+    <rect class="grade" x="68" y="848" width="666" height="336" fill="#2f96bc"/>
+    <rect x="68" y="848" width="666" height="336" fill="url(#shade)"/>
+    <text class="mono" x="88" y="878" font-size="10" letter-spacing="2.4" fill="#f0eee6" fill-opacity=".85">02 · NOW SHOWING · IN CINEMAS IN INDIA</text>
+    <rect x="330" y="900" width="74" height="84" fill="url(#t2)" opacity=".8"/>
+    <rect x="414" y="900" width="74" height="168" fill="url(#t3)" stroke="#f0eee6" stroke-opacity=".5"/>
+    <rect x="498" y="900" width="74" height="84" fill="url(#t4)" opacity=".8"/>
+    <rect x="582" y="900" width="74" height="84" fill="url(#t5)" opacity=".8"/>
+    <rect x="666" y="900" width="74" height="84" fill="url(#t6)" opacity=".8"/>
+    <rect x="750" y="900" width="74" height="84" fill="url(#t7)" opacity=".8"/>
+    <text class="sans" x="88" y="1098" font-size="36" font-weight="800" letter-spacing="-1.2" fill="#f0eee6">Mutiny</text>
+    <text class="mono" x="88" y="1122" font-size="10" letter-spacing="1.8" fill="#f0eee6" fill-opacity=".8">21 AUG 2026 · IN CINEMAS</text>
+    <rect x="88" y="1136" width="164" height="28" fill="#0c0c0b"/>
+    <text class="mono" x="100" y="1154" font-size="9.5" font-weight="600" letter-spacing="1.6" fill="#f0eee6">TRAILER &amp; DETAILS ›</text>
+    <text class="sans" x="88" y="1224" font-size="24" font-weight="800" letter-spacing="-0.8" fill="#f0eee6">The top six, <tspan fill="#f6b519">since 2008.</tspan></text>
+    <text class="mono" x="714" y="1224" text-anchor="end" font-size="10" letter-spacing="2" fill="#74736b">03 · TOP SIX</text>
+    <text class="sans" x="90" y="1416" font-size="120" font-weight="800" fill="none" stroke="#f6b519" stroke-width="1.5">1</text>
+    <rect x="128" y="1296" width="58" height="86" fill="url(#t5)" />
+    <text class="mono" x="128" y="1400" font-size="8" letter-spacing="0.8" fill="#a8a79f">DARK KNIGHT</text>
+    <text class="sans" x="194" y="1416" font-size="120" font-weight="800" fill="none" stroke="#f6b519" stroke-width="1.5">2</text>
+    <rect x="232" y="1296" width="58" height="86" fill="url(#t6)" />
+    <text class="mono" x="232" y="1400" font-size="8" letter-spacing="0.8" fill="#a8a79f">PARASITE</text>
+    <text class="sans" x="298" y="1416" font-size="120" font-weight="800" fill="none" stroke="#f6b519" stroke-width="1.5">3</text>
+    <rect x="336" y="1296" width="58" height="86" fill="url(#t7)" />
+    <text class="mono" x="336" y="1400" font-size="8" letter-spacing="0.8" fill="#a8a79f">INTERSTELLAR</text>
+    <text class="sans" x="402" y="1416" font-size="120" font-weight="800" fill="none" stroke="#f6b519" stroke-width="1.5">4</text>
+    <rect x="440" y="1296" width="58" height="86" fill="url(#t8)" />
+    <text class="mono" x="440" y="1400" font-size="8" letter-spacing="0.8" fill="#a8a79f">SPIDER-VERSE</text>
+    <text class="sans" x="506" y="1416" font-size="120" font-weight="800" fill="none" stroke="#f6b519" stroke-width="1.5">5</text>
+    <rect x="544" y="1296" width="58" height="86" fill="url(#t9)" />
+    <text class="mono" x="544" y="1400" font-size="8" letter-spacing="0.8" fill="#a8a79f">WHIPLASH</text>
+    <text class="sans" x="610" y="1416" font-size="120" font-weight="800" fill="none" stroke="#f6b519" stroke-width="1.5">6</text>
+    <rect x="648" y="1296" width="58" height="86" fill="url(#t0)" />
+    <text class="mono" x="648" y="1400" font-size="8" letter-spacing="0.8" fill="#a8a79f">INCEPTION</text>
+    <text class="sans" x="88" y="1560" font-size="24" font-weight="800" letter-spacing="-0.8" fill="#f0eee6">Trending <tspan fill="#f6b519">this week.</tspan></text>
+    <text class="mono" x="714" y="1560" text-anchor="end" font-size="10" letter-spacing="2" fill="#74736b">04 · TRENDING</text>
+    <rect x="88" y="1582" width="96" height="144" fill="url(#t1)" />
+    <rect x="88" y="1736" width="72" height="7" fill="#f0eee6" fill-opacity=".8"/>
+    <rect x="88" y="1750" width="44" height="5" fill="#74736b"/>
+    <rect x="194" y="1582" width="96" height="144" fill="url(#t2)" />
+    <rect x="194" y="1736" width="72" height="7" fill="#f0eee6" fill-opacity=".8"/>
+    <rect x="194" y="1750" width="44" height="5" fill="#74736b"/>
+    <rect x="300" y="1582" width="96" height="144" fill="url(#t3)" />
+    <rect x="300" y="1736" width="72" height="7" fill="#f0eee6" fill-opacity=".8"/>
+    <rect x="300" y="1750" width="44" height="5" fill="#74736b"/>
+    <rect x="406" y="1582" width="96" height="144" fill="url(#t4)" />
+    <rect x="406" y="1736" width="72" height="7" fill="#f0eee6" fill-opacity=".8"/>
+    <rect x="406" y="1750" width="44" height="5" fill="#74736b"/>
+    <rect x="512" y="1582" width="96" height="144" fill="url(#t5)" />
+    <rect x="512" y="1736" width="72" height="7" fill="#f0eee6" fill-opacity=".8"/>
+    <rect x="512" y="1750" width="44" height="5" fill="#74736b"/>
+    <rect x="618" y="1582" width="96" height="144" fill="url(#t6)" />
+    <rect x="618" y="1736" width="72" height="7" fill="#f0eee6" fill-opacity=".8"/>
+    <rect x="618" y="1750" width="44" height="5" fill="#74736b"/>
+  </g>
+</g>
+<rect x="740" y="176" width="3" height="336" fill="#2a2a27"/>
+<rect class="thumb" x="740" y="176" width="3" height="67.2" fill="#f6b519"/>
+
+<!-- what's on screen -->
+<text class="mono" x="800" y="150" font-size="11" letter-spacing="2.4" fill="#74736b">ON THE HOME PAGE</text>
+<g class="marker">
+  <rect x="784" y="176" width="360" height="54" fill="#f6b519" fill-opacity=".1"/>
+  <rect x="784" y="176" width="3" height="54" fill="#f6b519"/>
+</g>
+<text class="sans" x="804" y="200" font-size="18" font-weight="700" fill="#f0eee6">Opening</text>
+<text class="mono" x="804" y="218" font-size="11" letter-spacing="0.4" fill="#a8a79f">title sequence · then the sign-in</text>
+<text class="sans" x="804" y="264" font-size="18" font-weight="700" fill="#f0eee6">Eight ways in</text>
+<text class="mono" x="804" y="282" font-size="11" letter-spacing="0.4" fill="#a8a79f">top rated since 2000, by genre</text>
+<text class="sans" x="804" y="328" font-size="18" font-weight="700" fill="#f0eee6">Now showing</text>
+<text class="mono" x="804" y="346" font-size="11" letter-spacing="0.4" fill="#a8a79f">in cinemas where you are</text>
+<text class="sans" x="804" y="392" font-size="18" font-weight="700" fill="#f0eee6">Top six</text>
+<text class="mono" x="804" y="410" font-size="11" letter-spacing="0.4" fill="#a8a79f">highest rated since 2008</text>
+<text class="sans" x="804" y="456" font-size="18" font-weight="700" fill="#f0eee6">Trending</text>
+<text class="mono" x="804" y="474" font-size="11" letter-spacing="0.4" fill="#a8a79f">this week, worldwide</text>
+
+<text class="mono" x="56" y="538" font-size="11" letter-spacing="1.6" fill="#74736b">SIGNED OUT, THE PAGE ENDS AFTER THE OPENING AND THE SIGN-IN POPS UP · EVERY POSTER OPENS ITS FILM</text>
+</svg>

@@ -331,6 +331,30 @@
   color: var(--amber);
 }
 
+/* Star-to-save toggle over every card. It sits opposite the List flag, and
+   its click is stopped before it can follow the card's link (StarButton). */
+.star-btn {
+  position: absolute;
+  top: var(--s-2);
+  right: var(--s-2);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: rgba(6, 6, 9, 0.78);
+  backdrop-filter: blur(4px);
+  color: var(--fog);
+  cursor: pointer;
+}
+.star-btn:hover { color: var(--amber); border-color: var(--amber); }
+.star-btn svg { width: 16px; height: 16px; }
+.star-btn svg path { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.star-btn.is-on { color: var(--amber); border-color: var(--amber); }
+.star-btn.is-on svg path { fill: currentColor; }
+
 /* ---------- Empty state ------------------------------------ */
 .empty { padding: var(--s-9) var(--s-5); text-align: center; }
 .empty h2 { font-size: var(--t-xl); margin-bottom: var(--s-3); }

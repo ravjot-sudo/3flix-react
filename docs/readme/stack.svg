@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
 <title id="title">3Flix tech stack and architecture</title>
-<desc id="desc">Left: the stack, built up layer by layer — framer-motion, React Router, React, plain CSS, Vite, Vercel Functions and Supabase — with a gold light scanning down it. Right: requests flowing from the browser to the site's own /api routes on Vercel, which add the keys and call TMDB, OMDb, Watchmode and Supabase; video streams straight from the Internet Archive and Blender.</desc>
+<desc id="desc">Left: the stack, built up layer by layer — framer-motion, React Router, React, plain CSS, Vite, Vercel Functions and GitHub Actions — with a gold light scanning down it. Right: requests flowing from the browser to the site's own /api routes on Vercel, which add the keys and call TMDB, OMDb, Watchmode and a DNS lookup for sign-in; the classics stream straight from the Internet Archive.</desc>
 <style>
   .sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
@@ -8,21 +8,19 @@
     * { animation: none !important; }
     .pulse-dot { display: none; }
   }
+  .flow { stroke-dasharray: 5 11; animation: flow 1.1s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -16; } }
+  .appear { animation: appear .9s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .bar { animation: slide .8s cubic-bezier(.16,1,.3,1) both; }
   @keyframes slide { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
   /* The light only switches on once the stack has finished building. */
   .scan { animation: scan-in .6s ease-out 1.4s both, scan 9.8s cubic-bezier(.65,0,.35,1) 1.4s infinite both; }
   @keyframes scan-in { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes scan { 0.00%, 10.29% { transform: translateY(0px); } 14.29%, 24.57% { transform: translateY(66px); } 28.57%, 38.86% { transform: translateY(132px); } 42.86%, 53.14% { transform: translateY(198px); } 57.14%, 67.43% { transform: translateY(264px); } 71.43%, 81.71% { transform: translateY(330px); } 85.71%, 96.00% { transform: translateY(396px); } 100% { transform: translateY(0px); } }
-  .flow { stroke-dasharray: 5 11; animation: flow 1.1s linear infinite; }
-  @keyframes flow { to { stroke-dashoffset: -16; } }
-  .appear { animation: appear .9s cubic-bezier(.16,1,.3,1) both; }
-  @keyframes appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes scan { 0%, 10.29% { transform: translateY(0px); } 14.29%, 24.57% { transform: translateY(66px); } 28.57%, 38.86% { transform: translateY(132px); } 42.86%, 53.14% { transform: translateY(198px); } 57.14%, 67.43% { transform: translateY(264px); } 71.43%, 81.71% { transform: translateY(330px); } 85.71%, 96% { transform: translateY(396px); } 100% { transform: translateY(0px); } }
 </style>
 
 <rect width="1200" height="660" fill="#0c0c0b"/>
-
-<!-- section rail, as on the site -->
 <line x1="56" y1="52" x2="356" y2="52" stroke="#2a2a27"/>
 <text class="mono" x="56" y="78" font-size="12" letter-spacing="2" fill="#f6b519">02</text>
 <text class="mono" x="356" y="78" font-size="12" letter-spacing="3" text-anchor="end" fill="#74736b">TECH STACK</text>
@@ -80,9 +78,9 @@
   <g class="bar" style="animation-delay:0.20s">
     <rect x="56" y="546" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
     <rect x="56" y="546" width="4" height="56" fill="#3ecf8e"/>
-    <text class="sans" x="82" y="571" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">Supabase</text>
-    <text class="mono" x="82" y="590" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">email-code sign-in · synced watchlist</text>
-    <text class="mono" x="620" y="580" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#3ecf8e">2.116</text>
+    <text class="sans" x="82" y="571" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">GitHub Actions</text>
+    <text class="mono" x="82" y="590" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">refreshes the saved lists every morning</text>
+    <text class="mono" x="620" y="580" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#3ecf8e">daily</text>
   </g>
 
 <!-- the architecture -->
@@ -117,12 +115,12 @@
   <text class="sans" x="716" y="508" font-size="15" font-weight="700" fill="#f0eee6">Watchmode</text>
   <text class="mono" x="716" y="525" font-size="10.5" letter-spacing="0.4" fill="#a8a79f">a link per service</text>
   <rect x="934" y="486" width="210" height="50" fill="#131312" stroke="#2a2a27"/>
-  <text class="sans" x="950" y="508" font-size="15" font-weight="700" fill="#f0eee6">Supabase</text>
-  <text class="mono" x="950" y="525" font-size="10.5" letter-spacing="0.4" fill="#a8a79f">sign-in · watchlist</text>
+  <text class="sans" x="950" y="508" font-size="15" font-weight="700" fill="#f0eee6">DNS (MX)</text>
+  <text class="mono" x="950" y="525" font-size="10.5" letter-spacing="0.4" fill="#a8a79f">sign-in: a real inbox?</text>
 
   <rect x="700" y="570" width="444" height="50" fill="#131312" stroke="#3ecf8e"/>
-  <text class="sans" x="716" y="592" font-size="15" font-weight="700" fill="#f0eee6">Internet Archive · Blender</text>
-  <text class="mono" x="716" y="609" font-size="10.5" letter-spacing="0.4" fill="#3ecf8e">full films stream straight to the player · no key</text>
+  <text class="sans" x="716" y="592" font-size="15" font-weight="700" fill="#f0eee6">Internet Archive</text>
+  <text class="mono" x="716" y="609" font-size="10.5" letter-spacing="0.4" fill="#3ecf8e">the 24 classics stream straight to the player · no key</text>
   <circle class="pulse-dot" r="4" fill="#f6b519">
     <animateMotion dur="2.4s" begin="0.60s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#p0"/></animateMotion>
   </circle>

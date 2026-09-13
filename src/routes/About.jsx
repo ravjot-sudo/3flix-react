@@ -103,8 +103,8 @@ export default function About() {
         </ul>
 
         <div className="about-actions">
-          <Link className="btn btn-primary btn-go" to="/library?c=classics">Watch a classic</Link>
-          <Link className="btn btn-ghost btn-go" to="/library">See what’s new</Link>
+          <Link className="btn btn-primary btn-go" to="/library">Browse films</Link>
+          <Link className="btn btn-ghost btn-go" to="/movies">See what’s new</Link>
         </div>
       </div>
     </section>

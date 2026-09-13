@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+<title id="title">How signing in to 3Flix works</title>
+<desc id="desc">A browser window: the opening's last line scrolls away and a sign-in card pops up over a wall of posters. A temporary address is typed and turned away in red; a real Gmail address is typed and accepted in green — the server found the domain's mail record — and the card gives way to the signed-in home page. Beside it, the four steps light up in turn.</desc>
+<defs>
+  <clipPath id="stage"><rect x="57" y="125" width="646" height="366"/></clipPath>
+  <clipPath id="field"><rect x="256" y="336" width="248" height="20"/></clipPath>
+  <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
+    <stop offset="0" stop-color="#0c0c0b" stop-opacity=".7"/><stop offset="1" stop-color="#0c0c0b" stop-opacity=".95"/>
+  </radialGradient>
+  <linearGradient id="t0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f96bc"/><stop offset="1" stop-color="#2f96bc" stop-opacity=".35"/></linearGradient><linearGradient id="t1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b61ff"/><stop offset="1" stop-color="#7b61ff" stop-opacity=".35"/></linearGradient><linearGradient id="t2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4114"/><stop offset="1" stop-color="#ff4114" stop-opacity=".35"/></linearGradient><linearGradient id="t3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1ab8d1"/><stop offset="1" stop-color="#1ab8d1" stop-opacity=".35"/></linearGradient><linearGradient id="t4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2f9c"/><stop offset="1" stop-color="#ff2f9c" stop-opacity=".35"/></linearGradient><linearGradient id="t5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6b519"/><stop offset="1" stop-color="#f6b519" stop-opacity=".35"/></linearGradient><linearGradient id="t6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ecf8e"/><stop offset="1" stop-color="#3ecf8e" stop-opacity=".35"/></linearGradient><linearGradient id="t7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4356c8"/><stop offset="1" stop-color="#4356c8" stop-opacity=".35"/></linearGradient><linearGradient id="t8" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5231b"/><stop offset="1" stop-color="#e5231b" stop-opacity=".35"/></linearGradient><linearGradient id="t9" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00c8ff"/><stop offset="1" stop-color="#00c8ff" stop-opacity=".35"/></linearGradient>
+</defs>
+<style>
+  .sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .pulse-dot { display: none; }
+  }
+  .intro { animation: intro 12s cubic-bezier(.65,0,.35,1) infinite; }
+  @keyframes intro { 0%, 14% { opacity: 1; transform: none; } 20%, 96% { opacity: 0; transform: translateY(-60px); } 100% { opacity: 1; transform: none; } }
+  .wall { animation: wall 12s ease-in-out infinite; }
+  @keyframes wall { 0%, 15% { opacity: 0; } 21%, 80% { opacity: 1; } 85%, 100% { opacity: 0; } }
+  .drift { animation: drift 12s linear infinite; }
+  @keyframes drift { to { transform: translateY(-40px); } }
+  .card { transform-box: fill-box; transform-origin: center; animation: card 12s cubic-bezier(.16,1,.3,1) infinite; }
+  @keyframes card { 0%, 16% { opacity: 0; transform: translateY(24px) scale(.93); } 22%, 78% { opacity: 1; transform: none; } 83%, 100% { opacity: 0; transform: scale(.98); } }
+  .ta { animation: ta 12s steps(1, end) infinite; }
+  @keyframes ta { 0%, 24% { opacity: 0; } 24.5%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+  .ca { animation: ca 12s infinite; }
+  @keyframes ca { 0%, 24% { transform: translateX(0px); animation-timing-function: steps(18, end); } 33%, 100% { transform: translateX(248px); } }
+  .tb { animation: tb 12s steps(1, end) infinite; }
+  @keyframes tb { 0%, 51.9% { opacity: 0; } 52%, 100% { opacity: 1; } }
+  .cb { transform: translateX(248px); animation: cb 12s infinite; }
+  @keyframes cb { 0%, 51% { transform: translateX(248px); } 51.5%, 52% { transform: translateX(0px); animation-timing-function: steps(13, end); } 60%, 100% { transform: translateX(248px); } }
+  .err { animation: err 12s infinite; }
+  @keyframes err { 0%, 36% { opacity: 0; } 37%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+  .uline { animation: uline 12s infinite; }
+  @keyframes uline { 0%, 36% { stroke: #2a2a27; } 37%, 50% { stroke: #d4552f; } 51%, 63% { stroke: #2a2a27; } 64%, 100% { stroke: #4cd7a0; } }
+  .uline { stroke: #4cd7a0; }
+  .ok { animation: ok 12s infinite; }
+  @keyframes ok { 0%, 63% { opacity: 0; } 64%, 100% { opacity: 1; } }
+  .press { transform-box: fill-box; transform-origin: center; animation: press 12s infinite; }
+  @keyframes press { 0%, 34.5%, 36.5%, 62%, 64%, 100% { transform: none; } 35.5%, 63% { transform: scale(.96); } }
+  .inside { animation: inside 12s ease-out infinite; }
+  @keyframes inside { 0%, 83% { opacity: 0; transform: translateY(12px); } 88%, 96% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  .hl { transform: translateY(156px); animation: hl 12s cubic-bezier(.65,0,.35,1) infinite; }
+  @keyframes hl { 0%, 22% { transform: translateY(0px); } 24%, 34% { transform: translateY(78px); } 37%, 78% { transform: translateY(156px); } 82%, 96% { transform: translateY(234px); } 100% { transform: translateY(0px); } }
+</style>
+
+<rect width="1200" height="520" fill="#0c0c0b"/>
+<line x1="56" y1="52" x2="356" y2="52" stroke="#2a2a27"/>
+<text class="mono" x="56" y="78" font-size="12" letter-spacing="2" fill="#f6b519">04</text>
+<text class="mono" x="356" y="78" font-size="12" letter-spacing="3" text-anchor="end" fill="#74736b">SIGNING IN</text>
+<text class="sans" x="400" y="86" font-size="40" font-weight="800" letter-spacing="-1.4" fill="#f0eee6">One card, <tspan fill="#f6b519">after the opening.</tspan></text>
+
+<!-- the stage -->
+<rect x="56" y="124" width="648" height="368" fill="#0c0c0b" stroke="#2a2a27"/>
+<g clip-path="url(#stage)">
+  <g class="wall">
+    <g class="drift"><rect x="64" y="104" width="80" height="118" fill="url(#t0)" opacity=".3"/><rect x="64" y="232" width="80" height="118" fill="url(#t1)" opacity=".3"/><rect x="64" y="360" width="80" height="118" fill="url(#t2)" opacity=".3"/><rect x="64" y="488" width="80" height="118" fill="url(#t3)" opacity=".3"/><rect x="156" y="104" width="80" height="118" fill="url(#t3)" opacity=".3"/><rect x="156" y="232" width="80" height="118" fill="url(#t4)" opacity=".3"/><rect x="156" y="360" width="80" height="118" fill="url(#t5)" opacity=".3"/><rect x="156" y="488" width="80" height="118" fill="url(#t6)" opacity=".3"/><rect x="248" y="104" width="80" height="118" fill="url(#t6)" opacity=".3"/><rect x="248" y="232" width="80" height="118" fill="url(#t7)" opacity=".3"/><rect x="248" y="360" width="80" height="118" fill="url(#t8)" opacity=".3"/><rect x="248" y="488" width="80" height="118" fill="url(#t9)" opacity=".3"/><rect x="340" y="104" width="80" height="118" fill="url(#t9)" opacity=".3"/><rect x="340" y="232" width="80" height="118" fill="url(#t0)" opacity=".3"/><rect x="340" y="360" width="80" height="118" fill="url(#t1)" opacity=".3"/><rect x="340" y="488" width="80" height="118" fill="url(#t2)" opacity=".3"/><rect x="432" y="104" width="80" height="118" fill="url(#t2)" opacity=".3"/><rect x="432" y="232" width="80" height="118" fill="url(#t3)" opacity=".3"/><rect x="432" y="360" width="80" height="118" fill="url(#t4)" opacity=".3"/><rect x="432" y="488" width="80" height="118" fill="url(#t5)" opacity=".3"/><rect x="524" y="104" width="80" height="118" fill="url(#t5)" opacity=".3"/><rect x="524" y="232" width="80" height="118" fill="url(#t6)" opacity=".3"/><rect x="524" y="360" width="80" height="118" fill="url(#t7)" opacity=".3"/><rect x="524" y="488" width="80" height="118" fill="url(#t8)" opacity=".3"/><rect x="616" y="104" width="80" height="118" fill="url(#t8)" opacity=".3"/><rect x="616" y="232" width="80" height="118" fill="url(#t9)" opacity=".3"/><rect x="616" y="360" width="80" height="118" fill="url(#t0)" opacity=".3"/><rect x="616" y="488" width="80" height="118" fill="url(#t1)" opacity=".3"/></g>
+    <rect x="56" y="124" width="648" height="368" fill="url(#vignette)"/>
+  </g>
+
+  <g class="intro" opacity="0">
+    <text class="sans" x="380" y="300" text-anchor="middle" font-size="38" font-weight="800" letter-spacing="-1.4" fill="#f0eee6">Now they belong</text>
+    <text class="sans" x="380" y="344" text-anchor="middle" font-size="38" font-weight="800" letter-spacing="-1.4" fill="#f6b519">to everyone.</text>
+  </g>
+
+  <g class="card">
+    <rect x="236" y="148" width="288" height="322" fill="#171715" stroke="#2a2a27"/>
+    <text class="sans" x="256" y="180" font-size="16" font-weight="800" letter-spacing="-0.4" fill="#f0eee6">3<tspan fill="#f6b519">Flix</tspan></text>
+    <text class="mono" x="504" y="180" text-anchor="end" font-size="8.5" letter-spacing="1.6" fill="#74736b">MEMBERS</text>
+    <text class="sans" x="256" y="216" font-size="22" font-weight="800" letter-spacing="-0.8" fill="#f0eee6">Sign in to</text>
+    <text class="sans" x="256" y="242" font-size="22" font-weight="800" letter-spacing="-0.8" fill="#f6b519">start watching.</text>
+
+    <text class="mono" x="256" y="272" font-size="8.5" letter-spacing="1.6" fill="#74736b">YOUR NAME</text>
+    <text class="mono" x="260" y="294" font-size="13" fill="#f0eee6">Ravjot</text>
+    <line x1="256" y1="302" x2="504" y2="302" stroke="#2a2a27"/>
+
+    <text class="mono" x="256" y="326" font-size="8.5" letter-spacing="1.6" fill="#74736b">EMAIL</text>
+    <g clip-path="url(#field)">
+      <g class="ta" opacity="0">
+        <text class="mono" x="260" y="350" font-size="13" fill="#f0eee6">you@mailinator.com</text>
+        <rect class="ca" x="256" y="336" width="248" height="20" fill="#171715"/>
+      </g>
+      <g class="tb">
+        <text class="mono" x="260" y="350" font-size="13" fill="#f0eee6">you@gmail.com</text>
+        <rect class="cb" x="256" y="336" width="248" height="20" fill="#171715"/>
+      </g>
+    </g>
+    <line class="uline" x1="256" y1="358" x2="504" y2="358" stroke-width="1.5"/>
+    <text class="mono err" x="256" y="376" font-size="9" letter-spacing="0.6" fill="#d4552f" opacity="0">✕ TEMPORARY ADDRESSES AREN'T ACCEPTED</text>
+    <text class="mono ok" x="256" y="376" font-size="9" letter-spacing="0.6" fill="#4cd7a0">✓ A REAL INBOX — MAIL RECORD FOUND</text>
+
+    <g class="press">
+      <rect x="256" y="392" width="248" height="38" fill="#f6b519"/>
+      <text class="mono" x="380" y="415" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="2" fill="#0c0c0b">CONTINUE ›</text>
+    </g>
+    <text class="mono" x="256" y="452" font-size="8" letter-spacing="1.2" fill="#74736b">NO PASSWORD · NO CODE · NO TEMP MAIL</text>
+  </g>
+
+  <g class="inside" opacity="0">
+    <rect x="68" y="136" width="624" height="28" fill="#f6b519"/>
+    <text class="sans" x="82" y="155" font-size="13" font-weight="800" fill="#0c0c0b">3Flix</text>
+    <rect x="586" y="140" width="20" height="20" fill="#0c0c0b"/>
+    <text class="sans" x="596" y="155" text-anchor="middle" font-size="11" font-weight="800" fill="#f6b519">R</text>
+    <text class="mono" x="612" y="154" font-size="9" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">RAVJOT ▾</text>
+    <text class="sans" x="84" y="208" font-size="24" font-weight="800" letter-spacing="-0.8" fill="#f0eee6">Eight ways <tspan fill="#f6b519">in.</tspan></text>
+    <rect x="84" y="228" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="94" y="246" font-size="9" fill="#f6b519">01</text>
+    <text class="sans" x="94" y="264" font-size="13" font-weight="700" fill="#f0eee6">Action</text>
+    <rect x="138" y="280" width="32" height="48" fill="url(#t0)" />
+    <rect x="234" y="228" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="244" y="246" font-size="9" fill="#f6b519">02</text>
+    <text class="sans" x="244" y="264" font-size="13" font-weight="700" fill="#f0eee6">Animation</text>
+    <rect x="288" y="280" width="32" height="48" fill="url(#t1)" />
+    <rect x="384" y="228" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="394" y="246" font-size="9" fill="#f6b519">03</text>
+    <text class="sans" x="394" y="264" font-size="13" font-weight="700" fill="#f0eee6">Comedy</text>
+    <rect x="438" y="280" width="32" height="48" fill="url(#t2)" />
+    <rect x="534" y="228" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="544" y="246" font-size="9" fill="#f6b519">04</text>
+    <text class="sans" x="544" y="264" font-size="13" font-weight="700" fill="#f0eee6">Crime</text>
+    <rect x="588" y="280" width="32" height="48" fill="url(#t3)" />
+    <rect x="84" y="350" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="94" y="368" font-size="9" fill="#f6b519">05</text>
+    <text class="sans" x="94" y="386" font-size="13" font-weight="700" fill="#f0eee6">Drama</text>
+    <rect x="138" y="402" width="32" height="48" fill="url(#t4)" />
+    <rect x="234" y="350" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="244" y="368" font-size="9" fill="#f6b519">06</text>
+    <text class="sans" x="244" y="386" font-size="13" font-weight="700" fill="#f0eee6">Horror</text>
+    <rect x="288" y="402" width="32" height="48" fill="url(#t5)" />
+    <rect x="384" y="350" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="394" y="368" font-size="9" fill="#f6b519">07</text>
+    <text class="sans" x="394" y="386" font-size="13" font-weight="700" fill="#f0eee6">Sci-Fi</text>
+    <rect x="438" y="402" width="32" height="48" fill="url(#t6)" />
+    <rect x="534" y="350" width="140" height="112" fill="#131312" stroke="#2a2a27"/>
+    <text class="mono" x="544" y="368" font-size="9" fill="#f6b519">08</text>
+    <text class="sans" x="544" y="386" font-size="13" font-weight="700" fill="#f0eee6">Thriller</text>
+    <rect x="588" y="402" width="32" height="48" fill="url(#t7)" />
+  </g>
+</g>
+
+<!-- the steps -->
+<text class="mono" x="744" y="150" font-size="11" letter-spacing="2.4" fill="#74736b">WHAT HAPPENS</text>
+<g class="hl">
+  <rect x="728" y="170" width="416" height="66" fill="#f6b519" fill-opacity=".1"/>
+  <rect x="728" y="170" width="3" height="66" fill="#f6b519"/>
+</g>
+<text class="mono" x="748" y="196" font-size="11" letter-spacing="1.6" fill="#f6b519">01</text>
+<text class="sans" x="780" y="197" font-size="18" font-weight="700" fill="#f0eee6">The opening ends</text>
+<text class="mono" x="780" y="217" font-size="11" letter-spacing="0.4" fill="#a8a79f">the sign-in pops up over it</text>
+<text class="mono" x="748" y="274" font-size="11" letter-spacing="1.6" fill="#f6b519">02</text>
+<text class="sans" x="780" y="275" font-size="18" font-weight="700" fill="#f0eee6">A name and an email</text>
+<text class="mono" x="780" y="295" font-size="11" letter-spacing="0.4" fill="#a8a79f">no password, no code</text>
+<text class="mono" x="748" y="352" font-size="11" letter-spacing="1.6" fill="#f6b519">03</text>
+<text class="sans" x="780" y="353" font-size="18" font-weight="700" fill="#f0eee6">Checked on the server</text>
+<text class="mono" x="780" y="373" font-size="11" letter-spacing="0.4" fill="#a8a79f">format · 8,771 temp domains · MX record</text>
+<text class="mono" x="748" y="430" font-size="11" letter-spacing="1.6" fill="#f6b519">04</text>
+<text class="sans" x="780" y="431" font-size="18" font-weight="700" fill="#f0eee6">You're in</text>
+<text class="mono" x="780" y="451" font-size="11" letter-spacing="0.4" fill="#a8a79f">remembered here · prefilled next time</text>
+
+<text class="mono" x="56" y="498" font-size="11" letter-spacing="1.6" fill="#74736b">EVERY PAGE BUT THE OPENING IS BEHIND THIS · A LINK FROM OUTSIDE LANDS ON /signin, THEN GOES WHERE IT WAS HEADED</text>
+</svg>
