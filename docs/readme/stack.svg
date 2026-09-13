@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
+<title id="title">3Flix tech stack and architecture</title>
+<desc id="desc">Left: the stack, built up layer by layer — framer-motion, React Router, React, plain CSS, Vite, Vercel Functions and Supabase — with a gold light scanning down it. Right: requests flowing from the browser to the site's own /api routes on Vercel, which add the keys and call TMDB, OMDb, Watchmode and Supabase; video streams straight from the Internet Archive and Blender.</desc>
+<style>
+  .sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .pulse-dot { display: none; }
+  }
+  .bar { animation: slide .8s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes slide { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+  /* The light only switches on once the stack has finished building. */
+  .scan { animation: scan-in .6s ease-out 1.4s both, scan 9.8s cubic-bezier(.65,0,.35,1) 1.4s infinite both; }
+  @keyframes scan-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scan { 0.00%, 10.29% { transform: translateY(0px); } 14.29%, 24.57% { transform: translateY(66px); } 28.57%, 38.86% { transform: translateY(132px); } 42.86%, 53.14% { transform: translateY(198px); } 57.14%, 67.43% { transform: translateY(264px); } 71.43%, 81.71% { transform: translateY(330px); } 85.71%, 96.00% { transform: translateY(396px); } 100% { transform: translateY(0px); } }
+  .flow { stroke-dasharray: 5 11; animation: flow 1.1s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -16; } }
+  .appear { animation: appear .9s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+</style>
+
+<rect width="1200" height="660" fill="#0c0c0b"/>
+
+<!-- section rail, as on the site -->
+<line x1="56" y1="52" x2="356" y2="52" stroke="#2a2a27"/>
+<text class="mono" x="56" y="78" font-size="12" letter-spacing="2" fill="#f6b519">02</text>
+<text class="mono" x="356" y="78" font-size="12" letter-spacing="3" text-anchor="end" fill="#74736b">TECH STACK</text>
+<text class="sans" x="400" y="86" font-size="40" font-weight="800" letter-spacing="-1.4" fill="#f0eee6">What 3Flix <tspan fill="#f6b519">runs on.</tspan></text>
+<text class="mono" x="56" y="132" font-size="11" letter-spacing="2.4" fill="#74736b">THE STACK</text>
+<text class="mono" x="700" y="132" font-size="11" letter-spacing="2.4" fill="#74736b">HOW A REQUEST TRAVELS</text>
+
+<!-- the stack -->
+<g class="scan">
+  <rect x="56" y="150" width="584" height="56" fill="#f6b519" fill-opacity=".1"/>
+  <rect x="48" y="150" width="3" height="56" fill="#f6b519"/>
+</g>
+  <g class="bar" style="animation-delay:0.92s">
+    <rect x="56" y="150" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
+    <rect x="56" y="150" width="4" height="56" fill="#ff2f9c"/>
+    <text class="sans" x="82" y="175" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">framer-motion</text>
+    <text class="mono" x="82" y="194" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">springs · scroll-linked motion · layout</text>
+    <text class="mono" x="620" y="184" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#ff2f9c">13.2</text>
+  </g>
+  <g class="bar" style="animation-delay:0.80s">
+    <rect x="56" y="216" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
+    <rect x="56" y="216" width="4" height="56" fill="#ff6a3d"/>
+    <text class="sans" x="82" y="241" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">React Router</text>
+    <text class="mono" x="82" y="260" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">nested + dynamic routes · URL state</text>
+    <text class="mono" x="620" y="250" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#ff6a3d">7.18</text>
+  </g>
+  <g class="bar" style="animation-delay:0.68s">
+    <rect x="56" y="282" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
+    <rect x="56" y="282" width="4" height="56" fill="#2fb1d6"/>
+    <text class="sans" x="82" y="307" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">React</text>
+    <text class="mono" x="82" y="326" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">components · hooks · context · memo</text>
+    <text class="mono" x="620" y="316" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#2fb1d6">19.2</text>
+  </g>
+  <g class="bar" style="animation-delay:0.56s">
+    <rect x="56" y="348" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
+    <rect x="56" y="348" width="4" height="56" fill="#f6b519"/>
+    <text class="sans" x="82" y="373" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">Plain CSS</text>
+    <text class="mono" x="82" y="392" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">design tokens · grid · no framework</text>
+    <text class="mono" x="620" y="382" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#f6b519">tokens</text>
+  </g>
+  <g class="bar" style="animation-delay:0.44s">
+    <rect x="56" y="414" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
+    <rect x="56" y="414" width="4" height="56" fill="#8b6cff"/>
+    <text class="sans" x="82" y="439" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">Vite</text>
+    <text class="mono" x="82" y="458" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">dev server · HMR · production build</text>
+    <text class="mono" x="620" y="448" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#8b6cff">8.2</text>
+  </g>
+  <g class="bar" style="animation-delay:0.32s">
+    <rect x="56" y="480" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
+    <rect x="56" y="480" width="4" height="56" fill="#f0eee6"/>
+    <text class="sans" x="82" y="505" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">Vercel Functions</text>
+    <text class="mono" x="82" y="524" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">proxy · keys stay on the server</text>
+    <text class="mono" x="620" y="514" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#f0eee6">/api/*</text>
+  </g>
+  <g class="bar" style="animation-delay:0.20s">
+    <rect x="56" y="546" width="584" height="56" fill="#131312" stroke="#2a2a27"/>
+    <rect x="56" y="546" width="4" height="56" fill="#3ecf8e"/>
+    <text class="sans" x="82" y="571" font-size="19" font-weight="700" letter-spacing="-0.4" fill="#f0eee6">Supabase</text>
+    <text class="mono" x="82" y="590" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">email-code sign-in · synced watchlist</text>
+    <text class="mono" x="620" y="580" font-size="12" font-weight="600" letter-spacing="1" text-anchor="end" fill="#3ecf8e">2.116</text>
+  </g>
+
+<!-- the architecture -->
+<g class="appear" style="animation-delay:.5s">
+  <path id="p0" d="M922 220 V290" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M922 220 V290" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="p1" d="M922 354 C922 384 805 394 805 424" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M922 354 C922 384 805 394 805 424" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="p2" d="M922 354 C922 384 1039 394 1039 424" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M922 354 C922 384 1039 394 1039 424" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="p3" d="M922 354 V511 H910" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M922 354 V511 H910" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="p4" d="M922 354 V511 H934" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M922 354 V511 H934" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="p5" d="M1144 185 H1170 V595 H1144" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M1144 185 H1170 V595 H1144" fill="none" stroke="#3ecf8e" stroke-width="1.5" class="flow"/>
+  <rect x="700" y="150" width="444" height="70" fill="#1b1b19" stroke="#2a2a27"/>
+  <text class="sans" x="720" y="180" font-size="19" font-weight="700" fill="#f0eee6">Browser</text>
+  <text class="mono" x="720" y="202" font-size="11.5" letter-spacing="0.6" fill="#a8a79f">React 19 · Router 7 · framer-motion</text>
+
+  <rect x="760" y="290" width="324" height="64" fill="#f6b519" stroke="#f6b519"/>
+  <text class="sans" x="780" y="318" font-size="18" font-weight="800" fill="#0c0c0b">/api/* on Vercel</text>
+  <text class="mono" x="780" y="338" font-size="11" letter-spacing="0.6" fill="#0c0c0b">server/proxy.js adds the keys</text>
+
+  <rect x="700" y="424" width="210" height="50" fill="#131312" stroke="#2a2a27"/>
+  <text class="sans" x="716" y="446" font-size="15" font-weight="700" fill="#f0eee6">TMDB</text>
+  <text class="mono" x="716" y="463" font-size="10.5" letter-spacing="0.4" fill="#a8a79f">catalogue · trailers</text>
+  <rect x="934" y="424" width="210" height="50" fill="#131312" stroke="#2a2a27"/>
+  <text class="sans" x="950" y="446" font-size="15" font-weight="700" fill="#f0eee6">OMDb</text>
+  <text class="mono" x="950" y="463" font-size="10.5" letter-spacing="0.4" fill="#a8a79f">IMDb · RT · Metacritic</text>
+  <rect x="700" y="486" width="210" height="50" fill="#131312" stroke="#2a2a27"/>
+  <text class="sans" x="716" y="508" font-size="15" font-weight="700" fill="#f0eee6">Watchmode</text>
+  <text class="mono" x="716" y="525" font-size="10.5" letter-spacing="0.4" fill="#a8a79f">a link per service</text>
+  <rect x="934" y="486" width="210" height="50" fill="#131312" stroke="#2a2a27"/>
+  <text class="sans" x="950" y="508" font-size="15" font-weight="700" fill="#f0eee6">Supabase</text>
+  <text class="mono" x="950" y="525" font-size="10.5" letter-spacing="0.4" fill="#a8a79f">sign-in · watchlist</text>
+
+  <rect x="700" y="570" width="444" height="50" fill="#131312" stroke="#3ecf8e"/>
+  <text class="sans" x="716" y="592" font-size="15" font-weight="700" fill="#f0eee6">Internet Archive · Blender</text>
+  <text class="mono" x="716" y="609" font-size="10.5" letter-spacing="0.4" fill="#3ecf8e">full films stream straight to the player · no key</text>
+  <circle class="pulse-dot" r="4" fill="#f6b519">
+    <animateMotion dur="2.4s" begin="0.60s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#p0"/></animateMotion>
+  </circle>
+  <circle class="pulse-dot" r="4" fill="#f6b519">
+    <animateMotion dur="2.4s" begin="0.95s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#p1"/></animateMotion>
+  </circle>
+  <circle class="pulse-dot" r="4" fill="#f6b519">
+    <animateMotion dur="2.4s" begin="1.30s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#p2"/></animateMotion>
+  </circle>
+  <circle class="pulse-dot" r="4" fill="#f6b519">
+    <animateMotion dur="2.4s" begin="1.65s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#p3"/></animateMotion>
+  </circle>
+  <circle class="pulse-dot" r="4" fill="#f6b519">
+    <animateMotion dur="2.4s" begin="2.00s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#p4"/></animateMotion>
+  </circle>
+  <circle class="pulse-dot" r="4" fill="#3ecf8e">
+    <animateMotion dur="3.2s" begin="2.35s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#p5"/></animateMotion>
+  </circle>
+</g>
+
+<text class="mono" x="56" y="638" font-size="11" letter-spacing="1.6" fill="#74736b">KEYS NEVER REACH THE BROWSER — THE PAGE CALLS /api/*, THE SERVER ADDS THEM · LINT: OXLINT</text>
+</svg>

@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://3flix-react.vercel.app">
+    <img src="docs/readme/hero.svg" width="100%" alt="3Flix — cinema that outlived its copyright. An animated banner in the site's style: the gold nav bar, the headline rising into view, a ring naming the tech stack turning around a gold play button, and a strip of colour-graded film frames.">
+  </a>
+</p>
+
 # 3Flix — React
 
 **Live: [3flix-react.vercel.app](https://3flix-react.vercel.app)**
@@ -12,6 +18,30 @@ npm install
 cp .env.example .env.local   # then add the keys you have (see below)
 npm run dev
 ```
+
+## Tech stack
+
+<p align="center">
+  <img src="docs/readme/stack.svg" width="100%" alt="The 3Flix stack, built layer by layer: framer-motion, React Router, React, plain CSS, Vite, Vercel Functions and Supabase. Beside it, a request's journey: the browser calls the site's own /api routes on Vercel, which add the keys and call TMDB, OMDb, Watchmode and Supabase; full films stream straight from the Internet Archive and Blender.">
+</p>
+
+| Layer | Tech | What it does here |
+| --- | --- | --- |
+| Motion | framer-motion 13 | Springs, the scroll-driven opening, the sliding nav marker, the Now showing carousel |
+| Routing | React Router 7 | Nested and dynamic routes; filters and search kept in the URL |
+| UI | React 19 | Components, hooks, context, memoisation |
+| Styling | Plain CSS | Design tokens and grid — no framework |
+| Build | Vite 8 | Dev server, hot reload, production build |
+| Server | Vercel Functions | `/api/*` routes that add the API keys, so none reach the page |
+| Accounts | Supabase | One-time-code sign-in by email; a watchlist that follows the account |
+| Data | TMDB · OMDb · Watchmode | Catalogue, posters and trailers · critics' scores · where-to-watch links |
+| Streams | Internet Archive · Blender | Public-domain and Creative Commons films, played in the app |
+| Quality | oxlint | Linting |
+
+The two animations above are plain SVG files in [`docs/readme/`](docs/readme/) —
+no scripts, no outside requests — and they hold still for anyone whose system
+asks for reduced motion. To redraw them (the versions come from
+`package.json`): `node scripts/readme-art.mjs`.
 
 ## Keys
 
