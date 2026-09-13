@@ -38,14 +38,14 @@
 <g class="appear" style="animation-delay:.3s">
   <path id="a" d="M252 224 H300" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
   <path d="M252 224 H300" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
-  <path id="b1" d="M600 190 C626 190 624 182 650 182" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
-  <path d="M600 190 C626 190 624 182 650 182" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
-  <path id="b2" d="M600 260 C626 260 624 268 650 268" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
-  <path d="M600 260 C626 260 624 268 650 268" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
-  <path id="c1" d="M880 182 C906 182 904 210 930 210" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
-  <path d="M880 182 C906 182 904 210 930 210" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
-  <path id="c2" d="M880 268 C906 268 904 238 930 238" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
-  <path d="M880 268 C906 268 904 238 930 238" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="b1" d="M600 190 C626 190 620 182 646 182" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M600 190 C626 190 620 182 646 182" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="b2" d="M600 260 C626 260 620 268 646 268" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M600 260 C626 260 620 268 646 268" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="c1" d="M898 182 C924 182 918 210 944 210" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M898 182 C924 182 918 210 944 210" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
+  <path id="c2" d="M898 268 C924 268 918 238 944 238" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
+  <path d="M898 268 C924 268 918 238 944 238" fill="none" stroke="#f6b519" stroke-width="1.5" class="flow"/>
   <path id="e" d="M306 408 H340" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
   <path d="M306 408 H340" fill="none" stroke="#3ecf8e" stroke-width="1.5" class="flow"/>
   <path id="f" d="M640 408 H674" fill="none" stroke="#2a2a27" stroke-width="1.5"/>
@@ -66,23 +66,23 @@
   <rect x="320" y="278" width="260" height="4" fill="#2a2a27"/>
   <rect class="prog" x="320" y="278" width="260" height="4" fill="#f6b519"/>
 
-  <rect x="650" y="150" width="230" height="64" fill="#131312" stroke="#2a2a27"/>
-  <text class="sans" x="666" y="176" font-size="16" font-weight="700" fill="#f0eee6">dist/</text>
-  <text class="mono" x="666" y="196" font-size="10.5" letter-spacing="0.3" fill="#a8a79f">pages · styles · saved lists</text>
-  <rect x="650" y="236" width="230" height="64" fill="#131312" stroke="#2a2a27"/>
-  <text class="sans" x="666" y="262" font-size="16" font-weight="700" fill="#f6b519">/api/*</text>
-  <text class="mono" x="666" y="282" font-size="10.5" letter-spacing="0.3" fill="#a8a79f">tmdb · omdb · watchmode · signin</text>
+  <rect x="646" y="150" width="252" height="64" fill="#131312" stroke="#2a2a27"/>
+  <text class="sans" x="662" y="176" font-size="16" font-weight="700" fill="#f0eee6">dist/</text>
+  <text class="mono" x="662" y="196" font-size="10.5" letter-spacing="0.3" fill="#a8a79f">pages · styles · saved lists</text>
+  <rect x="646" y="236" width="252" height="64" fill="#131312" stroke="#2a2a27"/>
+  <text class="sans" x="662" y="262" font-size="16" font-weight="700" fill="#f6b519">/api/*</text>
+  <text class="mono" x="662" y="282" font-size="10.5" letter-spacing="0.3" fill="#a8a79f">tmdb · omdb · watchmode · signin</text>
 
-  <rect x="930" y="176" width="214" height="96" fill="#1b1b19" stroke="#f6b519"/>
-  <text class="sans" x="948" y="208" font-size="16" font-weight="800" fill="#f0eee6">3flix-react</text>
-  <text class="mono" x="948" y="226" font-size="11" fill="#a8a79f">.vercel.app</text>
+  <rect x="944" y="176" width="200" height="96" fill="#1b1b19" stroke="#f6b519"/>
+  <text class="sans" x="962" y="208" font-size="16" font-weight="800" fill="#f0eee6">3flix-react</text>
+  <text class="mono" x="962" y="226" font-size="11" fill="#a8a79f">.vercel.app</text>
   <g class="building">
-    <circle class="blink" cx="954" cy="249" r="5" fill="#f6b519"/>
-    <text class="mono" x="966" y="253" font-size="10.5" font-weight="600" letter-spacing="1.6" fill="#f6b519">BUILDING</text>
+    <circle class="blink" cx="968" cy="249" r="5" fill="#f6b519"/>
+    <text class="mono" x="980" y="253" font-size="10.5" font-weight="600" letter-spacing="1.6" fill="#f6b519">BUILDING</text>
   </g>
   <g class="ready">
-    <circle cx="954" cy="249" r="5" fill="#4cd7a0"/>
-    <text class="mono" x="966" y="253" font-size="10.5" font-weight="600" letter-spacing="1.6" fill="#4cd7a0">READY</text>
+    <circle cx="968" cy="249" r="5" fill="#4cd7a0"/>
+    <text class="mono" x="980" y="253" font-size="10.5" font-weight="600" letter-spacing="1.6" fill="#4cd7a0">READY</text>
   </g>
 
   <text class="mono" x="56" y="368" font-size="11" letter-spacing="2.4" fill="#74736b">EVERY MORNING</text>

@@ -7,6 +7,7 @@
 //   signin.svg  04 the sign-in, from the end of the opening to "you're in"
 //   routes.svg  05 the route map, and the gate in front of it
 //   deploy.svg  06 push to main → live
+//   contributors.svg  07 who built it — computed from the git history
 //
 //   node scripts/readme-art.mjs
 //
@@ -16,7 +17,9 @@
 // prefers-reduced-motion, leaving a still frame that still tells the story.
 // Versions are read from package.json, so the stack card stays true when
 // dependencies move.
+import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const ver = (name) => {
@@ -342,7 +345,11 @@ ${box(win, C.surface, C.line)}
 <rect x="80" y="144" width="18" height="14" fill="none" stroke="${C.ink}" stroke-width="1.4"/>
 <path d="M87 148v6l5-3z" fill="${C.ink}"/>
 <text class="sans" x="106" y="157" font-size="14" font-weight="800" letter-spacing="-0.4" fill="${C.ink}">3Flix</text>
-${["HOME", "LIBRARY", "MOVIES", "WATCHLIST", "ABOUT"].map((t, i) => `<text class="mono" x="${360 + i * 64}" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="${C.ink}">${t}</text>`).join("")}
+${["HOME", "LIBRARY", "MOVIES", "WATCHLIST", "ABOUT"].reduce((acc, t) => {
+  acc.out.push(`<text class="mono" x="${acc.x}" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="${C.ink}">${t}</text>`);
+  acc.x += t.length * 6.6 + 24;   // mono 8.5px + tracking, then a gap
+  return acc;
+}, { x: 356, out: [] }).out.join("")}
 <rect x="712" y="141" width="20" height="20" fill="${C.ink}"/>
 <text class="sans" x="722" y="156" text-anchor="middle" font-size="11" font-weight="800" fill="${C.gold}">R</text>
 
@@ -515,7 +522,7 @@ function keys() {
       <text class="sans" x="${x + 23}" y="${y + 47}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.paper}">${v}</text>`;
     }).join(""),
     // service chips
-    (y) => [["HOTSTAR", 66], ["PRIME", 52], ["APPLE TV", 70]].reduce((acc, [s, w]) => {
+    (y) => [["APPLE TV", 70], ["PRIME", 52], ["HOTSTAR", 66]].reduce((acc, [s, w]) => {
       const x = acc.x - w;
       acc.out.push(`<rect x="${x}" y="${y + 24}" width="${w - 6}" height="24" fill="${C.raised}" stroke="${C.line}"/>
       <text class="mono" x="${x + (w - 6) / 2}" y="${y + 40}" text-anchor="middle" font-size="9" letter-spacing="1" fill="${C.paper}">${s} ↗</text>`);
@@ -532,16 +539,14 @@ function keys() {
   <text class="mono" x="${left.x + 20}" y="${y + 52}" font-size="10.5" letter-spacing="0.4" fill="${C.fog}">${esc(r.from)}</text>
   <rect class="track${i}" x="480" y="${y + 22}" width="52" height="28" rx="14"/>
   <circle class="knob${i}" cx="494" cy="${y + 36}" r="10" fill="${C.paper}"/>
-  <g class="lit${i}">
-    <path d="M540 ${y + 36} H${right.x}" fill="none" stroke="${C.gold}" stroke-width="1.5" class="flow"/>
-    <rect x="${right.x}" y="${y}" width="${right.w}" height="${rh}" fill="none" stroke="${C.gold}"/>
-  </g>
+  <path class="lit${i} flow" d="M540 ${y + 36} H${right.x}" fill="none" stroke="${C.gold}" stroke-width="1.5"/>
   <g class="card${i}">
     <rect x="${right.x}" y="${y}" width="${right.w}" height="${rh}" fill="${C.surface}" stroke="${C.line}" stroke-opacity=".6"/>
     <text class="sans" x="${right.x + 20}" y="${y + 31}" font-size="18" font-weight="700" fill="${C.paper}">${esc(r.title)}</text>
     <text class="mono" x="${right.x + 20}" y="${y + 52}" font-size="10.5" letter-spacing="0.4" fill="${C.fog}">${esc(r.what)}</text>
     ${extras[i](y)}
-  </g>`;
+  </g>
+  <rect class="lit${i}" x="${right.x}" y="${y}" width="${right.w}" height="${rh}" fill="none" stroke="${C.gold}"/>`;
   }).join("\n  ");
 
   return `${open(W, H, "The three keys 3Flix uses",
@@ -589,7 +594,7 @@ function signin() {
 
   // The wall of posters behind the card: seven columns drifting upwards.
   const wall = Array.from({ length: 7 }, (_, c) => Array.from({ length: 4 }, (_, r) =>
-    poster(stage.x + 8 + c * 92, stage.y - 20 + r * 128, 80, 118, c * 3 + r, `opacity=".3"`)).join("")).join("");
+    poster(stage.x + 8 + c * 92, stage.y - 20 + r * 128, 80, 118, c * 3 + r, `opacity=".45"`)).join("")).join("");
 
   const genres = ["Action", "Animation", "Comedy", "Crime", "Drama", "Horror", "Sci-Fi", "Thriller"];
 
@@ -599,7 +604,7 @@ function signin() {
   <clipPath id="stage"><rect x="${stage.x + 1}" y="${stage.y + 1}" width="${stage.w - 2}" height="${stage.h - 2}"/></clipPath>
   <clipPath id="field"><rect x="${field.x}" y="${field.y}" width="${field.w}" height="20"/></clipPath>
   <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
-    <stop offset="0" stop-color="${C.ink}" stop-opacity=".7"/><stop offset="1" stop-color="${C.ink}" stop-opacity=".95"/>
+    <stop offset="0" stop-color="${C.ink}" stop-opacity=".55"/><stop offset="1" stop-color="${C.ink}" stop-opacity=".9"/>
   </radialGradient>
   ${posterDefs()}
 </defs>
@@ -727,7 +732,7 @@ function routes() {
   ].map((n) => ({ ...n, w: 250, h: 76 }));
   const gate = { x: 380, y: 200, w: 190, h: 170 };
   const rows = [
-    { path: "/library", what: "new & popular · free classics" },
+    { path: "/library", what: "new & popular · search · genres" },
     { path: "/library/:filmId", what: "a classic's player", nested: 0 },
     { path: "/movies", what: "the TMDB catalogue" },
     { path: "/movies/:movieId", what: "trailer · scores · where to watch", nested: 2 },
@@ -802,9 +807,9 @@ function deploy() {
   const T = 8;
   const A = { x: 56, y: 176, w: 196, h: 96 };
   const B = { x: 300, y: 150, w: 300, h: 150 };
-  const C1 = { x: 650, y: 150, w: 230, h: 64 };
-  const C2 = { x: 650, y: 236, w: 230, h: 64 };
-  const D = { x: 930, y: 176, w: 214, h: 96 };
+  const C1 = { x: 646, y: 150, w: 252, h: 64 };
+  const C2 = { x: 646, y: 236, w: 252, h: 64 };
+  const D = { x: 944, y: 176, w: 200, h: 96 };
   const lane = 380;
   const E = { x: 56, y: lane, w: 250, h: 56 };
   const F = { x: 340, y: lane, w: 300, h: 56 };
@@ -894,8 +899,173 @@ ${caption(H, "KEYS LIVE IN VERCEL → SETTINGS → ENVIRONMENT VARIABLES · THE 
 `;
 }
 
+
+/* ================================================================== */
+/* 07 CONTRIBUTORS — who built it, straight from git                  */
+/* ================================================================== */
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const git = (args) => execFileSync("git", args, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const day = (iso) => `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7)) - 1]}`;
+const num = (n) => n.toLocaleString("en-US");
+
+/**
+ * Who did the work, counted — never typed in by hand, so it can't flatter
+ * anyone. Authors and their lines come from `git log`; co-authors from the
+ * Co-Authored-By trailers; bots (the daily snapshot refresh) are counted
+ * apart from people. Teammates listed in package.json "contributors" are
+ * shown even before their first commit, with whatever they have done so far.
+ */
+function history() {
+  try {
+    const people = new Map();
+    const coauthors = new Map();
+    const days = new Map();
+    let bots = 0, total = 0;
+    const isBot = (n) => /\[bot\]$/i.test(n);
+    const log = git(["log", "--no-merges", "--date=short",
+      "--format=%aN%x09%ad%x09%(trailers:key=Co-Authored-By,valueonly,separator=%x7C)"]);
+    for (const line of log.split("\n").filter(Boolean)) {
+      const [name, date, trailers = ""] = line.split("\t");
+      total += 1;
+      days.set(date, (days.get(date) ?? 0) + 1);
+      if (isBot(name)) { bots += 1; continue; }
+      const p = people.get(name) ?? { name, commits: 0, add: 0, del: 0 };
+      p.commits += 1;
+      people.set(name, p);
+      for (const who of trailers.split("|").map((t) => t.replace(/<.*$/, "").trim()).filter(Boolean)) {
+        coauthors.set(who, (coauthors.get(who) ?? 0) + 1);
+      }
+    }
+    let author = null;
+    for (const line of git(["log", "--no-merges", "--numstat", "--format=@%aN"]).split("\n")) {
+      if (line.startsWith("@")) { author = line.slice(1); continue; }
+      const m = line.match(/^(\d+)\t(\d+)\t/);
+      if (m && people.has(author)) { people.get(author).add += Number(m[1]); people.get(author).del += Number(m[2]); }
+    }
+    for (const c of pkg.contributors ?? []) {
+      const name = typeof c === "string" ? c.replace(/\s*[<(].*$/, "").trim() : c?.name;
+      if (name && !people.has(name)) people.set(name, { name, commits: 0, add: 0, del: 0 });
+    }
+    const dates = [...days.keys()].sort();
+    const calendar = [];
+    if (dates.length) {
+      for (let d = new Date(`${dates[0]}T12:00:00Z`); d <= new Date(`${dates.at(-1)}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + 1)) {
+        const iso = d.toISOString().slice(0, 10);
+        calendar.push([iso, days.get(iso) ?? 0]);   // a quiet day shows as 0, not as a gap
+      }
+    }
+    return {
+      people: [...people.values()].sort((a, b) => b.commits - a.commits || b.add - a.add),
+      coauthors: [...coauthors.entries()].sort((a, b) => b[1] - a[1]),
+      days: calendar,
+      bots, total,
+    };
+  } catch {
+    return null;   // not a git checkout: leave the old picture in place
+  }
+}
+
+function contributors() {
+  const h = history();
+  if (!h) return null;
+  const CLAY = "#d97757";
+  const humans = h.total - h.bots;
+  const pct = (x) => `${Math.round(x * 100)}%`;
+  const rows = [
+    ...h.people.map((p) => {
+      const share = humans ? p.commits / humans : 0;
+      return {
+        name: p.name, tag: "AUTHOR", c: C.gold, initial: p.name.trim().charAt(0).toUpperCase(), share,
+        stat: `${p.commits} ${p.commits === 1 ? "commit" : "commits"} · +${num(p.add)} −${num(p.del)} lines`,
+        label: `${pct(share)} OF COMMITS`,
+      };
+    }),
+    ...h.coauthors.map(([name, n]) => {
+      const claude = /claude/i.test(name);
+      return {
+        name: claude ? "Claude" : name, tag: claude ? "AI PAIR PROGRAMMER" : "CO-AUTHOR", c: CLAY,
+        initial: claude ? "✳" : name.charAt(0).toUpperCase(), share: humans ? n / humans : 0,
+        stat: `co-author on ${n} of ${humans} commits${claude ? ` · ${name}` : ""}`,
+        label: `${pct(humans ? n / humans : 0)} CO-AUTHORED`,
+      };
+    }),
+    ...(h.bots ? [{
+      name: "GitHub Actions", tag: "AUTOMATION", c: "#3ecf8e", initial: "⟳", share: h.bots / h.total,
+      stat: `${h.bots} daily refreshes of the saved lists`, label: `${h.bots} COMMITS`,
+    }] : []),
+  ];
+
+  const top = 150, rowH = 82, barX = 122, barW = 518;
+  const W = 1200, H = Math.max(470, top + rows.length * rowH + 70);
+  const shown = h.days.slice(-14);
+  const most = Math.max(...shown.map(([, n]) => n), 1);
+  const colW = Math.min(120, 444 / shown.length);
+  const base = H - 90, tall = Math.min(150, base - 290);
+  const added = h.people.reduce((sum, p) => sum + p.add, 0);
+  const first = h.days[0]?.[0] ?? "", last = h.days.at(-1)?.[0] ?? "";
+
+  return `${open(W, H, "Who built 3Flix",
+    `Counted from the git history: ${rows.map((r) => `${r.name} — ${r.stat}`).join("; ")}. Beside it, ${humans} commits and ${num(added)} lines added, with a bar for every day's commits from ${first} to ${last}.`)}
+<style>${BASE_CSS}
+  .grow { transform-box: fill-box; transform-origin: left; animation: grow 1.4s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
+  .rise { transform-box: fill-box; transform-origin: bottom; animation: rise 1s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes rise { from { transform: scaleY(0); } to { transform: none; } }
+  .appear { animation: appear .9s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .shine { animation: shine 3.2s ease-in-out 1.6s infinite; }
+  @keyframes shine { 0%, 100% { opacity: 0; } 50% { opacity: .35; } }
+</style>
+
+<rect width="${W}" height="${H}" fill="${C.ink}"/>
+${rail("07", "CONTRIBUTORS", "Who built", "3Flix.")}
+<text class="mono" x="56" y="132" font-size="11" letter-spacing="2.4" fill="${C.muted}">FROM THE GIT HISTORY</text>
+
+${rows.map((r, i) => {
+    const y = top + i * rowH, d = (0.2 + i * 0.18).toFixed(2);
+    return `<g class="appear" style="animation-delay:${d}s">
+  <rect x="56" y="${y}" width="48" height="48" fill="${r.c}"/>
+  <text class="sans" x="80" y="${y + 32}" text-anchor="middle" font-size="22" font-weight="800" fill="${C.ink}">${esc(r.initial)}</text>
+  <text class="sans" x="${barX}" y="${y + 20}" font-size="20" font-weight="700" fill="${C.paper}">${esc(r.name)}</text>
+  <text class="mono" x="640" y="${y + 20}" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="${r.c}">${esc(r.tag)}</text>
+  <text class="mono" x="${barX}" y="${y + 40}" font-size="11" letter-spacing="0.3" fill="${C.fog}">${esc(r.stat)}</text>
+  <text class="mono" x="640" y="${y + 40}" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1" fill="${r.c}">${esc(r.label)}</text>
+  <rect x="${barX}" y="${y + 52}" width="${barW}" height="6" fill="${C.line}"/>
+  <rect class="grow" style="animation-delay:${(Number(d) + 0.3).toFixed(2)}s" x="${barX}" y="${y + 52}" width="${Math.max(2, barW * r.share).toFixed(1)}" height="6" fill="${r.c}"/>
+  <rect class="shine" x="${barX}" y="${y + 52}" width="${Math.max(2, barW * r.share).toFixed(1)}" height="6" fill="#fff"/>
+</g>`;
+  }).join("\n")}
+
+<!-- the totals, and every day's commits -->
+<g class="appear" style="animation-delay:.4s">
+  <text class="mono" x="700" y="150" font-size="11" letter-spacing="2.4" fill="${C.muted}">COMMITS</text>
+  <text class="sans" x="700" y="204" font-size="52" font-weight="800" letter-spacing="-2" fill="${C.gold}">${humans}</text>
+  <text class="mono" x="900" y="150" font-size="11" letter-spacing="2.4" fill="${C.muted}">LINES ADDED</text>
+  <text class="sans" x="900" y="204" font-size="52" font-weight="800" letter-spacing="-2" fill="${C.paper}">+${num(added)}</text>
+  <text class="mono" x="700" y="${base - tall - 24}" font-size="11" letter-spacing="2.4" fill="${C.muted}">EVERY COMMIT, BY DAY</text>
+  <line x1="700" y1="${base}" x2="1144" y2="${base}" stroke="${C.line}"/>
+</g>
+${shown.map(([date, n], i) => {
+    const bh = Math.max(n ? 4 : 2, (n / most) * tall), x = 700 + i * colW, bw = Math.min(56, colW * 0.62);
+    return `<rect class="rise" style="animation-delay:${(0.6 + i * 0.12).toFixed(2)}s" x="${x.toFixed(1)}" y="${(base - bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${C.gold}"/>
+<text class="mono appear" style="animation-delay:${(1 + i * 0.12).toFixed(2)}s" x="${(x + bw / 2).toFixed(1)}" y="${(base - bh - 8).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="600" fill="${C.paper}">${n}</text>
+<text class="mono" x="${(x + bw / 2).toFixed(1)}" y="${base + 18}" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="${C.muted}">${day(date)}</text>`;
+  }).join("\n")}
+
+${caption(H, `FROM ${first} TO ${last} · RE-COUNTED EVERY TIME node scripts/readme-art.mjs RUNS`)}
+</svg>
+`;
+}
+
 const out = new URL("../docs/readme/", import.meta.url);
 mkdirSync(out, { recursive: true });
-const art = { hero, tour, stack, keys, signin, routes, deploy };
-for (const [name, draw] of Object.entries(art)) writeFileSync(new URL(`${name}.svg`, out), draw());
-console.log(`wrote docs/readme/: ${Object.keys(art).map((n) => `${n}.svg`).join(", ")}`);
+const art = { hero, tour, stack, keys, signin, routes, deploy, contributors };
+const wrote = [];
+for (const [name, draw] of Object.entries(art)) {
+  const svg = draw();
+  if (!svg) continue;          // contributors, outside a git checkout
+  writeFileSync(new URL(`${name}.svg`, out), svg);
+  wrote.push(`${name}.svg`);
+}
+console.log(`wrote docs/readme/: ${wrote.join(", ")}`);

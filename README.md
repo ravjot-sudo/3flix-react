@@ -8,8 +8,9 @@
 
 **Live: [3flix-react.vercel.app](https://3flix-react.vercel.app)**
 
-A streaming platform for public-domain film and Blender's open movies, plus a
-current-film catalogue from TMDB. React 19 + Vite + React Router 7 +
+Twenty-four public-domain classics that play right in the page, and a live
+catalogue of new and popular films from TMDB — official posters, trailers,
+critics' scores and where each one streams. React 19 + Vite + React Router 7 +
 framer-motion, with a few small server functions that keep the API keys off
 the page.
 
@@ -19,10 +20,26 @@ cp .env.example .env.local   # then add the keys you have (see below)
 npm run dev
 ```
 
+## What's inside
+
+<p align="center">
+  <img src="docs/readme/tour.svg" width="100%" alt="A browser window scrolls through the 3Flix home page on its own: the opening title sequence, Eight ways in (eight genres, each with a fanned deck of posters), Now showing (a filmstrip over a backdrop that changes colour), the top six films since 2008, and this week's trending row. A list beside it marks the section on screen.">
+</p>
+
+| Section | What it is |
+| --- | --- |
+| Opening | A scroll-driven title sequence; signed out, the sign-in pops up the moment it ends |
+| Eight ways in | Eight genres, each with its three best-rated films of 2000 onward — no film twice on the page |
+| Now showing | What's in cinemas where you are, as a filmstrip whose backdrop takes each poster's colour |
+| Top six | The highest-rated films released since 2008, ranked among films with 15,000+ votes |
+| Trending | This week's most-watched films worldwide |
+| Library | The 100 most popular films of 2023–2025, searchable by title and genre; a classic opens its player here |
+| Watchlist | A star on every film — classic or new — saves it to your watchlist |
+
 ## Tech stack
 
 <p align="center">
-  <img src="docs/readme/stack.svg" width="100%" alt="The 3Flix stack, built layer by layer: framer-motion, React Router, React, plain CSS, Vite, Vercel Functions and Supabase. Beside it, a request's journey: the browser calls the site's own /api routes on Vercel, which add the keys and call TMDB, OMDb, Watchmode and Supabase; full films stream straight from the Internet Archive and Blender.">
+  <img src="docs/readme/stack.svg" width="100%" alt="The 3Flix stack, built layer by layer: framer-motion, React Router, React, plain CSS, Vite, Vercel Functions and GitHub Actions. Beside it, a request's journey: the browser calls the site's own /api routes on Vercel, which add the keys and call TMDB, OMDb, Watchmode and a DNS lookup for sign-in; the classics stream straight from the Internet Archive.">
 </p>
 
 | Layer | Tech | What it does here |
@@ -33,78 +50,66 @@ npm run dev
 | Styling | Plain CSS | Design tokens and grid — no framework |
 | Build | Vite 8 | Dev server, hot reload, production build |
 | Server | Vercel Functions | `/api/*` routes that add the API keys, so none reach the page |
-| Accounts | Supabase | One-time-code sign-in by email; a watchlist that follows the account |
+| Automation | GitHub Actions | Refreshes the saved "in cinemas" and "trending" lists every morning |
 | Data | TMDB · OMDb · Watchmode | Catalogue, posters and trailers · critics' scores · where-to-watch links |
-| Streams | Internet Archive · Blender | Public-domain and Creative Commons films, played in the app |
+| Streams | Internet Archive | The public-domain classics, played in the app |
 | Quality | oxlint | Linting |
-
-The two animations above are plain SVG files in [`docs/readme/`](docs/readme/) —
-no scripts, no outside requests — and they hold still for anyone whose system
-asks for reduced motion. To redraw them (the versions come from
-`package.json`): `node scripts/readme-art.mjs`.
 
 ## Keys
 
+<p align="center">
+  <img src="docs/readme/keys.svg" width="100%" alt="Three switches — TMDB_TOKEN, OMDB_KEY and WATCHMODE_KEY — flip on one after another, and each lights up what it powers: the catalogue, critics' scores, and direct links to where each film streams. Beneath: the page itself holds no keys, and without one the site falls back to lists saved each morning.">
+</p>
+
 Every key is optional; without one, that feature falls back or switches off.
-They live in `.env.local` (and, for the live site, in Vercel's Environment
-Variables). The API keys have **no** `VITE_` prefix: the browser calls this
-site's own `/api/*` routes and the server adds the key (`server/proxy.js`),
-so no key ever appears in the page's JavaScript.
+They live in `.env.local` and, for the live site, in Vercel's Environment
+Variables. None has a `VITE_` prefix: the browser calls this site's own
+`/api/*` routes and the server adds the key (`server/proxy.js`), so no key ever
+appears in the page's JavaScript.
 
 | Name | What it switches on |
 | --- | --- |
 | `TMDB_TOKEN` | The catalogue: trending, in cinemas, top rated, posters, trailers |
 | `OMDB_KEY` | IMDb, Rotten Tomatoes and Metacritic scores |
 | `WATCHMODE_KEY` | A direct link to each film on each streaming service |
-| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | Accounts with a one-time code by email, and a watchlist that follows the account |
 | `TMDB_DNS=doh` | Development only, on networks that block TMDB by DNS |
 
 If TMDB can't be reached, "Now showing" and "Trending" use the lists saved in
-`public/snapshots/` (refresh them with `node scripts/snapshots.mjs`).
+`public/snapshots/`. A GitHub Action refreshes them every morning; it needs
+`TMDB_TOKEN` as a repository secret (Settings → Secrets and variables →
+Actions). To refresh them by hand: `node scripts/snapshots.mjs`.
 
 ## Signing in
 
+<p align="center">
+  <img src="docs/readme/signin.svg" width="100%" alt="A browser window: the opening's last line scrolls away and a sign-in card pops up over a wall of posters. A temporary address is typed and turned away in red; a real Gmail address is typed and accepted in green, and the card gives way to the signed-in home page. Beside it, the four steps light up in turn.">
+</p>
+
 The home page's opening plays for everyone; the moment it ends, a sign-in
-pops up. Every other page is behind it. Step one is a name and an email; the
-server turns away temporary inboxes (8,771 known domains) and domains that
-can't receive mail. With Supabase connected, step two is a one-time code sent
-to that email. Without it, visitors are signed in on their own device.
+pops up over it. Every other page is behind it, and a link that lands on one
+while signed out goes to `/signin` first, then on to where it was headed.
 
-To connect Supabase (free): create a project, then in the dashboard
-
-1. **Authentication → Sign In / Providers → Email**: turn **off** "Allow new
-   users to sign up" (the server creates accounts itself, after the email check).
-2. **Authentication → Emails → Templates → Magic Link**: put `{{ .Token }}` in
-   the message, so it contains the code (do the same in "Confirm signup").
-3. **Authentication → URL Configuration**: set the Site URL to
-   `https://3flix-react.vercel.app` (and add `http://localhost:4500/**` under
-   Redirect URLs), so any link in an email comes back to the site.
-4. **Authentication → Emails → SMTP Settings**: add an SMTP sender (Brevo,
-   Resend, or a Gmail app password). Supabase's built-in sender only mails the
-   project's own team, about two emails an hour; anyone else is told the site
-   can't email codes to their address yet.
-5. **Project Settings → API Keys**: copy the URL, the publishable (anon) key
-   and the secret (service_role) key into the three variables above — in
-   `.env.local` and in Vercel. If the live server is missing the secret key,
-   sign-in falls back to this-device-only rather than locking everyone out.
-
-## Documents
-
-| Document | Contents |
-| --- | --- |
-| [`SYLLABUS.md`](SYLLABUS.md) | Every course topic mapped to the file and line that proves it |
-| [`BUILD.md`](BUILD.md) | How it was built: commands, design decisions, components, bugs |
+Signing in is one step — a name and an email address, no password and no
+code. The server checks the address is real before letting anyone in: the
+format, a list of 8,771 temporary-mail domains (and their subdomains), and a
+DNS lookup for the domain's mail record. The profile is then remembered in
+the browser, and the form is prefilled on the next visit. The nav bar has no
+"Sign in" button — only an account menu with Change name and Sign out.
 
 ## Routes
+
+<p align="center">
+  <img src="docs/readme/routes.svg" width="100%" alt="Two public routes — the home page and /signin — lead into a gold ProtectedRoute gate whose padlock opens and closes. Behind it: the library and a classic's player nested inside it, the movies catalogue and a film's page nested inside that, the watchlist, the about page, a redirect from /films to /library, and a 404 for anything else.">
+</p>
 
 | Path | Page | Demonstrates |
 | --- | --- | --- |
 | `/` | Home | Scroll-driven opening, then the sign-in gate or the menu |
-| `/signin` | Sign in | Controlled multi-step form, validation, redirect back |
+| `/signin` | Sign in | Controlled form, server-side validation, redirect back |
 | `/library` | Library | Lifted state, `useMemo`, controlled search |
-| `/library/:filmId` | Film detail | Nested + dynamic route, `useParams`, `useRef`, subtitles |
+| `/library/:filmId` | Film detail | Nested + dynamic route, `useParams`, `useRef`, resume where you left off |
 | `/movies` | Movies (TMDB) | URL state, paged fetching, `AbortController` |
-| `/movies/:movieId` | Movie detail | Dynamic route, trailer facade, where to watch |
+| `/movies/:movieId` | Movie detail | Dynamic route, trailer facade, scores, where to watch |
 | `/watchlist` | Watchlist | Context |
 | `/about` | About | Semantic HTML |
 | `/films` | → `/library` | Redirect |
@@ -117,15 +122,40 @@ no build step — evidence for the HTML/CSS/vanilla-JS modules.
 
 ## Deploying
 
-The live site is a Vercel **prebuilt** deploy: built locally, then uploaded.
-The server keys must also be set in Vercel → Project → Settings →
-Environment Variables (Production), because the `/api/*` functions run there.
+<p align="center">
+  <img src="docs/readme/deploy.svg" width="100%" alt="A push to main travels into a Vercel build, whose log fills in line by line while a progress bar runs; the build splits into the static site and four /api functions, and the live address switches from Building to Ready. Below, a GitHub Action refreshes the saved film lists every morning and commits them, which deploys the site again.">
+</p>
 
-```bash
-vercel build --prod
-vercel deploy --prebuilt --prod
-```
+Every push to `main` deploys: Vercel builds the site (`npm run build`) and the
+four `/api/*` functions, and the new version goes live when the build is ready.
+The functions read their keys from Vercel → Project → Settings → Environment
+Variables (Production), so set the keys there as well as in `.env.local`.
 
-Pushes to GitHub do not deploy (`"git": { "deploymentEnabled": false }` in
-`vercel.json`). To switch on deploy-on-push, add every variable above in
-Vercel, then delete the `git` block from `vercel.json`.
+To deploy by hand instead: `vercel --prod`.
+
+## Contributors
+
+<p align="center">
+  <img src="docs/readme/contributors.svg" width="100%" alt="Who built 3Flix, counted from the git history: each author with their commits and lines changed and a bar for their share of the commits, Claude as an AI pair programmer credited from the commits it co-authored, and a bar chart of every day's commits.">
+</p>
+
+Counted from the git history, not written by hand: each author's commits and
+lines changed, co-authors from the commits' `Co-Authored-By` lines (Claude
+worked on this project as an AI pair programmer), and automated commits kept
+apart from people. To list a teammate before their first commit, add them to
+`"contributors"` in `package.json`; their bar then grows with their own
+commits. Redraw it after new work lands with `node scripts/readme-art.mjs`.
+
+## Documents
+
+| Document | Contents |
+| --- | --- |
+| [`SYLLABUS.md`](SYLLABUS.md) | Every course topic mapped to the file and line that proves it |
+| [`BUILD.md`](BUILD.md) | How it was built: commands, design decisions, components, bugs |
+| [`PROMPTS.md`](PROMPTS.md) | The component prompts the design started from |
+
+Every animation in this README is a plain SVG file in
+[`docs/readme/`](docs/readme/) — no scripts, no outside requests — and each
+holds still on a meaningful frame for anyone whose system asks for reduced
+motion. They are drawn by `node scripts/readme-art.mjs`, which reads the
+versions from `package.json` and the contributors from git.

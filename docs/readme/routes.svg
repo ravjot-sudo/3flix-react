@@ -67,7 +67,7 @@
 
   <rect x="640" y="150" width="504" height="44" fill="#131312" stroke="#2a2a27"/>
   <text class="mono" x="656" y="177" font-size="13" font-weight="600" fill="#f0eee6">/library</text>
-  <text class="mono" x="1128" y="177" text-anchor="end" font-size="10.5" letter-spacing="0.3" fill="#a8a79f">new &amp; popular · free classics</text>
+  <text class="mono" x="1128" y="177" text-anchor="end" font-size="10.5" letter-spacing="0.3" fill="#a8a79f">new &amp; popular · search · genres</text>
   <rect x="670" y="202" width="474" height="44" fill="#131312" stroke="#2a2a27"/>
   <text class="mono" x="686" y="229" font-size="13" font-weight="600" fill="#f0eee6">/library/:filmId</text>
   <text class="mono" x="1128" y="229" text-anchor="end" font-size="10.5" letter-spacing="0.3" fill="#a8a79f">a classic's player</text>

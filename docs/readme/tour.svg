@@ -44,7 +44,7 @@
 <rect x="80" y="144" width="18" height="14" fill="none" stroke="#0c0c0b" stroke-width="1.4"/>
 <path d="M87 148v6l5-3z" fill="#0c0c0b"/>
 <text class="sans" x="106" y="157" font-size="14" font-weight="800" letter-spacing="-0.4" fill="#0c0c0b">3Flix</text>
-<text class="mono" x="360" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">HOME</text><text class="mono" x="424" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">LIBRARY</text><text class="mono" x="488" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">MOVIES</text><text class="mono" x="552" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">WATCHLIST</text><text class="mono" x="616" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">ABOUT</text>
+<text class="mono" x="356" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">HOME</text><text class="mono" x="406.4" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">LIBRARY</text><text class="mono" x="476.59999999999997" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">MOVIES</text><text class="mono" x="540.1999999999999" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">WATCHLIST</text><text class="mono" x="623.5999999999999" y="155" font-size="8.5" font-weight="600" letter-spacing="1.4" fill="#0c0c0b">ABOUT</text>
 <rect x="712" y="141" width="20" height="20" fill="#0c0c0b"/>
 <text class="sans" x="722" y="156" text-anchor="middle" font-size="11" font-weight="800" fill="#f6b519">R</text>
 
