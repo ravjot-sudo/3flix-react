@@ -1,6 +1,6 @@
 /**
- * Step one of signing in: ask the server to check the address and send a
- * code (server/proxy.js, POST /api/signin). Every refusal comes back as a
+ * Signing in: ask the server to check the address is real
+ * (server/proxy.js, POST /api/signin). Every refusal comes back as a
  * `reason`, which becomes a sentence here — and a `field`, so the form can
  * put the message next to the input it is about.
  */
@@ -9,13 +9,8 @@ const MESSAGES = {
   format: ["email", "That doesn’t look like an email address."],
   disposable: ["email", "Temporary email addresses aren’t accepted. Use an inbox you’ll keep."],
   "no-mail": ["email", "That domain can’t receive email. Check the spelling."],
-  wait: ["form", "A code was sent a moment ago. Wait a minute, then ask for another."],
-  send: ["form", "The code couldn’t be sent just now. Try again in a minute."],
-  sender: ["form", "3Flix can’t email codes to this address yet — its email sender is still being set up. Try again later."],
-  service: ["form", "Sign-in is having trouble right now. Try again in a minute."],
   network: ["form", "Couldn’t reach 3Flix. Check your connection and try again."],
-  code: ["code", "That code is wrong or has expired. Check the newest email, or send a new code."],
-  setup: ["form", "Sign-in is only half set up on this site, so no code can be sent."],
+  setup: ["form", "Sign-in isn’t answering properly right now. Try again in a minute."],
 };
 
 export function signInError(reason) {
@@ -25,7 +20,7 @@ export function signInError(reason) {
 
 export const nameOk = (n) => n.length >= 2 && n.length <= 40;
 
-/** → { mode: "code", email } or { mode: "local", email, name } */
+/** → { mode: "local", email, name } */
 export async function requestSignIn(name, email) {
   let res;
   try {
@@ -40,4 +35,24 @@ export async function requestSignIn(name, email) {
   const body = await res.json().catch(() => ({}));
   if (!res.ok || !body.ok) throw signInError(body.reason ?? "service");
   return body;
+}
+
+/* ---------- remembered visitor -----------------------------------------
+ * The last verified name and email, so the form greets return visitors
+ * prefilled. The signed-in session itself lives in "3flix:user"
+ * (AuthContext); this is only the form's memory, kept even after sign-out. */
+const LAST_LOGIN = "3flix:last-login";
+
+export function loadLastLogin() {
+  try {
+    const data = JSON.parse(localStorage.getItem(LAST_LOGIN) ?? "null");
+    if (data && typeof data.name === "string" && typeof data.email === "string") return data;
+  } catch { /* private mode or a corrupt value: start blank */ }
+  return null;
+}
+
+export function saveLastLogin({ name, email }) {
+  try {
+    localStorage.setItem(LAST_LOGIN, JSON.stringify({ name, email }));
+  } catch { /* storage unavailable: simply not remembered next time */ }
 }

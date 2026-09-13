@@ -6,17 +6,16 @@
  * and as Vite middleware in development (vite.config.js), so both behave
  * identically.
  *
- *   GET  /api/tmdb       TMDB, for the allow-listed endpoints below
- *   GET  /api/omdb       OMDb scores, by IMDb id
- *   GET  /api/watchmode  direct links into streaming services
- *   POST /api/signin     email check, then a one-time code (Supabase)
- *
- * Keys come from server-side environment variables with NO VITE_ prefix, so
- * Vite never compiles them into the public JavaScript:
- *   TMDB_TOKEN                 TMDB's read-only key (short key or long token)
- *   OMDB_KEY                   OMDb's API key
- *   WATCHMODE_KEY              Watchmode's API key
- *   SUPABASE_SERVICE_ROLE_KEY  Supabase's secret key (creates accounts)
+  *   GET  /api/tmdb       TMDB, for the allow-listed endpoints below
+  *   GET  /api/omdb       OMDb scores, by IMDb id
+  *   GET  /api/watchmode  direct links into streaming services
+  *   POST /api/signin     name + real-email check (no temporary inboxes)
+  *
+  * Keys come from server-side environment variables with NO VITE_ prefix, so
+  * Vite never compiles them into the public JavaScript:
+  *   TMDB_TOKEN                 TMDB's read-only key (short key or long token)
+  *   OMDB_KEY                   OMDb's API key
+  *   WATCHMODE_KEY              Watchmode's API key
  *
  * It is deliberately not an open relay: only the TMDB endpoints the site uses
  * are forwarded, and OMDb and Watchmode only answer lookups by film id.
@@ -231,65 +230,23 @@ export async function checkEmail(email) {
   return { ok: true, email: value };
 }
 
-/* ---------- Sign-in, step one --------------------------------------------
+/* ---------- Sign-in ---------------------------------------------------
  * POST /api/signin {"name": "…", "email": "…"}
- *   1. checkEmail: no temporary inboxes, no domains that can't receive mail
- *   2. with Supabase connected (SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY):
- *      create the account if it is new — public sign-ups stay OFF in
- *      Supabase, so this check is the only way to get an account — then have
- *      Supabase email a one-time code. The browser verifies that code with
- *      Supabase itself (src/context/AuthContext.jsx).
- *   3. without Supabase: answer {mode: "local"}; the browser signs in on this
- *      device only. No code is sent, because nothing is set up to send one. */
+ *   1. the name is sane (2–40 characters, no markup)
+ *   2. checkEmail: a real address — correct format, no temporary inboxes,
+ *      and a domain that can actually receive mail
+ * Passing both signs the visitor in on their own device: the browser keeps
+ * the profile in localStorage, so they stay signed in. No passwords, no
+ * codes, no accounts to manage — and no email that can fail to arrive.
+ * The address arrives in a POST body, never a URL, so it stays out of logs. */
 const nameOk = (n) => n.length >= 2 && n.length <= 40 && !/[<>]/.test(n) && ![...n].some((c) => c.codePointAt(0) < 32);
 
-// The new sb_… keys go in `apikey` alone; the older JWT keys also as a Bearer token.
-const supaHeaders = (k) => ({
-  apikey: k, "content-type": "application/json",
-  ...(k.startsWith("eyJ") ? { authorization: `Bearer ${k}` } : {}),
-});
-
-export async function signin(body, env) {
+export async function signin(body) {
   const name = String(body?.name ?? "").trim().replace(/\s+/g, " ");
   if (!nameOk(name)) return reply(422, { ok: false, reason: "name" });
   const check = await checkEmail(body?.email);
   if (!check.ok) return reply(422, check);
-
-  const base = clean(env.SUPABASE_URL || env.VITE_SUPABASE_URL || "https://qaeoqbqxicosurtawmhl.supabase.co").replace(/\/+$/, "");
-  const secret = clean(env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhZW9xYnF4aWNvc3VydGF3bWhsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTI4NzIwMCwiZXhwIjoyMTA0ODYzMjAwfQ.qh6F7MHLckjdClMwWyp2U0fTpWWvYHLqWhSqO1sj_6U");
-  if (!base || !secret) return reply(200, { ok: true, mode: "local", email: check.email, name });
-  const publicKey = clean(env.VITE_SUPABASE_ANON_KEY || "sb_publishable_cGNZ7okR8jRk8zw8wukF4A_ff6EJMih") || secret;
-
-  const created = await fetch(`${base}/auth/v1/admin/users`, {
-    method: "POST",
-    headers: supaHeaders(secret),
-    body: JSON.stringify({ email: check.email, email_confirm: true, user_metadata: { name } }),
-  });
-  if (!created.ok) {
-    const why = await created.json().catch(() => ({}));
-    const exists = created.status === 422 && /exist|already/i.test(`${why.code ?? ""} ${why.error_code ?? ""} ${why.msg ?? ""} ${why.message ?? ""}`);
-    if (!exists) return reply(502, { ok: false, reason: "service" });
-  }
-
-  // One code request per sign-in attempt: Supabase rate-limits OTP mail
-  // (about one code a minute per address, a handful per hour on the
-  // built-in mailer), so any extra token-generating call here burns the
-  // budget and the email never goes out.
-  const sent = await fetch(`${base}/auth/v1/otp`, {
-    method: "POST",
-    headers: supaHeaders(publicKey),
-    body: JSON.stringify({ email: check.email, create_user: false }),
-  });
-  if (!sent.ok) {
-    const why = await sent.json().catch(() => ({}));
-    const said = `${why.code ?? ""} ${why.error_code ?? ""} ${why.msg ?? ""} ${why.message ?? ""}`;
-    if (sent.status === 429 || /rate.?limit/i.test(said)) return reply(429, { ok: false, reason: "wait" });
-    // Supabase's built-in mailer only writes to the project's own team; anyone
-    // else needs a custom SMTP sender set up in the dashboard.
-    if (/not.?authori[sz]ed/i.test(said)) return reply(503, { ok: false, reason: "sender" });
-    return reply(502, { ok: false, reason: "send" });
-  }
-  return reply(200, { ok: true, mode: "code", email: check.email });
+  return reply(200, { ok: true, mode: "local", email: check.email, name });
 }
 
 const tooLarge = () => Object.assign(new Error("Too large."), { status: 413 });
