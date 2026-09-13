@@ -8,14 +8,41 @@ import { hasTmdb, img, inRegion, movieDetail, netflixUrl, posterStandIn } from "
 import { price, watchLinks } from "../lib/watchmode.js";
 import { formatRuntime } from "../data/films.js";
 
+const DEFAULT_SERVERS = [
+  {
+    id: "vidsrc",
+    name: "Server 1 (VidSrc)",
+    url: (id) => `https://vidsrc.pm/embed/movie/${id}`,
+  },
+  {
+    id: "autoembed",
+    name: "Server 2 (AutoEmbed)",
+    url: (id) => `https://autoembed.co/movie/tmdb/${id}`,
+  },
+  {
+    id: "vidlink",
+    name: "Server 3 (VidLink)",
+    url: (id) => `https://vidlink.pro/movie/${id}?primaryColor=e8b14c&secondaryColor=121218&iconColor=e8b14c`,
+  },
+];
+
+const customSource = typeof import.meta !== "undefined" && import.meta.env?.VITE_VIDEO_SOURCE;
+const STREAM_SERVERS = customSource
+  ? [
+      {
+        id: "custom",
+        name: "Custom Source (env)",
+        url: (id) => `${customSource.replace(/\/$/, "")}/${id}`,
+      },
+      ...DEFAULT_SERVERS,
+    ]
+  : DEFAULT_SERVERS;
+
 /**
  * /movies/:movieId — one film from the TMDB catalogue.
  *
- * The trailer is a click-to-load facade: YouTube is not contacted until the
- * visitor presses play, which keeps the page fast and keeps a third party out
- * of every page view. "Watch on Netflix" appears only when TMDB says the film
- * is on Netflix in the visitor's country; otherwise the page says so plainly
- * and lists where it does stream.
+ * Provides a full cinema streaming screen with multiple servers, click-to-load
+ * YouTube trailers, cinema dimming mode, and direct streaming links.
  */
 export default function MovieDetail() {
   const { movieId } = useParams();
@@ -24,6 +51,23 @@ export default function MovieDetail() {
   const [region] = useRegion();
   const navigate = useNavigate();
   const ready = hasTmdb();
+
+  const [tab, setTab] = useState("stream"); // "stream" | "trailer"
+  const [serverId, setServerId] = useState("vidsrc");
+  const [cinema, setCinema] = useState(false);
+  const [streamPlaying, setStreamPlaying] = useState(false);
+
+  // Cinema mode: dims the surrounding page
+  useEffect(() => {
+    document.documentElement.classList.toggle("cinema-mode", cinema);
+    if (!cinema) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setCinema(false); };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.documentElement.classList.remove("cinema-mode");
+    };
+  }, [cinema]);
 
   const { data: m, error, loading, retry } = useRemote(
     ready && valid ? `${id}|${region}` : null,
@@ -34,7 +78,9 @@ export default function MovieDetail() {
   const links = useRemote(m ? `wm|${m.id}|${region}` : null, (signal) => watchLinks(m.id, region, signal));
 
   // Arriving from a long list, start at the top of the film.
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [id]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [id]);
 
   if (!ready) return <div className="section"><div className="container"><TmdbSetup /></div></div>;
   if (!valid) return <Missing text={`“${movieId}” is not a film id.`} />;
@@ -49,7 +95,7 @@ export default function MovieDetail() {
   const netflixLink = sources.find((s) => s.kind === "sub" && /netflix/i.test(s.name))?.url ?? netflixUrl(m.title);
   const subscription = sources.find((s) => s.kind === "sub");
   const freeSource = sources.find((s) => s.kind === "free");
-  const lead = m.onNetflix || Boolean(subscription);
+  const currentServer = STREAM_SERVERS.find((s) => s.id === serverId) ?? STREAM_SERVERS[0];
 
   return (
     <article className="mvd">
@@ -68,28 +114,35 @@ export default function MovieDetail() {
               {m.tagline && <p className="mvd-tagline">{m.tagline}</p>}
               <Ratings imdbId={m.imdbId} />
               <div className="mvd-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-go"
+                  onClick={() => {
+                    setTab("stream");
+                    setStreamPlaying(true);
+                    document.getElementById("player")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true" style={{ marginRight: 6 }}>
+                    <path d="M4 2.5v11l9.5-5.5z" />
+                  </svg>
+                  Watch Film
+                </button>
                 {m.onNetflix ? (
-                  <a className="btn btn-primary btn-go" href={netflixLink} target="_blank" rel="noopener noreferrer">
+                  <a className="btn btn-ghost btn-go" href={netflixLink} target="_blank" rel="noopener noreferrer">
                     Watch on Netflix<span className="sr-only"> (opens Netflix in a new tab)</span>
                   </a>
                 ) : subscription && (
-                  <a className="btn btn-primary btn-go" href={subscription.url} target="_blank" rel="noopener noreferrer">
+                  <a className="btn btn-ghost btn-go" href={subscription.url} target="_blank" rel="noopener noreferrer">
                     Watch on {subscription.name}<span className="sr-only"> (opens {subscription.name} in a new tab)</span>
                   </a>
                 )}
                 {(freeSource || m.free.length > 0) && (
-                  <a className={`btn ${lead ? "btn-ghost" : "btn-primary btn-go"}`} href={freeSource?.url ?? m.providersLink} target="_blank" rel="noopener noreferrer">
+                  <a className="btn btn-ghost" href={freeSource?.url ?? m.providersLink} target="_blank" rel="noopener noreferrer">
                     Watch free on {freeSource?.name ?? m.free[0].name}
                     {!freeSource && m.free.length > 1 ? ` +${m.free.length - 1}` : ""}
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
-                )}
-                {!lead && !freeSource && !m.free.length && (
-                  <p className="mvd-flag">
-                    {!m.stream.length && m.year >= new Date().getFullYear() - 1
-                      ? `Not streaming yet in ${place}`
-                      : `Not on Netflix in ${place}`}
-                  </p>
                 )}
                 <a className="btn btn-ghost" href={m.providersLink} target="_blank" rel="noopener noreferrer">
                   All ways to watch<span className="sr-only"> (opens TMDB in a new tab)</span>
@@ -101,9 +154,92 @@ export default function MovieDetail() {
       </div>
 
       <div className="container mvd-body">
-        <section className="mvd-block mvd-trailer-block" aria-labelledby="mvd-trailer">
-          <h2 id="mvd-trailer" className="mvd-h">Trailer</h2>
-          <Trailer key={m.id} videoKey={m.trailerKey} title={m.title} backdrop={m.backdrop} />
+        <section id="player" className="mvd-block mvd-player-section" aria-labelledby="mvd-player-heading">
+          <div className="mvd-player-header">
+            <div className="mvd-player-tabs" role="tablist" aria-label="Media player modes">
+              <button
+                type="button"
+                role="tab"
+                id="tab-stream"
+                aria-selected={tab === "stream"}
+                className={`mvd-tab ${tab === "stream" ? "is-active" : ""}`}
+                onClick={() => setTab("stream")}
+              >
+                Stream Film
+              </button>
+              {m.trailerKey && (
+                <button
+                  type="button"
+                  role="tab"
+                  id="tab-trailer"
+                  aria-selected={tab === "trailer"}
+                  className={`mvd-tab ${tab === "trailer" ? "is-active" : ""}`}
+                  onClick={() => setTab("trailer")}
+                >
+                  Trailer
+                </button>
+              )}
+            </div>
+
+            {tab === "stream" && (
+              <div className="mvd-player-controls">
+                <label className="mvd-server-label" htmlFor="server-select">
+                  <span className="label">Server</span>
+                  <select
+                    id="server-select"
+                    className="mvd-server-select"
+                    value={serverId}
+                    onChange={(e) => setServerId(e.target.value)}
+                  >
+                    {STREAM_SERVERS.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  className={`btn-icon cinema-btn ${cinema ? "is-active" : ""}`}
+                  onClick={() => setCinema((c) => !c)}
+                  aria-pressed={cinema}
+                  aria-label={cinema ? "Leave cinema mode" : "Cinema mode — dim the page"}
+                  title="Cinema mode (Esc to leave)"
+                >
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="1.5" y="3" width="13" height="10" rx="1" stroke="currentColor" />
+                    <path d="M5 13.5h6" stroke="currentColor" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="mvd-screen-wrapper">
+            {tab === "stream" ? (
+              <MovieStreamer
+                key={`${m.id}-${serverId}`}
+                id={m.id}
+                title={m.title}
+                backdrop={m.backdrop}
+                server={currentServer}
+                autoPlay={streamPlaying}
+                onPlay={() => setStreamPlaying(true)}
+              />
+            ) : (
+              <Trailer
+                key={m.id}
+                videoKey={m.trailerKey}
+                title={m.title}
+                backdrop={m.backdrop}
+              />
+            )}
+          </div>
+
+          {tab === "stream" && (
+            <div className="mvd-server-hint">
+              <span className="mvd-tag">{currentServer.name}</span>
+              <span>If playback is slow or blocked, switch to another server above.</span>
+            </div>
+          )}
         </section>
 
         <div className="mvd-cols">
@@ -179,6 +315,44 @@ export default function MovieDetail() {
         <TmdbCredit />
       </div>
     </article>
+  );
+}
+
+/** Embedded video streaming player with click-to-load facade */
+function MovieStreamer({ id, title, backdrop, server, autoPlay, onPlay }) {
+  const [on, setOn] = useState(autoPlay || false);
+
+  function start() {
+    setOn(true);
+    onPlay?.();
+  }
+
+  return (
+    <div className="mvd-trailer">
+      {on ? (
+        <iframe
+          src={server.url(id)}
+          title={`${title} — streaming`}
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+      ) : (
+        <button
+          type="button"
+          className="mvd-facade"
+          onClick={start}
+          aria-label={`Stream ${title} on ${server.name}`}
+        >
+          {backdrop && <img src={img(backdrop, "w780")} alt="" loading="lazy" />}
+          <span className="mvd-play" aria-hidden="true">
+            <svg viewBox="0 0 16 16">
+              <path d="M4 2.5v11l9.5-5.5z" fill="currentColor" />
+            </svg>
+          </span>
+          <span className="mvd-facade-label label">Stream film · loads player ({server.name})</span>
+        </button>
+      )}
+    </div>
   );
 }
 

@@ -80,7 +80,7 @@ function CloudAuth({ children }) {
 
   const begin = useCallback(async ({ name, email }) => {
     const res = await requestSignIn(name, email);
-    if (res.mode === "code") return { step: "code", email: res.email };
+    if (res.mode === "code") return { step: "code", email: res.email, devOtp: res.devOtp };
     // The server can't send codes, so don't strand the visitor at the gate.
     console.warn("3Flix: the server has no Supabase secret key, so sign-in is on this device only.");
     setFallback({ name: res.name, email: res.email, since: Date.now(), via: "fallback" });

@@ -745,6 +745,94 @@ html[data-intro="on"] .op-skip {
 .mvd-facade-label { position: absolute; left: 16px; bottom: 14px; color: var(--paper); }
 .mvd-facade:focus-visible { outline-offset: -4px; }
 
+.mvd-player-section { margin-bottom: var(--s-8); }
+.mvd-player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.mvd-player-tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px;
+  border: 1px solid var(--line);
+}
+.mvd-tab {
+  border: 0;
+  background: transparent;
+  color: var(--fog);
+  padding: 6px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.mvd-tab:hover { color: var(--paper); }
+.mvd-tab.is-active {
+  background: var(--amber);
+  color: var(--ink);
+  font-weight: 600;
+}
+.mvd-player-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.mvd-server-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--fog);
+}
+.mvd-server-label .label {
+  margin: 0;
+  color: var(--fog);
+  font-size: 0.6875rem;
+}
+.mvd-server-select {
+  background: #15151c;
+  color: var(--paper);
+  border: 1px solid var(--line);
+  padding: 5px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  border-radius: 0;
+  cursor: pointer;
+  outline: none;
+}
+.mvd-server-select:focus-visible {
+  border-color: var(--amber);
+}
+.mvd-server-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+  color: var(--fog);
+  font-size: 0.75rem;
+}
+.mvd-server-hint .mvd-tag {
+  margin-left: 0;
+}
+html.cinema-mode .mvd-hero,
+html.cinema-mode .mvd-cols,
+html.cinema-mode .mvd-cast,
+html.cinema-mode .tmdb-credit {
+  opacity: 0.06;
+  transition: opacity 400ms var(--ease-out);
+  pointer-events: none;
+}
+html.cinema-mode .mvd-player-section {
+  position: relative;
+  z-index: 50;
+}
+
 .mvd-providers { display: grid; gap: var(--s-2); }
 .mvd-providers li {
   display: flex;

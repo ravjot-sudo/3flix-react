@@ -1,18 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage.js";
+import { fetchWyzieSubtitles, loadSubAsVttUrl } from "../lib/wyzie.js";
 
 /**
- * Video player with resume.
+ * Video player with resume and live subtitles.
  *
  * Subtitles: films that ship subtitle files get <track> elements and a menu.
- * The chosen language is remembered (localStorage) and applied to any film
- * that has it; the WebVTT files live on this site, so no cross-origin rules
- * get in the way.
- *
- * Demonstrates: useRef to reach a real DOM node (a <video> element has an
- * imperative API React cannot express declaratively), useEffect to attach and
- * clean up native media events, derived state, and conditional rendering for
- * the fallback when a film has no source.
+ * When an Aether/Wyzie key is present, live subtitles are fetched from Wyzie
+ * (sub.wyzie.io) by TMDB ID, converted to WebVTT in-browser, and rendered.
+ * The chosen language is remembered (localStorage) across films.
  */
 export default function Player({ film, startAt = 0, onProgress }) {
   const videoRef = useRef(null);
@@ -21,22 +17,77 @@ export default function Player({ film, startAt = 0, onProgress }) {
   const [failed, setFailed] = useState(false);
   const [time, setTime] = useState({ now: 0, total: film.runtime * 60 });
 
-  // Subtitles: remembered across films; "off" if this film lacks the language.
-  const subs = film.subtitles ?? [];
-  const [captionsPref, setCaptions] = useLocalStorage("3flix:captions", "off");
-  const captions = subs.some((t) => t.lang === captionsPref) ? captionsPref : "off";
+  // Subtitles: local bundled tracks + dynamic Wyzie tracks
+  const rawSubs = film.subtitles;
+  const [wyzieSubs, setWyzieSubs] = useState([]);
+  const [activeVttSrc, setActiveVttSrc] = useState(null);
+  const [loadedWyzieId, setLoadedWyzieId] = useState(null);
 
-  // TextTrack.mode is imperative, like play(): set it on the element itself.
+  // Fetch live subtitles from Wyzie when film has a TMDB ID
+  useEffect(() => {
+    const tmdbId = film.tmdb?.id ?? film.tmdbId;
+    if (!tmdbId) return undefined;
+    const controller = new AbortController();
+    fetchWyzieSubtitles(tmdbId, "en", controller.signal).then((tracks) => {
+      setWyzieSubs(tracks);
+    });
+    return () => controller.abort();
+  }, [film.id, film.tmdb?.id, film.tmdbId]);
+
+  const allSubs = useMemo(() => [
+    ...(rawSubs ?? []).map((s) => ({ ...s, source: "local", key: s.lang })),
+    ...wyzieSubs.map((s) => ({ ...s, source: "wyzie", key: s.id })),
+  ], [rawSubs, wyzieSubs]);
+
+  const [captionsPref, setCaptions] = useLocalStorage("3flix:captions", "off");
+  const captions = allSubs.some((t) => t.key === captionsPref || t.lang === captionsPref) ? captionsPref : "off";
+
+  // When a Wyzie subtitle is selected, load the SRT and convert it to a WebVTT Object URL
+  useEffect(() => {
+    const selected = allSubs.find((s) => (s.key === captions || s.lang === captions) && s.source === "wyzie");
+    if (!selected) return undefined;
+    if (loadedWyzieId === selected.id) return undefined;
+
+    const controller = new AbortController();
+    loadSubAsVttUrl(selected.url, controller.signal)
+      .then((blobUrl) => {
+        setActiveVttSrc((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return blobUrl;
+        });
+        setLoadedWyzieId(selected.id);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") console.warn("3Flix: Failed to load subtitle:", err);
+      });
+
+    return () => controller.abort();
+  }, [captions, allSubs, loadedWyzieId]);
+
+  // Clean up Object URL on unmount or change to avoid leaks
+  useEffect(() => {
+    return () => {
+      if (activeVttSrc) URL.revokeObjectURL(activeVttSrc);
+    };
+  }, [activeVttSrc]);
+
+  // TextTrack.mode is imperative: set it on the element itself.
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return undefined;
     const apply = () => {
-      for (const track of el.textTracks) track.mode = track.language === captions ? "showing" : "disabled";
+      for (const track of el.textTracks) {
+        if (track.label?.includes("Wyzie")) {
+          track.mode = activeVttSrc ? "showing" : "disabled";
+        } else {
+          track.mode = track.language === captions ? "showing" : "disabled";
+        }
+      }
     };
     apply();
     el.textTracks.addEventListener("addtrack", apply);
     return () => el.textTracks.removeEventListener("addtrack", apply);
-  }, [captions]);
+  }, [captions, activeVttSrc]);
 
   // There is deliberately no "reset on film change" effect here. The parent
   // renders <Player key={film.id} …>, so React unmounts and remounts this
@@ -128,9 +179,19 @@ export default function Player({ film, startAt = 0, onProgress }) {
             preload="metadata"
             playsInline
           >
-            {subs.map((t) => (
+            {(rawSubs ?? []).map((t) => (
               <track key={t.lang} kind="subtitles" src={t.src} srcLang={t.lang} label={t.label} />
             ))}
+            {activeVttSrc && (
+              <track
+                key={loadedWyzieId}
+                kind="subtitles"
+                src={activeVttSrc}
+                srcLang={captions}
+                label="Wyzie Subtitles"
+                default
+              />
+            )}
           </video>
         ) : (
           <div className="screen-fallback">
@@ -181,13 +242,17 @@ export default function Player({ film, startAt = 0, onProgress }) {
 
         <span className="time tnum">{clock(time.total)}</span>
 
-        {subs.length > 0 && (
+        {allSubs.length > 0 && (
           <label className="cc-select">
             <span className="cc-badge" aria-hidden="true">CC</span>
             <span className="sr-only">Subtitles</span>
             <select value={captions} onChange={(e) => setCaptions(e.target.value)}>
               <option value="off">Off</option>
-              {subs.map((t) => <option key={t.lang} value={t.lang}>{t.label}</option>)}
+              {allSubs.map((t) => (
+                <option key={t.key} value={t.key}>
+                  {t.label}
+                </option>
+              ))}
             </select>
           </label>
         )}

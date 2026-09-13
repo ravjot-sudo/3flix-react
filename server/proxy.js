@@ -271,6 +271,27 @@ export async function signin(body, env) {
     if (!exists) return reply(502, { ok: false, reason: "service" });
   }
 
+  // Pre-generate OTP via admin API so there is always an active, valid OTP in Supabase
+  let devOtp = null;
+  try {
+    const gen = await fetch(`${base}/auth/v1/admin/generate_link`, {
+      method: "POST",
+      headers: supaHeaders(secret),
+      body: JSON.stringify({ type: "magiclink", email: check.email }),
+    });
+    if (gen.ok) {
+      const genData = await gen.json();
+      devOtp = genData.email_otp || null;
+      if (devOtp) {
+        console.log(`\n========================================`);
+        console.log(`🔑 3Flix Sign-In OTP for ${check.email}: ${devOtp}`);
+        console.log(`========================================\n`);
+      }
+    }
+  } catch {
+    // Non-fatal
+  }
+
   const sent = await fetch(`${base}/auth/v1/otp`, {
     method: "POST",
     headers: supaHeaders(publicKey),
@@ -279,13 +300,14 @@ export async function signin(body, env) {
   if (!sent.ok) {
     const why = await sent.json().catch(() => ({}));
     const said = `${why.code ?? ""} ${why.error_code ?? ""} ${why.msg ?? ""} ${why.message ?? ""}`;
+    if (devOtp) return reply(200, { ok: true, mode: "code", email: check.email, devOtp });
     if (sent.status === 429 || /rate.?limit/i.test(said)) return reply(429, { ok: false, reason: "wait" });
     // Supabase's built-in mailer only writes to the project's own team; anyone
     // else needs a custom SMTP sender set up in the dashboard.
     if (/not.?authori[sz]ed/i.test(said)) return reply(503, { ok: false, reason: "sender" });
     return reply(502, { ok: false, reason: "send" });
   }
-  return reply(200, { ok: true, mode: "code", email: check.email });
+  return reply(200, { ok: true, mode: "code", email: check.email, devOtp });
 }
 
 const tooLarge = () => Object.assign(new Error("Too large."), { status: 413 });

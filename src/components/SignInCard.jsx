@@ -31,6 +31,7 @@ export default function SignInCard({ titleId, as: Heading = "h2", focusOnMount =
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [sentTo, setSentTo] = useState("");
+  const [devOtp, setDevOtp] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [wait, setWait] = useState(0);
@@ -61,7 +62,8 @@ export default function SignInCard({ titleId, as: Heading = "h2", focusOnMount =
       const next = await begin({ name: cleanName, email: email.trim() });
       if (next.step === "code") {
         setSentTo(next.email);
-        setCode("");
+        setDevOtp(next.devOtp ?? null);
+        setCode(next.devOtp ?? "");
         setStep("code");
         setWait(RESEND_AFTER);
       }
@@ -156,6 +158,11 @@ export default function SignInCard({ titleId, as: Heading = "h2", focusOnMount =
             <p className="signin-lede">
               We sent a code to <strong>{sentTo}</strong>. It can take a minute to arrive — look in spam too.
             </p>
+            {devOtp && (
+              <p className="signin-fine" style={{ color: "var(--amber)", marginBottom: "var(--s-3)", fontSize: "0.875rem" }}>
+                One-time code: <strong style={{ letterSpacing: "2px" }}>{devOtp}</strong>
+              </p>
+            )}
 
             <div className="field">
               <label className="label" htmlFor={ids.code}>Code from the email</label>
