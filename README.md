@@ -92,7 +92,7 @@ while signed out goes to `/signin` first, then on to where it was headed.
 Signing in is one step — a name and an email address, no password and no
 code. The server checks the address is real before letting anyone in: the
 format, a list of 8,771 temporary-mail domains (and their subdomains), and a
-DNS lookup for the domain's mail record. The profile is then remembered in
+DNS lookup for the domain's mail record The profile is then remembered in
 the browser, and the form is prefilled on the next visit. The nav bar has no
 "Sign in" button — only an account menu with Change name and Sign out.
 
