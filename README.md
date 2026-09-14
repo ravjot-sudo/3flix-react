@@ -144,7 +144,7 @@ the lines changed — the work itself — rather than of commits, so a one-line
 fix and a whole feature don't count the same. Co-authors come from the
 commits' `Co-Authored-By` lines (Claude worked on this project as an AI pair
 programmer), and automated commits are kept apart from people. Teammates are listed under `"contributors"` in `package.json`, each with
-the name to show and their git author name (`{ "name": "Watson", "git":
+the name to show and their git author name (`{ "name": "Maulik", "git":
 "g4_0907" }`); anyone listed appears even before their first commit, and
 their bar grows with their own commits. Redraw it after new work lands with `node scripts/readme-art.mjs`.
 
