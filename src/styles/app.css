@@ -478,6 +478,31 @@
 .play-btn:hover { background: var(--amber-hi); }
 .btn-icon svg { width: 16px; height: 16px; }
 
+/* Watch settings: gear button + pop-up panel holding the sound boost. */
+.player-settings { position: relative; flex: none; }
+.settings-btn.is-active { border-color: var(--amber); color: var(--amber); }
+.settings-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: 230px;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--raised);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 5;
+}
+.settings-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--s-2);
+}
+.settings-value { font-size: 0.75rem; color: var(--amber); }
+.settings-slider { width: 100%; }
+.settings-hint { margin-top: var(--s-2); font-size: 0.6875rem; color: var(--fog); }
+
 .time { font-family: var(--font-mono); font-size: 0.75rem; color: var(--fog); flex: none; }
 
 .seek {

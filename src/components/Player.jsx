@@ -154,12 +154,24 @@ export default function Player({ film, startAt = 0, onProgress }) {
   // CINEMA MODE — dims the rest of the page so the screen is the only light.
   // A class on <html> rather than a portal, so the dim reaches every region.
   const [cinema, setCinema] = useState(false);
-  // BOOST — quiet Archive rips get +8dB via Web Audio (clamped, no clipping).
-  // Remembered across films like the captions pref.
-  const [boost, setBoost] = useLocalStorage("3flix:boost", false);
+  // SETTINGS > SOUND BOOST — quiet Archive rips get up to +9dB via Web
+  // Audio (clamped + compressed, no clipping). A level, not a switch, and
+  // remembered across films like the captions pref. Migrates the old
+  // boolean pref (true -> 2.5x).
+  const [boostRaw, setBoost] = useLocalStorage("3flix:boost", 0);
+  const boost = boostRaw === true ? 2.5 : (Number(boostRaw) || 0);
+  const boosting = boost > 0;
+  const [settingsOpen, setSettingsOpen] = useState(false);
   useEffect(() => {
-    setVideoBoost(videoRef.current, boost, 2.5);
-  }, [boost, film.id]);
+    setVideoBoost(videoRef.current, boosting, boost || 1);
+  }, [boost, boosting, film.id]);
+  // Close the settings panel on Escape.
+  useEffect(() => {
+    if (!settingsOpen) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setSettingsOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [settingsOpen]);
   useEffect(() => {
     document.documentElement.classList.toggle("cinema-mode", cinema);
     if (!cinema) return undefined;
@@ -264,21 +276,44 @@ export default function Player({ film, startAt = 0, onProgress }) {
           </label>
         )}
 
-        <button
-          type="button"
-          className={`btn-icon boost-btn${boost ? " is-active" : ""}`}
-          onClick={() => setBoost((b) => !b)}
-          disabled={!hasSource}
-          aria-pressed={boost}
-          aria-label={boost ? "Turn sound boost off" : "Boost quiet sound"}
-          title={boost ? "Boost on (+8dB)" : "Boost quiet films"}
-        >
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M2 6v4h2.5L8 13V3L4.5 6H2z" fill="currentColor" />
-            <path d="M10 5.5a3.5 3.5 0 010 5M11.8 3.8a6 6 0 010 8.4" stroke="currentColor" strokeLinecap="round" />
-            {boost && <path d="M10 2v1.5M13.2 2.6l-1 1.1M5.8 2.6l1 1.1" stroke="currentColor" strokeLinecap="round" />}
-          </svg>
-        </button>
+        <div className="player-settings">
+          <button
+            type="button"
+            className={`btn-icon settings-btn${boosting ? " is-active" : ""}`}
+            onClick={() => setSettingsOpen((o) => !o)}
+            disabled={!hasSource}
+            aria-expanded={settingsOpen}
+            aria-label={boosting ? `Watch settings, sound boost ${boost.toFixed(1)}x on` : "Watch settings"}
+            title={boosting ? `Settings · boost ${boost.toFixed(1)}x` : "Watch settings · sound boost"}
+          >
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="8" cy="8" r="2.2" stroke="currentColor" />
+              <path d="M8 1.8v1.7M8 12.5v1.7M1.8 8h1.7M12.5 8h1.7M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M12.4 3.6l-1.2 1.2M4.8 11.2l-1.2 1.2" stroke="currentColor" strokeLinecap="round" />
+            </svg>
+          </button>
+
+          {settingsOpen && (
+            <div className="settings-panel" role="dialog" aria-label="Watch settings">
+              <label className="settings-row" htmlFor="boost">
+                <span className="label">Sound boost</span>
+                <span className="settings-value tnum">{boosting ? `${boost.toFixed(1)}x` : "Off"}</span>
+              </label>
+              <input
+                id="boost"
+                className="seek settings-slider"
+                type="range"
+                min="0"
+                max="3"
+                step="0.5"
+                value={boost}
+                onChange={(e) => setBoost(Number(e.target.value))}
+                disabled={!hasSource}
+                aria-valuetext={boosting ? `${boost.toFixed(1)} times volume` : "Off"}
+              />
+              <p className="settings-hint">Lifts quiet rips, up to 3x. Remembered for every film.</p>
+            </div>
+          )}
+        </div>
 
         <button
           type="button"
