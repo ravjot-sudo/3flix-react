@@ -3,11 +3,16 @@
  *
  * Everything here is crash-safe: no AudioContext on the server, resume on
  * user gesture (autoplay policy), and a compressor before the destination so
- * a boost never clips.
+ * a boost never clips. Boosts asked for before unlock are deferred, never
+ * routed into a suspended context (which would silence the video).
  */
 
 let sharedCtx = null;
 const boostNodes = new WeakMap();
+// Boosts asked for while audio is still locked (before any user gesture).
+// Applied the moment the context runs — see armUnlock.
+const pendingBoost = new Map();
+let unlockArmed = false;
 
 function getContext() {
   if (typeof window === "undefined") return null;
@@ -58,8 +63,7 @@ export async function playBootSound({ boost = 2.8 } = {}) {
     master.gain.value = Math.min(Math.max(boost, 0.5), 3);
     master.connect(comp);
 
-    // A5 -> D6 -> G6, 0.1s apart, snappy decay = no clicks, no swell.
-    const notes = [880, 1174.66, 1567.98];
+    // A5 -> D6 -> G6, 0.1s apart, snappy decay = no clicks, no swell.    const notes = [880, 1174.66, 1567.98];
     notes.forEach((freq, i) => {
       const start = t0 + i * 0.1;
 
@@ -90,52 +94,132 @@ export async function playBootSound({ boost = 2.8 } = {}) {
       hi.start(start);
       hi.stop(start + 0.24);
     });
+
+    // The chime proves audio is unlocked — apply any boosts that were
+    // asked for earlier (e.g. a persisted boost on page load).
+    flushPendingBoosts();
   } catch {
     /* sound is decorative — never crash the app for it */
   }
 }
 
+/** Apply every deferred boost, now that the context is running. */
+function flushPendingBoosts() {
+  try {
+    const ctx = getContext();
+    if (!ctx || ctx.state !== "running") return;
+    for (const [el, req] of pendingBoost) {
+      pendingBoost.delete(el);
+      applyBoost(el, req.on, req.amount);
+    }
+  } catch {
+    /* never crash the app for sound */
+  }
+}
+
+/** One-time gesture listeners: unlock audio, then apply deferred boosts. */
+function armUnlock() {
+  if (unlockArmed || typeof window === "undefined") return;
+  unlockArmed = true;
+  const onGesture = () => {
+    const ctx = getContext();
+    if (ctx && ctx.state === "suspended") {
+      try {
+        ctx.resume().catch(() => {});
+      } catch {
+        /* still locked — listeners stay armed */
+      }
+    }
+    // resume() resolves async; re-check shortly after the gesture.
+    setTimeout(() => {
+      const c = getContext();
+      if (c && c.state === "running") {
+        unlockArmed = false;
+        window.removeEventListener("pointerdown", onGesture);
+        window.removeEventListener("keydown", onGesture);
+        flushPendingBoosts();
+      }
+    }, 150);
+  };
+  window.addEventListener("pointerdown", onGesture);
+  window.addEventListener("keydown", onGesture);
+}
+
+/** Route `el` through gain (once) and set its level. Context must be running. */
+function applyBoost(el, on, amount) {
+  const ctx = getContext();
+  if (!ctx || typeof ctx.createMediaElementSource !== "function") {
+    el.volume = 1;
+    return;
+  }
+  let nodes = boostNodes.get(el);
+  if (!nodes) {
+    // Boost off for a never-routed element: nothing to build, normal volume.
+    if (!on) {
+      el.volume = 1;
+      return;
+    }
+    const src = ctx.createMediaElementSource(el);
+    const gain = ctx.createGain();
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -18;
+    comp.ratio.value = 8;
+    gain.connect(comp);
+    comp.connect(ctx.destination);
+    // Keep the direct path disconnected once routed: source -> gain only,
+    // otherwise the video plays twice (double volume + phasing).
+    src.connect(gain);
+    nodes = { gain };
+    boostNodes.set(el, nodes);
+  }
+  nodes.gain.gain.value = on ? Math.min(Math.max(amount, 1), 3) : 1;
+  el.volume = 1;
+}
+
 /**
  * Boost a <video> element beyond volume=1 via Web Audio.
  * Safe to call repeatedly; the graph is built once per element.
+ *
+ * Silence guard: routing an element while the context is still suspended
+ * (page load with a persisted boost, before any click/keypress) would mute
+ * it, and routing is permanent for the element. So before the first gesture
+ * the request is deferred — normal volume until then, boost right after.
+ *
  * @param {HTMLMediaElement|null} el
  * @param {boolean} on
  * @param {number} [amount=2] linear gain when on
- * @returns {() => void} cleanup for this element (disconnects boost)
  */
 export function setVideoBoost(el, on, amount = 2) {
-  if (!el) return () => {};
+  if (!el) return;
   try {
     const ctx = getContext();
-    // No Web Audio (or already routed elsewhere): fall back to full volume.
-    if (!ctx || !(ctx.createMediaElementSource instanceof Function)) {
+    // No Web Audio: fall back to full volume.
+    if (!ctx || typeof ctx.createMediaElementSource !== "function") {
+      pendingBoost.delete(el);
       el.volume = 1;
-      return () => {};
+      return;
     }
-    let nodes = boostNodes.get(el);
-    if (!nodes) {
-      const src = ctx.createMediaElementSource(el);
-      const gain = ctx.createGain();
-      const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -18;
-      comp.ratio.value = 8;
-      gain.connect(comp);
-      comp.connect(ctx.destination);
-      // Keep the direct path disconnected once routed: source -> gain only,
-      // otherwise the video plays twice (double volume + phasing).
-      src.connect(gain);
-      nodes = { gain };
-      boostNodes.set(el, nodes);
+    if (ctx.state !== "running") {
+      pendingBoost.set(el, { on, amount });
+      try {
+        ctx.resume().catch(() => {});
+      } catch {
+        /* locked until a gesture — listeners below cover it */
+      }
+      armUnlock();
+      el.volume = 1;
+      // resume() may already have succeeded (gesture context): retry soon.
+      setTimeout(flushPendingBoosts, 200);
+      return;
     }
-    if (ctx.state === "suspended") ctx.resume().catch(() => {});
-    nodes.gain.gain.value = on ? Math.min(Math.max(amount, 1), 3) : 1;
-    el.volume = 1;
+    pendingBoost.set(el, { on, amount });
+    flushPendingBoosts();
   } catch {
     try {
+      pendingBoost.delete(el);
       el.volume = 1;
     } catch {
       /* ignore */
     }
   }
-  return () => {};
 }
