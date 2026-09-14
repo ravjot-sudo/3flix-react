@@ -267,6 +267,16 @@ export default function MovieDetail({ watchlist = [], onToggleWatchlist }) {
               </span>
             </div>
           )}
+
+          {tab === "trailer" && (
+            <div className="mvd-server-hint">
+              <span className="mvd-tag">Trailer</span>
+              <span>
+                Press play in the player for sound — if silent, tap YouTube's
+                speaker icon and turn your device volume up.
+              </span>
+            </div>
+          )}
         </section>
 
         <div className="mvd-cols">
@@ -399,7 +409,7 @@ function Trailer({ videoKey, title, backdrop }) {
     <div className="mvd-trailer">
       {on ? (
         <iframe
-          src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoKey)}?autoplay=1&rel=0`}
+          src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoKey)}?rel=0`}
           title={`${title} — trailer`}
           allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           allowFullScreen

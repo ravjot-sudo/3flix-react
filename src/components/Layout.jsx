@@ -3,7 +3,6 @@ import { NavLink, Link, useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import AccountMenu from "./AccountMenu.jsx";
 import CommandPalette from "./CommandPalette.jsx";
-import SoundToggle from "./SoundToggle.jsx";
 import { useAuth } from "../hooks/useAuth.js";
 import { GENRES } from "../data/films.js";
 
@@ -92,7 +91,6 @@ export default function Layout() {
 
           {isSignedIn && (
             <div className="nav-actions">
-              <SoundToggle />
               <button
                 type="button"
                 className="kbd-trigger"

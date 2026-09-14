@@ -13,6 +13,25 @@ const boostNodes = new WeakMap();
 // Applied the moment the context runs — see armUnlock.
 const pendingBoost = new Map();
 let unlockArmed = false;
+// Max linear gain for the watch-settings boost: 9x = 300% of the old 3x
+// ceiling. A compressor after the gain keeps it from clipping.
+const MAX_BOOST = 9;
+
+/**
+ * True when `src` points at another origin (e.g. an Archive.org file).
+ * Browsers zero the audio of a cross-origin <video> served without CORS
+ * headers once it is routed into Web Audio — permanent silence for that
+ * element. Such streams must never be routed; they play at full volume.
+ */
+export function isExternalVideo(src) {
+  try {
+    if (!src || src.startsWith("blob:") || src.startsWith("data:")) return false;
+    if (typeof window === "undefined" || !window.location) return false;
+    return new URL(src, window.location.href).origin !== window.location.origin;
+  } catch {
+    return false;
+  }
+}
 
 function getContext() {
   if (typeof window === "undefined") return null;
@@ -63,7 +82,8 @@ export async function playBootSound({ boost = 2.8 } = {}) {
     master.gain.value = Math.min(Math.max(boost, 0.5), 3);
     master.connect(comp);
 
-    // A5 -> D6 -> G6, 0.1s apart, snappy decay = no clicks, no swell.    const notes = [880, 1174.66, 1567.98];
+    // A5 -> D6 -> G6, 0.1s apart, snappy decay = no clicks, no swell.
+    const notes = [880, 1174.66, 1567.98];
     notes.forEach((freq, i) => {
       const start = t0 + i * 0.1;
 
@@ -152,6 +172,11 @@ function applyBoost(el, on, amount) {
     el.volume = 1;
     return;
   }
+  // Defensive: never build a graph for an external stream (see setVideoBoost).
+  if (isExternalVideo(el.currentSrc || el.src)) {
+    el.volume = 1;
+    return;
+  }
   let nodes = boostNodes.get(el);
   if (!nodes) {
     // Boost off for a never-routed element: nothing to build, normal volume.
@@ -162,8 +187,8 @@ function applyBoost(el, on, amount) {
     const src = ctx.createMediaElementSource(el);
     const gain = ctx.createGain();
     const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -18;
-    comp.ratio.value = 8;
+    comp.threshold.value = -24;
+    comp.ratio.value = 12;
     gain.connect(comp);
     comp.connect(ctx.destination);
     // Keep the direct path disconnected once routed: source -> gain only,
@@ -172,7 +197,7 @@ function applyBoost(el, on, amount) {
     nodes = { gain };
     boostNodes.set(el, nodes);
   }
-  nodes.gain.gain.value = on ? Math.min(Math.max(amount, 1), 3) : 1;
+  nodes.gain.gain.value = on ? Math.min(Math.max(amount, 1), MAX_BOOST) : 1;
   el.volume = 1;
 }
 
@@ -185,13 +210,24 @@ function applyBoost(el, on, amount) {
  * it, and routing is permanent for the element. So before the first gesture
  * the request is deferred — normal volume until then, boost right after.
  *
+ * CORS guard: a cross-origin stream without CORS headers (all Archive.org
+ * files) would come out of Web Audio as pure silence once routed, and
+ * routing is permanent — so such elements are never routed and always play
+ * at full volume instead.
+ *
  * @param {HTMLMediaElement|null} el
  * @param {boolean} on
- * @param {number} [amount=2] linear gain when on
+ * @param {number} [amount=2] linear gain when on (clamped to MAX_BOOST)
  */
 export function setVideoBoost(el, on, amount = 2) {
   if (!el) return;
   try {
+    // External stream: never route, never defer — full volume, always sound.
+    if (isExternalVideo(el.currentSrc || el.src)) {
+      pendingBoost.delete(el);
+      el.volume = 1;
+      return;
+    }
     const ctx = getContext();
     // No Web Audio: fall back to full volume.
     if (!ctx || typeof ctx.createMediaElementSource !== "function") {

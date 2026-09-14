@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage.js";
 import { fetchWyzieSubtitles, loadSubAsVttUrl } from "../lib/wyzie.js";
-import { setVideoBoost } from "../lib/sound.js";
+import { setVideoBoost, isExternalVideo } from "../lib/sound.js";
 
 /**
  * Video player with resume and live subtitles.
@@ -154,13 +154,17 @@ export default function Player({ film, startAt = 0, onProgress }) {
   // CINEMA MODE — dims the rest of the page so the screen is the only light.
   // A class on <html> rather than a portal, so the dim reaches every region.
   const [cinema, setCinema] = useState(false);
-  // SETTINGS > SOUND BOOST — quiet Archive rips get up to +9dB via Web
-  // Audio (clamped + compressed, no clipping). A level, not a switch, and
+  // SETTINGS > SOUND BOOST — quiet rips get up to 9x via Web Audio
+  // (clamped + compressed, no clipping). A level, not a switch, and
   // remembered across films like the captions pref. Migrates the old
-  // boolean pref (true -> 2.5x).
+  // boolean pref (true -> 2.5x). External Archive streams are cross-origin
+  // without CORS headers, which browsers would silence once routed into
+  // Web Audio — so for those the boost is unavailable and they always play
+  // at full volume instead.
   const [boostRaw, setBoost] = useLocalStorage("3flix:boost", 0);
-  const boost = boostRaw === true ? 2.5 : (Number(boostRaw) || 0);
+  const boost = Math.min(boostRaw === true ? 2.5 : (Number(boostRaw) || 0), 9);
   const boosting = boost > 0;
+  const external = isExternalVideo(film.video);
   const [settingsOpen, setSettingsOpen] = useState(false);
   useEffect(() => {
     setVideoBoost(videoRef.current, boosting, boost || 1);
@@ -296,21 +300,21 @@ export default function Player({ film, startAt = 0, onProgress }) {
             <div className="settings-panel" role="dialog" aria-label="Watch settings">
               <label className="settings-row" htmlFor="boost">
                 <span className="label">Sound boost</span>
-                <span className="settings-value tnum">{boosting ? `${boost.toFixed(1)}x` : "Off"}</span>
+                <span className="settings-value tnum">{external ? "Full" : boosting ? `${boost.toFixed(1)}x` : "Off"}</span>
               </label>
               <input
                 id="boost"
                 className="seek settings-slider"
                 type="range"
                 min="0"
-                max="3"
+                max="9"
                 step="0.5"
                 value={boost}
                 onChange={(e) => setBoost(Number(e.target.value))}
-                disabled={!hasSource}
-                aria-valuetext={boosting ? `${boost.toFixed(1)} times volume` : "Off"}
+                disabled={!hasSource || external}
+                aria-valuetext={external ? "Full volume" : boosting ? `${boost.toFixed(1)} times volume` : "Off"}
               />
-              <p className="settings-hint">Lifts quiet rips, up to 3x. Remembered for every film.</p>
+              <p className="settings-hint">{external ? "External stream: browsers block amplifying it, so it plays at full volume." : "Lifts quiet rips, up to 9x. Remembered for every film."}</p>
             </div>
           )}
         </div>
