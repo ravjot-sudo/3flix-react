@@ -24,6 +24,18 @@ const DEFAULT_SERVERS = [
     name: "Server 3 (VidLink)",
     url: (id) => `https://vidlink.pro/movie/${id}?primaryColor=e8b14c&secondaryColor=121218&iconColor=e8b14c`,
   },
+  // Fallbacks: third-party embed URLs drift over time — if one stops
+  // loading (or streams without sound), switch to another above.
+  {
+    id: "vidsrccc",
+    name: "Server 4 (VidSrc CC)",
+    url: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`,
+  },
+  {
+    id: "twoembed",
+    name: "Server 5 (2Embed)",
+    url: (id) => `https://www.2embed.cc/embed/${id}`,
+  },
 ];
 
 const customSource = typeof import.meta !== "undefined" && import.meta.env?.VITE_VIDEO_SOURCE;
@@ -249,7 +261,10 @@ export default function MovieDetail({ watchlist = [], onToggleWatchlist }) {
           {tab === "stream" && (
             <div className="mvd-server-hint">
               <span className="mvd-tag">{currentServer.name}</span>
-              <span>If playback is slow or blocked, switch to another server above.</span>
+              <span>
+                No sound or slow playback? Switch servers above — and tap the
+                speaker icon inside the video, then turn your device volume up.
+              </span>
             </div>
           )}
         </section>
