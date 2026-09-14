@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage.js";
 import { fetchWyzieSubtitles, loadSubAsVttUrl } from "../lib/wyzie.js";
+import { setVideoBoost } from "../lib/sound.js";
 
 /**
  * Video player with resume and live subtitles.
@@ -153,6 +154,12 @@ export default function Player({ film, startAt = 0, onProgress }) {
   // CINEMA MODE — dims the rest of the page so the screen is the only light.
   // A class on <html> rather than a portal, so the dim reaches every region.
   const [cinema, setCinema] = useState(false);
+  // BOOST — quiet Archive rips get +6dB via Web Audio (clamped, no clipping).
+  // Remembered across films like the captions pref.
+  const [boost, setBoost] = useLocalStorage("3flix:boost", false);
+  useEffect(() => {
+    setVideoBoost(videoRef.current, boost, 2);
+  }, [boost, film.id]);
   useEffect(() => {
     document.documentElement.classList.toggle("cinema-mode", cinema);
     if (!cinema) return undefined;
@@ -256,6 +263,22 @@ export default function Player({ film, startAt = 0, onProgress }) {
             </select>
           </label>
         )}
+
+        <button
+          type="button"
+          className={`btn-icon boost-btn${boost ? " is-active" : ""}`}
+          onClick={() => setBoost((b) => !b)}
+          disabled={!hasSource}
+          aria-pressed={boost}
+          aria-label={boost ? "Turn sound boost off" : "Boost quiet sound"}
+          title={boost ? "Boost on (+6dB)" : "Boost quiet films"}
+        >
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 6v4h2.5L8 13V3L4.5 6H2z" fill="currentColor" />
+            <path d="M10 5.5a3.5 3.5 0 010 5M11.8 3.8a6 6 0 010 8.4" stroke="currentColor" strokeLinecap="round" />
+            {boost && <path d="M10 2v1.5M13.2 2.6l-1 1.1M5.8 2.6l1 1.1" stroke="currentColor" strokeLinecap="round" />}
+          </svg>
+        </button>
 
         <button
           type="button"
