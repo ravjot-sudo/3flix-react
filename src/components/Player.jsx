@@ -154,11 +154,11 @@ export default function Player({ film, startAt = 0, onProgress }) {
   // CINEMA MODE — dims the rest of the page so the screen is the only light.
   // A class on <html> rather than a portal, so the dim reaches every region.
   const [cinema, setCinema] = useState(false);
-  // BOOST — quiet Archive rips get +6dB via Web Audio (clamped, no clipping).
+  // BOOST — quiet Archive rips get +8dB via Web Audio (clamped, no clipping).
   // Remembered across films like the captions pref.
   const [boost, setBoost] = useLocalStorage("3flix:boost", false);
   useEffect(() => {
-    setVideoBoost(videoRef.current, boost, 2);
+    setVideoBoost(videoRef.current, boost, 2.5);
   }, [boost, film.id]);
   useEffect(() => {
     document.documentElement.classList.toggle("cinema-mode", cinema);
@@ -271,7 +271,7 @@ export default function Player({ film, startAt = 0, onProgress }) {
           disabled={!hasSource}
           aria-pressed={boost}
           aria-label={boost ? "Turn sound boost off" : "Boost quiet sound"}
-          title={boost ? "Boost on (+6dB)" : "Boost quiet films"}
+          title={boost ? "Boost on (+8dB)" : "Boost quiet films"}
         >
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M2 6v4h2.5L8 13V3L4.5 6H2z" fill="currentColor" />

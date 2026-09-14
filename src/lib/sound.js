@@ -24,11 +24,16 @@ function getContext() {
 }
 
 /**
- * Play a short two-note boot chime, boosted but clamped.
- * @param {{ boost?: number, when?: number }} [opts]
+ * Play a short boot chime, tuned for Mac/PC laptop speakers.
+ *
+ * Small speakers barely reproduce bass, so this lives in the 0.8–3.2kHz
+ * presence band where they are most efficient: triangle waves (richer
+ * harmonics than sine, so they read as louder) plus a soft octave shimmer
+ * per note. Quick attack + tight spacing so it snaps instead of swells.
+ * @param {{ boost?: number }} [opts]
  * @returns {Promise<void>}
  */
-export async function playBootSound({ boost = 1.8 } = {}) {
+export async function playBootSound({ boost = 2.8 } = {}) {
   try {
     const ctx = getContext();
     if (!ctx) return;
@@ -49,25 +54,41 @@ export async function playBootSound({ boost = 1.8 } = {}) {
     comp.connect(ctx.destination);
 
     const master = ctx.createGain();
-    // Boosted, but capped so 3x can't blow out laptop speakers.
+    // Boosted, but capped so it can't blow out laptop speakers.
     master.gain.value = Math.min(Math.max(boost, 0.5), 3);
     master.connect(comp);
 
-    // C5 -> G5, 0.28s each, exponential decay = no clicks.
-    const notes = [523.25, 783.99];
+    // A5 -> D6 -> G6, 0.1s apart, snappy decay = no clicks, no swell.
+    const notes = [880, 1174.66, 1567.98];
     notes.forEach((freq, i) => {
+      const start = t0 + i * 0.1;
+
+      // Main voice: triangle cuts through small speakers.
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
-      const start = t0 + i * 0.16;
-      osc.type = "sine";
+      osc.type = "triangle";
       osc.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, start);
-      g.gain.exponentialRampToValueAtTime(0.5, start + 0.03);
-      g.gain.exponentialRampToValueAtTime(0.0001, start + 0.32);
+      g.gain.exponentialRampToValueAtTime(0.65, start + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + 0.24);
       osc.connect(g);
       g.connect(master);
       osc.start(start);
-      osc.stop(start + 0.36);
+      osc.stop(start + 0.28);
+
+      // Octave shimmer: sine one octave up, half as loud — reads as
+      // extra presence on laptop speakers without harshness.
+      const hi = ctx.createOscillator();
+      const hg = ctx.createGain();
+      hi.type = "sine";
+      hi.frequency.value = freq * 2;
+      hg.gain.setValueAtTime(0.0001, start);
+      hg.gain.exponentialRampToValueAtTime(0.3, start + 0.015);
+      hg.gain.exponentialRampToValueAtTime(0.0001, start + 0.2);
+      hi.connect(hg);
+      hg.connect(master);
+      hi.start(start);
+      hi.stop(start + 0.24);
     });
   } catch {
     /* sound is decorative — never crash the app for it */
