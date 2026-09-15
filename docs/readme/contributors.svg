@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="548" viewBox="0 0 1200 548" role="img" aria-labelledby="title desc">
 <title id="title">Who built 3Flix</title>
-<desc id="desc">Counted from the git history: Ravjot — 23 commits · +18,857 −2,169 lines; Watson — 1 commit · +1 −1 lines; Claude — co-author on 11 of 24 commits. Beside it, 24 commits and 18,858 lines added, with a bar for every day's commits from 2026-09-11 to 2026-09-13.</desc>
+<desc id="desc">Counted from the git history: Ravjot — 32 commits · +19,586 −2,386 lines; Watson — 2 commits · +2 −2 lines; Rishit — 1 commit · +1 −1 lines; Claude — co-author on 13 of 35 commits. Beside it, 35 commits and 19,589 lines added, with a bar for every day's commits from 2026-09-11 to 2026-09-15.</desc>
 <style>
   .sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
@@ -18,7 +18,7 @@
   @keyframes shine { 0%, 100% { opacity: 0; } 50% { opacity: .35; } }
 </style>
 
-<rect width="1200" height="470" fill="#0c0c0b"/>
+<rect width="1200" height="548" fill="#0c0c0b"/>
 <line x1="56" y1="52" x2="356" y2="52" stroke="#2a2a27"/>
 <text class="mono" x="56" y="78" font-size="12" letter-spacing="2" fill="#f6b519">07</text>
 <text class="mono" x="356" y="78" font-size="12" letter-spacing="3" text-anchor="end" fill="#74736b">CONTRIBUTORS</text>
@@ -30,53 +30,70 @@
   <image href="data:image/jpeg;base64,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" x="58" y="152" width="44" height="44" preserveAspectRatio="xMidYMid slice"/>
   <text class="sans" x="122" y="170" font-size="20" font-weight="700" fill="#f0eee6">Ravjot<tspan class="mono" dx="10" font-size="11" font-weight="500" fill="#a8a79f">@ravjot-sudo</tspan></text>
   <text class="mono" x="640" y="170" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="#f6b519">AUTHOR</text>
-  <text class="mono" x="122" y="190" font-size="11" letter-spacing="0.3" fill="#a8a79f">23 commits · +18,857 −2,169 lines</text>
+  <text class="mono" x="122" y="190" font-size="11" letter-spacing="0.3" fill="#a8a79f">32 commits · +19,586 −2,386 lines</text>
   <text class="mono" x="640" y="190" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1" fill="#f6b519">&gt;99.9% OF LINES CHANGED</text>
   <rect x="122" y="202" width="518" height="6" fill="#2a2a27"/>
-  <rect class="grow" style="animation-delay:0.50s" x="122" y="202" width="518.0" height="6" fill="#f6b519"/>
-  <rect class="shine" x="122" y="202" width="518.0" height="6" fill="#fff"/>
+  <rect class="grow" style="animation-delay:0.50s" x="122" y="202" width="517.9" height="6" fill="#f6b519"/>
+  <rect class="shine" x="122" y="202" width="517.9" height="6" fill="#fff"/>
 </g>
 <g class="appear" style="animation-delay:0.38s">
   <rect x="56" y="232" width="48" height="48" fill="#f6b519"/>
-  <text class="sans" x="80" y="264" text-anchor="middle" font-size="22" font-weight="800" fill="#0c0c0b">W</text>
-  <text class="sans" x="122" y="252" font-size="20" font-weight="700" fill="#f0eee6">Watson<tspan class="mono" dx="10" font-size="11" font-weight="500" fill="#a8a79f">g4_0907</tspan></text>
-  <text class="mono" x="640" y="252" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="#f6b519">AUTHOR</text>
-  <text class="mono" x="122" y="272" font-size="11" letter-spacing="0.3" fill="#a8a79f">1 commit · +1 −1 lines</text>
+  <image href="data:image/jpeg;base64,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" x="58" y="234" width="44" height="44" preserveAspectRatio="xMidYMid slice"/>
+  <text class="sans" x="122" y="252" font-size="20" font-weight="700" fill="#f0eee6">Watson<tspan class="mono" dx="10" font-size="11" font-weight="500" fill="#a8a79f">@Watson-69</tspan></text>
+  <text class="mono" x="640" y="252" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="#f6b519">COLLABORATOR</text>
+  <text class="mono" x="122" y="272" font-size="11" letter-spacing="0.3" fill="#a8a79f">2 commits · +2 −2 lines</text>
   <text class="mono" x="640" y="272" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1" fill="#f6b519">&lt;0.1% OF LINES CHANGED</text>
   <rect x="122" y="284" width="518" height="6" fill="#2a2a27"/>
   <rect class="grow" style="animation-delay:0.68s" x="122" y="284" width="2.0" height="6" fill="#f6b519"/>
   <rect class="shine" x="122" y="284" width="2.0" height="6" fill="#fff"/>
 </g>
 <g class="appear" style="animation-delay:0.56s">
-  <rect x="56" y="314" width="48" height="48" fill="#d97757"/>
-  <text class="sans" x="80" y="346" text-anchor="middle" font-size="22" font-weight="800" fill="#0c0c0b">✳</text>
-  <text class="sans" x="122" y="334" font-size="20" font-weight="700" fill="#f0eee6">Claude<tspan class="mono" dx="10" font-size="11" font-weight="500" fill="#a8a79f">Claude Opus 5</tspan></text>
-  <text class="mono" x="640" y="334" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="#d97757">AI PAIR PROGRAMMER</text>
-  <text class="mono" x="122" y="354" font-size="11" letter-spacing="0.3" fill="#a8a79f">co-author on 11 of 24 commits</text>
-  <text class="mono" x="640" y="354" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1" fill="#d97757">84% OF LINES CO-AUTHORED</text>
+  <rect x="56" y="314" width="48" height="48" fill="#f6b519"/>
+  <image href="data:image/png;base64,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" x="58" y="316" width="44" height="44" preserveAspectRatio="xMidYMid slice"/>
+  <text class="sans" x="122" y="334" font-size="20" font-weight="700" fill="#f0eee6">Rishit<tspan class="mono" dx="10" font-size="11" font-weight="500" fill="#a8a79f">@Rishit-512</tspan></text>
+  <text class="mono" x="640" y="334" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="#f6b519">COLLABORATOR</text>
+  <text class="mono" x="122" y="354" font-size="11" letter-spacing="0.3" fill="#a8a79f">1 commit · +1 −1 lines</text>
+  <text class="mono" x="640" y="354" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1" fill="#f6b519">&lt;0.1% OF LINES CHANGED</text>
   <rect x="122" y="366" width="518" height="6" fill="#2a2a27"/>
-  <rect class="grow" style="animation-delay:0.86s" x="122" y="366" width="434.2" height="6" fill="#d97757"/>
-  <rect class="shine" x="122" y="366" width="434.2" height="6" fill="#fff"/>
+  <rect class="grow" style="animation-delay:0.86s" x="122" y="366" width="2.0" height="6" fill="#f6b519"/>
+  <rect class="shine" x="122" y="366" width="2.0" height="6" fill="#fff"/>
+</g>
+<g class="appear" style="animation-delay:0.74s">
+  <rect x="56" y="396" width="48" height="48" fill="#d97757"/>
+  <text class="sans" x="80" y="428" text-anchor="middle" font-size="22" font-weight="800" fill="#0c0c0b">✳</text>
+  <text class="sans" x="122" y="416" font-size="20" font-weight="700" fill="#f0eee6">Claude<tspan class="mono" dx="10" font-size="11" font-weight="500" fill="#a8a79f">Claude Opus 5</tspan></text>
+  <text class="mono" x="640" y="416" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="#d97757">AI PAIR PROGRAMMER</text>
+  <text class="mono" x="122" y="436" font-size="11" letter-spacing="0.3" fill="#a8a79f">co-author on 13 of 35 commits</text>
+  <text class="mono" x="640" y="436" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1" fill="#d97757">82% OF LINES CO-AUTHORED</text>
+  <rect x="122" y="448" width="518" height="6" fill="#2a2a27"/>
+  <rect class="grow" style="animation-delay:1.04s" x="122" y="448" width="422.3" height="6" fill="#d97757"/>
+  <rect class="shine" x="122" y="448" width="422.3" height="6" fill="#fff"/>
 </g>
 
 <!-- the totals, and every day's commits -->
 <g class="appear" style="animation-delay:.4s">
   <text class="mono" x="700" y="150" font-size="11" letter-spacing="2.4" fill="#74736b">COMMITS</text>
-  <text class="sans" x="700" y="204" font-size="52" font-weight="800" letter-spacing="-2" fill="#f6b519">24</text>
+  <text class="sans" x="700" y="204" font-size="52" font-weight="800" letter-spacing="-2" fill="#f6b519">35</text>
   <text class="mono" x="900" y="150" font-size="11" letter-spacing="2.4" fill="#74736b">LINES ADDED</text>
-  <text class="sans" x="900" y="204" font-size="52" font-weight="800" letter-spacing="-2" fill="#f0eee6">+18,858</text>
-  <text class="mono" x="700" y="266" font-size="11" letter-spacing="2.4" fill="#74736b">EVERY COMMIT, BY DAY</text>
-  <line x1="700" y1="380" x2="1144" y2="380" stroke="#2a2a27"/>
+  <text class="sans" x="900" y="204" font-size="52" font-weight="800" letter-spacing="-2" fill="#f0eee6">+19,589</text>
+  <text class="mono" x="700" y="284" font-size="11" letter-spacing="2.4" fill="#74736b">EVERY COMMIT, BY DAY</text>
+  <line x1="700" y1="458" x2="1144" y2="458" stroke="#2a2a27"/>
 </g>
-<rect class="rise" style="animation-delay:0.60s" x="700.0" y="342.9" width="56.0" height="37.1" fill="#f6b519"/>
-<text class="mono appear" style="animation-delay:1.00s" x="728.0" y="334.9" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">7</text>
-<text class="mono" x="728.0" y="398" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">11 SEP</text>
-<rect class="rise" style="animation-delay:0.72s" x="820.0" y="378.0" width="56.0" height="2.0" fill="#f6b519"/>
-<text class="mono appear" style="animation-delay:1.12s" x="848.0" y="370.0" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">0</text>
-<text class="mono" x="848.0" y="398" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">12 SEP</text>
-<rect class="rise" style="animation-delay:0.84s" x="940.0" y="290.0" width="56.0" height="90.0" fill="#f6b519"/>
-<text class="mono appear" style="animation-delay:1.24s" x="968.0" y="282.0" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">17</text>
-<text class="mono" x="968.0" y="398" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">13 SEP</text>
+<rect class="rise" style="animation-delay:0.60s" x="700.0" y="399.7" width="55.1" height="58.3" fill="#f6b519"/>
+<text class="mono appear" style="animation-delay:1.00s" x="727.5" y="391.7" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">7</text>
+<text class="mono" x="727.5" y="476" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">11 SEP</text>
+<rect class="rise" style="animation-delay:0.72s" x="788.8" y="456.0" width="55.1" height="2.0" fill="#f6b519"/>
+<text class="mono appear" style="animation-delay:1.12s" x="816.3" y="448.0" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">0</text>
+<text class="mono" x="816.3" y="476" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">12 SEP</text>
+<rect class="rise" style="animation-delay:0.84s" x="877.6" y="308.0" width="55.1" height="150.0" fill="#f6b519"/>
+<text class="mono appear" style="animation-delay:1.24s" x="905.1" y="300.0" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">18</text>
+<text class="mono" x="905.1" y="476" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">13 SEP</text>
+<rect class="rise" style="animation-delay:0.96s" x="966.4" y="399.7" width="55.1" height="58.3" fill="#f6b519"/>
+<text class="mono appear" style="animation-delay:1.36s" x="993.9" y="391.7" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">7</text>
+<text class="mono" x="993.9" y="476" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">14 SEP</text>
+<rect class="rise" style="animation-delay:1.08s" x="1055.2" y="433.0" width="55.1" height="25.0" fill="#f6b519"/>
+<text class="mono appear" style="animation-delay:1.48s" x="1082.7" y="425.0" text-anchor="middle" font-size="11" font-weight="600" fill="#f0eee6">3</text>
+<text class="mono" x="1082.7" y="476" text-anchor="middle" font-size="9" letter-spacing="0.8" fill="#74736b">15 SEP</text>
 
-<text class="mono" x="56" y="448" font-size="11" letter-spacing="1.6" fill="#74736b">FROM 2026-09-11 TO 2026-09-13 · RE-COUNTED EVERY TIME node scripts/readme-art.mjs RUNS</text>
+<text class="mono" x="56" y="526" font-size="11" letter-spacing="1.6" fill="#74736b">FROM 2026-09-11 TO 2026-09-15 · RE-COUNTED EVERY TIME node scripts/readme-art.mjs RUNS</text>
 </svg>

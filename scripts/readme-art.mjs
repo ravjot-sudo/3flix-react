@@ -938,8 +938,8 @@ const AVATARS = new Map();
 /**
  * Who did the work, counted — never typed in by hand, so it can't flatter
  * anyone. Authors and their lines come from `git log`; co-authors from the
- * Co-Authored-By trailers; bots (the daily snapshot refresh) are counted
- * apart from people. Teammates listed in package.json "contributors" are
+ * Co-Authored-By trailers. Bots (the daily snapshot refresh) are left out
+ * entirely: they are not contributors. Teammates listed in package.json "contributors" are
  * shown even before their first commit, with whatever they have done so far.
  */
 function history() {
@@ -955,8 +955,8 @@ function history() {
     for (const line of log.split("\n").filter(Boolean)) {
       const [name, date, trailers = ""] = line.split("\t");
       total += 1;
-      days.set(date, (days.get(date) ?? 0) + 1);
       if (isBot(name)) { bots += 1; continue; }
+      days.set(date, (days.get(date) ?? 0) + 1);
       const p = people.get(shown(name)) ?? { name: shown(name), git: name, commits: 0, add: 0, del: 0 };
       p.commits += 1;
       people.set(p.name, p);
@@ -1040,10 +1040,6 @@ function contributors() {
         label: `${pct(coLines / lines)} OF LINES CO-AUTHORED`,
       };
     }),
-    ...(h.bots ? [{
-      name: "GitHub Actions", tag: "AUTOMATION", c: "#3ecf8e", initial: "⟳", share: h.bots / h.total,
-      stat: `${h.bots} daily refreshes of the saved lists`, label: `${h.bots} COMMITS`,
-    }] : []),
   ];
 
   const top = 150, rowH = 82, barX = 122, barW = 518;
