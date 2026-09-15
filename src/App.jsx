@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import Layout from "./components/Layout.jsx";
@@ -15,7 +15,6 @@ import NotFound from "./routes/NotFound.jsx";
 
 import { useFilms } from "./hooks/useFilms.js";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
-import { playBootSound } from "./lib/sound.js";
 
 /**
  * The route tree, and the owner of app-wide state.
@@ -80,36 +79,6 @@ export default function App() {
     (id, fraction) => setProgress((prev) => ({ ...prev, [id]: fraction })),
     [setProgress],
   );
-
-  // BOOT SOUND — browsers block audio before a gesture, so try once on mount
-  // and retry on the first pointer/key press. Respects the persisted mute.
-  useEffect(() => {
-    let done = false;
-    const boot = () => {
-      if (done) return;
-      let enabled = true;
-      try {
-        enabled = JSON.parse(window.localStorage.getItem("3flix:sound") ?? "true");
-      } catch {
-        enabled = true;
-      }
-      if (!enabled) {
-        done = true;
-        return;
-      }
-      done = true;
-      playBootSound().catch(() => {});
-      window.removeEventListener("pointerdown", boot);
-      window.removeEventListener("keydown", boot);
-    };
-    boot();
-    window.addEventListener("pointerdown", boot);
-    window.addEventListener("keydown", boot);
-    return () => {
-      window.removeEventListener("pointerdown", boot);
-      window.removeEventListener("keydown", boot);
-    };
-  }, []);
 
   if (status === "loading") {
     return (
