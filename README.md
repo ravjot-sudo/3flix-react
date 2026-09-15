@@ -12,7 +12,7 @@ Twenty-four public-domain classics that play right in the page, and a live
 catalogue of new and popular films from TMDB — official posters, trailers,
 critics' scores and where each one streams. React 19 + Vite + React Router 7 +
 framer-motion, with a few small server functions that keep the API keys off
-the page.
+the page
 
 ```bash
 npm install
