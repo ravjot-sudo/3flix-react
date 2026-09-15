@@ -916,7 +916,7 @@ const num = (n) => n.toLocaleString("en-US");
  */
 const TEAM = (pkg.contributors ?? []).map((c) => {
   if (typeof c === "string") { const n = c.replace(/\s*[<(].*$/, "").trim(); return { name: n, git: n }; }
-  return { name: c?.name, git: c?.git ?? c?.name, url: c?.url, role: c?.role };
+  return { name: c?.name, git: c?.git ?? c?.name, url: c?.url, role: c?.role, compact: Boolean(c?.compact) };
 }).filter((c) => c.name);
 const member = (gitName) => TEAM.find((c) => c.git === gitName);
 const githubHandle = (url) => /github\.com\/([A-Za-z0-9-]+)\/?$/.exec(url ?? "")?.[1] ?? null;
@@ -957,7 +957,7 @@ function history() {
       total += 1;
       if (isBot(name)) { bots += 1; continue; }
       days.set(date, (days.get(date) ?? 0) + 1);
-      const p = people.get(shown(name)) ?? { name: shown(name), git: name, commits: 0, add: 0, del: 0 };
+      const p = people.get(shown(name)) ?? { name: shown(name), git: name, commits: 0, add: 0, del: 0, biggest: 0 };
       p.commits += 1;
       people.set(p.name, p);
       for (const who of trailers.split("|").map((t) => t.replace(/<.*$/, "").trim()).filter(Boolean)) {
@@ -967,11 +967,14 @@ function history() {
     // Lines changed, per commit: credited to its author, and to each of its
     // co-authors. Bots' lines count towards neither.
     const coLines = new Map();
-    let humanLines = 0, author = null, co = [];
+    let humanLines = 0, author = null, co = [], edited = 0;
+    // A commit's size in lines edited: a changed line is +1 −1 but one edit.
+    const close = () => { const q = author && people.get(shown(author)); if (q) q.biggest = Math.max(q.biggest, edited); edited = 0; };
     const numstat = git(["log", "--no-merges", "--numstat",
       "--format=@%aN%x09%(trailers:key=Co-Authored-By,valueonly,separator=%x7C)"]);
     for (const line of numstat.split("\n")) {
       if (line.startsWith("@")) {
+        close();
         const [a, t = ""] = line.slice(1).split("\t");
         author = a;
         co = t.split("|").map((x) => x.replace(/<.*$/, "").trim()).filter(Boolean);
@@ -982,11 +985,12 @@ function history() {
       const changed = Number(m[1]) + Number(m[2]);
       humanLines += changed;
       const p = people.get(shown(author));
-      if (p) { p.add += Number(m[1]); p.del += Number(m[2]); }
+      if (p) { p.add += Number(m[1]); p.del += Number(m[2]); edited += Math.max(Number(m[1]), Number(m[2])); }
       for (const c of co) coLines.set(c, (coLines.get(c) ?? 0) + changed);
     }
+    close();
     for (const c of TEAM) {
-      if (!people.has(c.name) && !coauthors.has(c.git)) people.set(c.name, { name: c.name, git: c.git, commits: 0, add: 0, del: 0 });
+      if (!people.has(c.name) && !coauthors.has(c.git)) people.set(c.name, { name: c.name, git: c.git, commits: 0, add: 0, del: 0, biggest: 0 });
     }
     const dates = [...days.keys()].sort();
     const calendar = [];
@@ -1017,18 +1021,25 @@ function contributors() {
   const pct = (x) => (x <= 0 ? "0%" : x < 0.001 ? "<0.1%" : x < 0.1 ? `${(x * 100).toFixed(1)}%`
     : x > 0.999 && x < 1 ? ">99.9%" : `${Math.round(x * 100)}%`);
   const lines = h.humanLines || 1;
+  const personRow = (p) => {
+    const share = (p.add + p.del) / lines;
+    const m = member(p.git);
+    const handle = githubHandle(m?.url);
+    const commits = `${p.commits} ${p.commits === 1 ? "commit" : "commits"}`;
+    // "One line each" only when git agrees: every commit edited a single line.
+    const oneLiners = p.commits > 0 && p.biggest <= 1;
+    return {
+      name: p.name, tag: (m?.role ?? "author").toUpperCase(), c: C.gold, initial: p.name.trim().charAt(0).toUpperCase(), share,
+      handle: handle ? `@${handle}` : p.git !== p.name ? p.git : "", picture: AVATARS.get(p.name), compact: Boolean(m?.compact),
+      stat: m?.compact && oneLiners
+        ? `${commits}, ${p.commits === 1 ? "one line" : "one line each"}`
+        : `${commits} · +${num(p.add)} −${num(p.del)} lines`,
+      label: `${pct(share)} OF LINES CHANGED`,
+    };
+  };
+  const everyone = h.people.map(personRow);
   const rows = [
-    ...h.people.map((p) => {
-      const share = (p.add + p.del) / lines;
-      const m = member(p.git);
-      const handle = githubHandle(m?.url);
-      return {
-        name: p.name, tag: (m?.role ?? "author").toUpperCase(), c: C.gold, initial: p.name.trim().charAt(0).toUpperCase(), share,
-        handle: handle ? `@${handle}` : p.git !== p.name ? p.git : "", picture: AVATARS.get(p.name),
-        stat: `${p.commits} ${p.commits === 1 ? "commit" : "commits"} · +${num(p.add)} −${num(p.del)} lines`,
-        label: `${pct(share)} OF LINES CHANGED`,
-      };
-    }),
+    ...everyone.filter((r) => !r.compact),
     ...h.coauthors.map(([name, n, coLines]) => {
       const m = member(name);
       const claude = /claude/i.test(name);
@@ -1040,10 +1051,13 @@ function contributors() {
         label: `${pct(coLines / lines)} OF LINES CO-AUTHORED`,
       };
     }),
+    ...everyone.filter((r) => r.compact),
   ];
 
-  const top = 150, rowH = 82, barX = 122, barW = 518;
-  const W = 1200, H = Math.max(470, top + rows.length * rowH + 70);
+  const top = 150, rowH = 82, slimH = 44, barX = 122, barW = 518;
+  let next = top;
+  for (const r of rows) { r.y = next; next += r.compact ? slimH : rowH; }
+  const W = 1200, H = Math.max(470, next + 70);
   const shown = h.days.slice(-14);
   const most = Math.max(...shown.map(([, n]) => n), 1);
   const colW = Math.min(120, 444 / shown.length);
@@ -1069,7 +1083,17 @@ ${rail("07", "CONTRIBUTORS", "Who built", "3Flix.")}
 <text class="mono" x="56" y="132" font-size="11" letter-spacing="2.4" fill="${C.muted}">FROM THE GIT HISTORY · BARS ARE SHARE OF LINES CHANGED</text>
 
 ${rows.map((r, i) => {
-    const y = top + i * rowH, d = (0.2 + i * 0.18).toFixed(2);
+    const y = r.y, d = (0.2 + i * 0.18).toFixed(2);
+    if (r.compact) {
+      return `<g class="appear" style="animation-delay:${d}s">
+  <rect x="76" y="${y}" width="28" height="28" fill="${r.c}"/>
+  ${r.picture
+    ? `<image href="${r.picture}" x="77" y="${y + 1}" width="26" height="26" preserveAspectRatio="xMidYMid slice"/>`
+    : `<text class="sans" x="90" y="${y + 20}" text-anchor="middle" font-size="14" font-weight="800" fill="${C.ink}">${esc(r.initial)}</text>`}
+  <text class="sans" x="${barX}" y="${y + 19}" font-size="15" font-weight="700" fill="${C.paper}">${esc(r.name)}${r.handle ? `<tspan class="mono" dx="8" font-size="10.5" font-weight="500" fill="${C.fog}">${esc(r.handle)}</tspan>` : ""}<tspan class="mono" dx="14" font-size="11" font-weight="400" fill="${C.fog}">${esc(r.stat)}</tspan></text>
+  <text class="mono" x="640" y="${y + 19}" text-anchor="end" font-size="9.5" letter-spacing="1.6" fill="${r.c}">${esc(r.tag)}</text>
+</g>`;
+    }
     return `<g class="appear" style="animation-delay:${d}s">
   <rect x="56" y="${y}" width="48" height="48" fill="${r.c}"/>
   ${r.picture

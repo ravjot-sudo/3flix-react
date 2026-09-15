@@ -16,10 +16,11 @@
       "role": "collaborator"
     },
     {
-      "name": "Watson",
+      "name": "Maulik",
       "git": "g4_0907",
       "role": "collaborator",
-      "url": "https://github.com/Watson-69"
+      "url": "https://github.com/Watson-69",
+      "compact": true
     },
     {
       "name": "Claude",
