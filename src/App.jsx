@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 
 import Layout from "./components/Layout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -89,56 +90,59 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      {/* The gate as a page, for links that land anywhere but home. */}
-      <Route path="signin" element={<SignIn />} />
+    <>
+      <Routes>
+        {/* The gate as a page, for links that land anywhere but home. */}
+        <Route path="signin" element={<SignIn />} />
 
-      {/* The layout route renders the chrome once; children swap inside its
-          outlet. */}
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
+        {/* The layout route renders the chrome once; children swap inside its
+            outlet. */}
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
 
-        {/* Everything else is behind the sign-in. */}
-        <Route element={<ProtectedRoute />}>
-          <Route
-            path="library"
-            element={
-              <Library progress={progress} watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />
-            }
-          >
-            {/* Nested + dynamic: renders inside Library's <Outlet/>. */}
+          {/* Everything else is behind the sign-in. */}
+          <Route element={<ProtectedRoute />}>
             <Route
-              path=":filmId"
+              path="library"
               element={
-                <FilmDetail
-                  progress={progress}
-                  onProgress={recordProgress}
-                  watchlist={watchlist}
-                  onToggleWatchlist={toggleWatchlist}
-                />
+                <Library progress={progress} watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />
               }
+            >
+              {/* Nested + dynamic: renders inside Library's <Outlet/>. */}
+              <Route
+                path=":filmId"
+                element={
+                  <FilmDetail
+                    progress={progress}
+                    onProgress={recordProgress}
+                    watchlist={watchlist}
+                    onToggleWatchlist={toggleWatchlist}
+                  />
+                }
+              />
+            </Route>
+
+            <Route
+              path="watchlist"
+              element={<Watchlist films={films} watchlist={watchlist} progress={progress} savedFilms={savedFilms} onToggleWatchlist={toggleWatchlist} />}
             />
+
+            {/* The TMDB catalogue. Browse and detail are sibling routes: the
+                detail replaces the grid rather than nesting in it. */}
+            <Route path="movies" element={<Movies watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
+            <Route path="movies/:movieId" element={<MovieDetail watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
+
+            <Route path="about" element={<About />} />
+
+            {/* Redirect an old path rather than 404 it. */}
+            <Route path="films" element={<Navigate to="/library" replace />} />
+
+            {/* Wildcard must come last. */}
+            <Route path="*" element={<NotFound />} />
           </Route>
-
-          <Route
-            path="watchlist"
-            element={<Watchlist films={films} watchlist={watchlist} progress={progress} savedFilms={savedFilms} onToggleWatchlist={toggleWatchlist} />}
-          />
-
-          {/* The TMDB catalogue. Browse and detail are sibling routes: the
-              detail replaces the grid rather than nesting in it. */}
-          <Route path="movies" element={<Movies watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
-          <Route path="movies/:movieId" element={<MovieDetail watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
-
-          <Route path="about" element={<About />} />
-
-          {/* Redirect an old path rather than 404 it. */}
-          <Route path="films" element={<Navigate to="/library" replace />} />
-
-          {/* Wildcard must come last. */}
-          <Route path="*" element={<NotFound />} />
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+      <Analytics />
+    </>
   );
 }
