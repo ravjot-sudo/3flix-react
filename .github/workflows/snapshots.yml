@@ -4,6 +4,12 @@
 # No app code runs here — just node scripts/snapshots.mjs, which calls TMDB
 # through the same server code the site uses. It needs TMDB_TOKEN, stored as
 # a repository secret (Settings → Secrets and variables → Actions).
+#
+# main is locked by a ruleset that only the owner and deploy keys may bypass
+# (GitHub won't exempt the Actions bot on a personal-account repo), so the push
+# goes over SSH with a write deploy key. Its private half is SNAPSHOT_DEPLOY_KEY,
+# a secret of the "snapshots" environment, and that environment only deploys
+# from main — a workflow on any other branch can't read the key.
 name: Refresh snapshots
 
 on:
@@ -12,7 +18,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read   # pushing uses the deploy key, not GITHUB_TOKEN
 
 concurrency:
   group: snapshots
@@ -21,8 +27,11 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    environment: snapshots
     steps:
       - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.SNAPSHOT_DEPLOY_KEY }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
