@@ -14,10 +14,10 @@ import { img, posterStandIn, tmdbSnapshot } from "../lib/tmdb.js";
 export default function MovieCard({ film, inWatchlist = false, onToggleWatchlist }) {
   const [broken, setBroken] = useState(false);
   const src = img(film.poster, "w342");
-  const saveId = `tmdb-${film.id}`;
+  const saveId = `${film.kind === "tv" ? "tv" : "tmdb"}-${film.id}`;
 
   return (
-    <Link className="mv-card" to={`/movies/${film.id}`}>
+    <Link className="mv-card" to={film.kind === "tv" ? `/series/${film.id}` : `/movies/${film.id}`}>
       <span className="mv-poster">
         {src && !broken ? (
           <img

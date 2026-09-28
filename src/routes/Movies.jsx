@@ -7,7 +7,7 @@ import { useDebounce } from "../hooks/useDebounce.js";
 import { usePaged, useRegion, useRemote } from "../hooks/useTmdb.js";
 import {
   LISTS, REGIONS, SORTS, discoverFree, hasTmdb, img, movieGenres,
-  inRegion, nowPlaying, regionName, savedOn, searchMovies, tmdbSnapshot, topRated, trending,
+  inRegion, nowPlaying, regionName, savedOn, searchAll, tmdbSnapshot, topRated, trending,
 } from "../lib/tmdb.js";
 
 /**
@@ -21,8 +21,8 @@ import {
  *
  * Shelf, genre, sort and search all live in the URL (?list=free&genre=18),
  * so Back returns to exactly the list you left and any view can be linked to.
- * Typing in the search box switches to "every film TMDB knows"; each film's
- * page then says where it streams.
+ * Typing in the search box switches to films and series across TMDB; each
+ * film's page then says where it streams.
  *
  * Demonstrates: URL state, a debounced controlled input, derived data, paged
  * fetching with "load more", a shared-layout tab highlight, and loading /
@@ -92,7 +92,7 @@ export default function Movies({ watchlist = [], onToggleWatchlist }) {
   const genres = useRemote(ready ? "genres" : null, (signal) => movieGenres(signal));
   const key = !ready ? null : searching ? `search|${query}` : `${shelf}|${region}|${genre}|${sort}`;
   const list = usePaged(key, (page, signal) =>
-    searching ? searchMovies({ query, page }, signal) : FETCH[shelf]({ region, genre, sort, page }, signal));
+    searching ? searchAll({ query, page }, signal) : FETCH[shelf]({ region, genre, sort, page }, signal));
 
   // A saved cinema list may be for another country than the one picked
   // (lib/tmdb.js keeps India, the US and the UK), so the copy names its own.
@@ -118,7 +118,7 @@ export default function Movies({ watchlist = [], onToggleWatchlist }) {
                   : list.loading && !list.items.length
                     ? "Loading the catalogue…"
                     : searching
-                      ? `${list.total.toLocaleString()} films across TMDB. Open one to see where it streams.`
+                      ? `${list.total.toLocaleString()} films and series across TMDB. Open one to see where it streams.`
                       : copy.note}
               </p>
               {list.saved && !searching && (
@@ -222,12 +222,12 @@ export default function Movies({ watchlist = [], onToggleWatchlist }) {
               <ul className="mv-grid">
                 {grid.map((film, i) => (
                   <motion.li
-                    key={film.id}
+                    key={`${film.kind}-${film.id}`}
                     initial={{ opacity: 0, transform: "translateY(14px)" }}
                     animate={{ opacity: 1, transform: "translateY(0px)" }}
                     transition={{ duration: 0.45, delay: (i % 20) * 0.03, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <MovieCard film={film} inWatchlist={watchlist.includes(`tmdb-${film.id}`)} onToggleWatchlist={onToggleWatchlist} />
+                    <MovieCard film={film} inWatchlist={watchlist.includes(saveIdOf(film))} onToggleWatchlist={onToggleWatchlist} />
                   </motion.li>
                 ))}
               </ul>
@@ -263,9 +263,13 @@ const KICKER = {
   netflix: (place) => `Top of the list · Netflix ${place}`,
 };
 
+/** Watchlist id and detail link for a catalogue film or series. */
+const saveIdOf = (f) => `${f.kind === "tv" ? "tv" : "tmdb"}-${f.id}`;
+const detailOf = (f) => (f.kind === "tv" ? `/series/${f.id}` : `/movies/${f.id}`);
+
 /** The first film on the current shelf, full width, with its official art. */
 function Billboard({ film, shelf, place, watchlist = [], onToggleWatchlist }) {
-  const saveId = `tmdb-${film.id}`;
+  const saveId = saveIdOf(film);
   const saved = watchlist.includes(saveId);
   return (
     <section className="mv-bill" aria-label={`Featured: ${film.title}`}>
@@ -278,7 +282,7 @@ function Billboard({ film, shelf, place, watchlist = [], onToggleWatchlist }) {
         <h2 className="mv-bill-title">{film.title}</h2>
         {film.overview && <p className="mv-bill-text">{film.overview}</p>}
         <div className="mv-bill-actions">
-          <Link className="btn btn-primary btn-go" to={`/movies/${film.id}`}>
+          <Link className="btn btn-primary btn-go" to={detailOf(film)}>
             {shelf === "netflix" ? "Trailer & details" : "Trailer & where to watch"}
           </Link>
           {shelf === "netflix" && (

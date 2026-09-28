@@ -11,6 +11,7 @@ import SignIn from "./routes/SignIn.jsx";
 import About from "./routes/About.jsx";
 import Movies from "./routes/Movies.jsx";
 import MovieDetail from "./routes/MovieDetail.jsx";
+import SeriesDetail from "./routes/SeriesDetail.jsx";
 import NotFound from "./routes/NotFound.jsx";
 
 import { useFilms } from "./hooks/useFilms.js";
@@ -35,8 +36,9 @@ import { useLocalStorage } from "./hooks/useLocalStorage.js";
  *   — behind ProtectedRoute —
  *   /library             Library                 (parent / nested)
  *   /library/:filmId     Library > FilmDetail    (dynamic, route param)
- *   /movies              Movies                  (the TMDB catalogue)
- *   /movies/:movieId     MovieDetail             (dynamic, route param)
+  *   /movies              Movies                  (the TMDB catalogue)
+  *   /movies/:movieId     MovieDetail             (dynamic, route param)
+  *   /series/:tvId        SeriesDetail            (dynamic, route param)
  *   /watchlist           Watchlist
  *   /about               About
  *   /films               -> redirect to /library
@@ -53,8 +55,10 @@ export default function App() {
 
   // useCallback keeps these stable, so the memoised children below them do not
   // re-render on every keystroke in the search box.
-  // Starring a TMDB film stores its snapshot alongside the id; unstarring it
-  // (no snapshot passed) drops the snapshot too. Classics carry no snapshot.
+  // Starring a TMDB film or series stores its snapshot alongside the id;
+  // unstarring it (no snapshot passed) drops the snapshot too. Classics
+  // carry no snapshot. Series ids start with tv- so they never collide
+  // with a film sharing the same TMDB number.
   const toggleWatchlist = useCallback(
     (id, snapshot) => {
       // Spread + filter: never mutate state in place.
@@ -63,7 +67,7 @@ export default function App() {
       );
       if (snapshot) {
         setSavedFilms((map) => ({ ...map, [id]: snapshot }));
-      } else if (id.startsWith("tmdb-")) {
+      } else if (id.startsWith("tmdb-") || id.startsWith("tv-")) {
         setSavedFilms((map) => {
           if (!(id in map)) return map;
           const next = { ...map };
@@ -129,6 +133,7 @@ export default function App() {
               detail replaces the grid rather than nesting in it. */}
           <Route path="movies" element={<Movies watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
           <Route path="movies/:movieId" element={<MovieDetail watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
+          <Route path="series/:tvId" element={<SeriesDetail watchlist={watchlist} onToggleWatchlist={toggleWatchlist} />} />
 
           <Route path="about" element={<About />} />
 

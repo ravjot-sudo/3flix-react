@@ -91,7 +91,12 @@ const TMDB_PATHS = [
   /^\/search\/movie$/,
   /^\/movie\/now_playing$/,
   /^\/movie\/\d+$/,
+  /^\/search\/tv$/,
+  /^\/trending\/tv\/(day|week)$/,
+  /^\/tv\/\d+$/,
+  /^\/tv\/\d+\/season\/\d+$/,
   /^\/genre\/movie\/list$/,
+  /^\/genre\/tv\/list$/,
   /^\/watch\/providers\/movie$/,
 ];
 

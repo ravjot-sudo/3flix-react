@@ -334,6 +334,27 @@ export async function searchMovies({ query, page = 1 }, signal) {
   return toPage(data);
 }
 
+/** Search every series TMDB knows. */
+export async function searchSeries({ query, page = 1 }, signal) {
+  const data = await get("/search/tv", { query, include_adult: "false", page }, signal);
+  return { ...toPage(data), results: (data.results ?? []).map(toSerial) };
+}
+
+/** Search films and series together, most relevant first. */
+export async function searchAll({ query, page = 1 }, signal) {
+  const [films, series] = await Promise.all([
+    searchMovies({ query, page }, signal),
+    searchSeries({ query, page }, signal),
+  ]);
+  const results = [...films.results, ...series.results]
+    .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0));
+  return {
+    results,
+    total: films.total + series.total,
+    totalPages: Math.max(films.totalPages, series.totalPages),
+  };
+}
+
 export async function movieGenres(signal) {
   const data = await get("/genre/movie/list", { language: "en" }, signal);
   return data.genres ?? [];
@@ -372,6 +393,69 @@ export async function movieDetail(id, region, signal) {
   };
 }
 
+/** Everything the series detail page needs, in one request. */
+export async function seriesDetail(id, region, signal) {
+  const m = await get(`/tv/${id}`, { append_to_response: "videos,credits,watch/providers" }, signal);
+  const here = m["watch/providers"]?.results?.[region] ?? {};
+  const videos = (m.videos?.results ?? []).filter((v) => v.site === "YouTube");
+  const trailer =
+    videos.find((v) => v.type === "Trailer" && v.official) ??
+    videos.find((v) => v.type === "Trailer") ??
+    videos.find((v) => v.type === "Teaser") ??
+    null;
+  const asProvider = (p) => ({ id: p.provider_id, name: p.provider_name, logo: p.logo_path });
+  const stream = (here.flatrate ?? []).map(asProvider);
+  // Free and ad-supported services, de-duplicated (a service can be in both).
+  const free = [...(here.free ?? []), ...(here.ads ?? [])]
+    .map(asProvider)
+    .filter((p, i, all) => all.findIndex((q) => q.id === p.id) === i);
+  const seasons = (m.seasons ?? [])
+    .filter((s) => s.episode_count > 0)
+    .map((s) => ({
+      number: s.season_number,
+      name: s.name ?? `Season ${s.season_number}`,
+      episodes: s.episode_count,
+      poster: s.poster_path ?? null,
+      airDate: s.air_date ?? null,
+      overview: s.overview ?? "",
+    }));
+
+  return {
+    id: m.id,
+    kind: "tv",
+    title: m.name ?? m.original_name ?? "Untitled",
+    year: m.first_air_date ? Number(m.first_air_date.slice(0, 4)) : null,
+    released: m.first_air_date ?? null,
+    overview: m.overview ?? "",
+    rating: typeof m.vote_average === "number" ? m.vote_average : null,
+    votes: m.vote_count ?? 0,
+    poster: m.poster_path ?? null,
+    backdrop: m.backdrop_path ?? null,
+    tagline: m.tagline ?? "",
+    genres: (m.genres ?? []).map((g) => g.name),
+    creator: m.created_by?.[0]?.name ?? "",
+    cast: (m.credits?.cast ?? []).slice(0, 8).map((c) => ({ id: c.id, name: c.name, character: c.character, photo: c.profile_path ?? null })),
+    trailerKey: trailer?.key ?? null,
+    stream,
+    free,
+    seasons,
+    providersLink: here.link ?? `https://www.themoviedb.org/tv/${m.id}/watch?locale=${region}`,
+  };
+}
+
+/** One season's episodes: numbers and titles for the episode picker. */
+export async function seasonEpisodes(tvId, season, signal) {
+  const data = await get(`/tv/${tvId}/season/${season}`, { language: "en" }, signal);
+  return (data.episodes ?? []).map((e) => ({
+    number: e.episode_number,
+    name: e.name ?? `Episode ${e.episode_number}`,
+    still: e.still_path ?? null,
+    overview: e.overview ?? "",
+    runtime: e.runtime ?? null,
+    airDate: e.air_date ?? null,
+  }));
+}
+
 /* ---------- normalising ---------------------------------------------- */
 function toPage(data) {
   return {
@@ -385,14 +469,33 @@ function toPage(data) {
 function toFilm(m) {
   return {
     id: m.id,
+    kind: "movie",
     title: m.title ?? m.original_title ?? "Untitled",
     year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
     released: m.release_date ?? null,
     overview: m.overview ?? "",
     rating: typeof m.vote_average === "number" ? m.vote_average : null,
     votes: m.vote_count ?? 0,
+    popularity: m.popularity ?? 0,
     poster: m.poster_path ?? null,
     backdrop: m.backdrop_path ?? null,
+  };
+}
+
+/** A TMDB series result in the same shape, marked kind: "tv". */
+function toSerial(s) {
+  return {
+    id: s.id,
+    kind: "tv",
+    title: s.name ?? s.original_name ?? "Untitled",
+    year: s.first_air_date ? Number(s.first_air_date.slice(0, 4)) : null,
+    released: s.first_air_date ?? null,
+    overview: s.overview ?? "",
+    rating: typeof s.vote_average === "number" ? s.vote_average : null,
+    votes: s.vote_count ?? 0,
+    popularity: s.popularity ?? 0,
+    poster: s.poster_path ?? null,
+    backdrop: s.backdrop_path ?? null,
   };
 }
 
@@ -402,24 +505,30 @@ function toFilm(m) {
  * film, a detail film, or an already-shaped library film — whichever fields
  * are present win.
  */
-export const tmdbSnapshot = (m) => ({
-  id: `tmdb-${m.tmdbId ?? m.id}`,
-  tmdbId: m.tmdbId ?? m.id,
-  title: m.title ?? m.original_title ?? "Untitled",
-  year: typeof m.year === "number" ? m.year : (m.release_date ? Number(m.release_date.slice(0, 4)) : null),
+export const tmdbSnapshot = (m) => {
+  const num = m.tmdbId ?? m.id;
+  const kind = m.kind ?? "movie";
+  const tag = kind === "tv" ? "tv" : "tmdb";
+  return {
+    id: `${tag}-${num}`,
+    tmdbId: num,
+    kind,
+  title: m.title ?? m.original_title ?? m.name ?? m.original_name ?? "Untitled",
+  year: typeof m.year === "number" ? m.year : ((m.release_date ?? m.first_air_date) ? Number((m.release_date ?? m.first_air_date).slice(0, 4)) : null),
   director: m.director ?? "",
   genres: m.genres ?? [],
   runtime: m.runtime ?? null,
   rating: typeof m.rating === "number" ? m.rating : (typeof m.vote_average === "number" ? m.vote_average : 0),
   votes: m.votes ?? m.vote_count ?? 0,
-  hue: ((m.tmdbId ?? m.id) * 47) % 360,
+  hue: ((Number(num) || 0) * 47) % 360,
   synopsis: m.synopsis ?? m.overview ?? "",
   video: null,
   tmdb: {
     poster: m.tmdb?.poster ?? m.poster_path ?? m.poster ?? null,
     backdrop: m.tmdb?.backdrop ?? m.backdrop_path ?? m.backdrop ?? null,
   },
-});
+  };
+};
 
 /** Stand-in for our generated <Poster/> when TMDB has no artwork. */
 export const posterStandIn = (f) => ({

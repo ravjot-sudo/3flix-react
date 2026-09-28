@@ -15,7 +15,7 @@ import { useAuth } from "../hooks/useAuth.js";
 export default function Watchlist({ films, watchlist, progress, savedFilms = {}, onToggleWatchlist }) {
   const { user, mode } = useAuth();
   const saved = watchlist
-    .map((id) => (id.startsWith("tmdb-") ? savedFilms[id] : films.find((f) => f.id === id)))
+    .map((id) => (id.startsWith("tmdb-") || id.startsWith("tv-") ? savedFilms[id] : films.find((f) => f.id === id)))
     .filter(Boolean);
 
   return (

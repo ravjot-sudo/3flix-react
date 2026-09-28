@@ -37,9 +37,12 @@ export default function FilmCard({ film, progress = 0, inWatchlist = false, onTo
     });
   }
 
-  // A catalogue title (from TMDB) opens its trailer-and-where-to-watch page;
-  // a classic opens its player inside the Library.
-  const to = film.tmdbId ? `/movies/${film.tmdbId}` : `/library/${film.id}`;
+  // A catalogue title (from TMDB) opens its trailer-and-where-to-watch page —
+  // films under /movies, series under /series; a classic opens its player
+  // inside the Library.
+  const to = film.tmdbId
+    ? film.kind === "tv" ? `/series/${film.tmdbId}` : `/movies/${film.tmdbId}`
+    : `/library/${film.id}`;
   const label = [
     film.title,
     film.year,
